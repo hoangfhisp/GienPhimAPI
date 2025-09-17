@@ -1,0 +1,6 @@
+@GienPhim_Services_HostAddress = http://localhost:5282
+
+GET {{GienPhim_Services_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

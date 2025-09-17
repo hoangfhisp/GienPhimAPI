@@ -1,0 +1,10 @@
+﻿namespace GienPhim_Services.UserService.Application.DTOs.Client.Login
+{
+    public class ExternalLoginUserResponseDTO
+    {
+        public string UserId { get; set; } // Id người dùng
+        public string Email { get; set; } // Email
+        public string UserName { get; set; } // Tên tài khoản
+        public string Role { get; set; } // Vai trò của người dùng
+    }
+}

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35806.99
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GienPhim_Services", "GienPhim_Services\GienPhim_Services.csproj", "{58AC620F-C543-4F78-8926-C3782210BFC9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{69B0A368-A3FB-4609-9109-0D478407A585} = {69B0A368-A3FB-4609-9109-0D478407A585}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.FileStorage", "Shared.FileStorage\Shared.FileStorage.csproj", "{69B0A368-A3FB-4609-9109-0D478407A585}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{58AC620F-C543-4F78-8926-C3782210BFC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58AC620F-C543-4F78-8926-C3782210BFC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58AC620F-C543-4F78-8926-C3782210BFC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58AC620F-C543-4F78-8926-C3782210BFC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69B0A368-A3FB-4609-9109-0D478407A585}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69B0A368-A3FB-4609-9109-0D478407A585}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69B0A368-A3FB-4609-9109-0D478407A585}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69B0A368-A3FB-4609-9109-0D478407A585}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3D9BFFC7-0289-43EF-9261-7CBE869A1697}
+	EndGlobalSection
+EndGlobal

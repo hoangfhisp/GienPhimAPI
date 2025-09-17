@@ -1,0 +1,18 @@
+﻿namespace GienPhim_Services.AuthService.Domain.Models
+{
+    public class UserClaims
+    {
+        public string UserId { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string? Email { get; set; }
+        public string Role { get; set; } = string.Empty;
+
+        public UserClaims(string userId, string userName, string? email, string role)
+        {
+            UserId = userId;
+            UserName = userName;
+            Email = email;
+            Role = role;
+        }
+    }
+}

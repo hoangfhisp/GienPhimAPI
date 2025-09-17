@@ -1,0 +1,518 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\authserviceconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\authserviceconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{69B0A368-A3FB-4609-9109-0D478407A585}|Shared.FileStorage\\Shared.FileStorage.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\shared.filestorage\\filehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{69B0A368-A3FB-4609-9109-0D478407A585}|Shared.FileStorage\\Shared.FileStorage.csproj|solutionrelative:shared.filestorage\\filehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\domain\\services\\userdomainservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\domain\\services\\userdomainservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\application\\exceptions\\duplicates\\duplicateauthidexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\application\\exceptions\\duplicates\\duplicateauthidexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\domain\\exceptions\\duplicate\\duplicateresetpasswordexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\domain\\exceptions\\duplicate\\duplicateresetpasswordexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\application\\orchestrators\\userorchestrator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\application\\orchestrators\\userorchestrator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\application\\dtos\\client\\user\\resetpasswordrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\application\\dtos\\client\\user\\resetpasswordrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\application\\dtos\\forgotpassword\\verifyotpemailresetpasswordrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\application\\dtos\\forgotpassword\\verifyotpemailresetpasswordrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\application\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\application\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\api\\middlewares\\exceptionhandlingmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\api\\middlewares\\exceptionhandlingmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\application\\orchestrators\\authorchestrator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\application\\orchestrators\\authorchestrator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\application\\validators\\users\\updateinfouservalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\application\\validators\\users\\updateinfouservalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\application\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\infrastructure\\data\\httpclients\\userserviceclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\infrastructure\\data\\httpclients\\userserviceclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\application\\dtos\\forgotpassword\\resetpasswordemailrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\application\\dtos\\forgotpassword\\resetpasswordemailrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\application\\interfaces\\orchestrators\\iauthorchestrator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\application\\interfaces\\orchestrators\\iauthorchestrator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\application\\dtos\\forgotpassword\\resetpasswordemailhttprequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\application\\dtos\\forgotpassword\\resetpasswordemailhttprequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\application\\dtos\\forgotpassword\\verifyotpemailrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\application\\dtos\\forgotpassword\\verifyotpemailrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\domain\\services\\authdomainservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\domain\\services\\authdomainservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\application\\dtos\\client\\user\\userregisterdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\application\\dtos\\client\\user\\userregisterdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\application\\interfaces\\repositories\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\application\\interfaces\\repositories\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\userservice\\domain\\exceptions\\notfounds\\usernotfoundexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\userservice\\domain\\exceptions\\notfounds\\usernotfoundexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\domain\\services\\otpdomainservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\domain\\services\\otpdomainservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\application\\exceptions\\invalid\\invalidauthproviderexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\application\\exceptions\\invalid\\invalidauthproviderexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|c:\\file_hoc\\visual_tim\\no_zip\\gienphim_services\\gienphim_services\\authservice\\application\\exceptions\\invalid\\invalidtokenexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{58AC620F-C543-4F78-8926-C3782210BFC9}|GienPhim_Services\\GienPhim_Services.csproj|solutionrelative:gienphim_services\\authservice\\application\\exceptions\\invalid\\invalidtokenexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AuthServiceConfig.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\AuthServiceConfig.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\AuthServiceConfig.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\AuthServiceConfig.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\AuthServiceConfig.cs",
+              "ViewState": "AgIAAHIAAAAAAAAAAAAAAFoAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-16T06:29:08.176Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\Program.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\Program.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\Program.cs",
+              "RelativeToolTip": "GienPhim_Services\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-16T06:27:33.847Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "FileHelper.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\Shared.FileStorage\\FileHelper.cs",
+              "RelativeDocumentMoniker": "Shared.FileStorage\\FileHelper.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\Shared.FileStorage\\FileHelper.cs",
+              "RelativeToolTip": "Shared.FileStorage\\FileHelper.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-16T06:27:31.546Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "DuplicateResetPasswordException.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Domain\\Exceptions\\Duplicate\\DuplicateResetPasswordException.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Domain\\Exceptions\\Duplicate\\DuplicateResetPasswordException.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Domain\\Exceptions\\Duplicate\\DuplicateResetPasswordException.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Domain\\Exceptions\\Duplicate\\DuplicateResetPasswordException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T17:41:29.802Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "UserOrchestrator.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\Orchestrators\\UserOrchestrator.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Application\\Orchestrators\\UserOrchestrator.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\Orchestrators\\UserOrchestrator.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Application\\Orchestrators\\UserOrchestrator.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAgwHwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T17:11:58.976Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\Services\\UserService.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Application\\Services\\UserService.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\Services\\UserService.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Application\\Services\\UserService.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAAADoAAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T16:35:52.983Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "VerifyOtpEmailResetPasswordRequestDTO.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\VerifyOtpEmailResetPasswordRequestDTO.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\VerifyOtpEmailResetPasswordRequestDTO.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\VerifyOtpEmailResetPasswordRequestDTO.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\VerifyOtpEmailResetPasswordRequestDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T16:17:45.832Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "UserDomainService.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Domain\\Services\\UserDomainService.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Domain\\Services\\UserDomainService.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Domain\\Services\\UserDomainService.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Domain\\Services\\UserDomainService.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAAAAwPcAAACDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T15:31:31.356Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "DuplicateAuthIdException.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\Exceptions\\Duplicates\\DuplicateAuthIdException.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Application\\Exceptions\\Duplicates\\DuplicateAuthIdException.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\Exceptions\\Duplicates\\DuplicateAuthIdException.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Application\\Exceptions\\Duplicates\\DuplicateAuthIdException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T17:43:51.057Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ExceptionHandlingMiddleware.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Api\\Middlewares\\ExceptionHandlingMiddleware.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Api\\Middlewares\\ExceptionHandlingMiddleware.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Api\\Middlewares\\ExceptionHandlingMiddleware.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Api\\Middlewares\\ExceptionHandlingMiddleware.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAQwB4AAABXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T17:44:37.376Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ResetPasswordRequestDTO.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\DTOs\\Client\\User\\ResetPasswordRequestDTO.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Application\\DTOs\\Client\\User\\ResetPasswordRequestDTO.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\DTOs\\Client\\User\\ResetPasswordRequestDTO.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Application\\DTOs\\Client\\User\\ResetPasswordRequestDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T16:10:08.291Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Api\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Api\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Api\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Api\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAgwCMAAABeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T16:29:12.669Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "UserController.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Api\\Controllers\\UserController.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Api\\Controllers\\UserController.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Api\\Controllers\\UserController.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Api\\Controllers\\UserController.cs",
+              "ViewState": "AgIAADgAAAAAAAAAAAAQwE0AAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T16:02:10.104Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "AuthOrchestrator.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\Orchestrators\\AuthOrchestrator.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Application\\Orchestrators\\AuthOrchestrator.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\Orchestrators\\AuthOrchestrator.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Application\\Orchestrators\\AuthOrchestrator.cs",
+              "ViewState": "AgIAANIAAAAAAAAAAAAAANUAAABpAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T13:53:11.522Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "UserRepository.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Infrastructure\\Repositories\\UserRepository.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Infrastructure\\Repositories\\UserRepository.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Infrastructure\\Repositories\\UserRepository.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Infrastructure\\Repositories\\UserRepository.cs",
+              "ViewState": "AgIAADgAAAAAAAAAAAAAAD8AAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T15:39:50.122Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "UserServiceClient.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Infrastructure\\Data\\HttpClients\\UserServiceClient.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Infrastructure\\Data\\HttpClients\\UserServiceClient.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Infrastructure\\Data\\HttpClients\\UserServiceClient.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Infrastructure\\Data\\HttpClients\\UserServiceClient.cs",
+              "ViewState": "AgIAADIAAAAAAAAAAAAwwEMAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T16:37:37.105Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Application\\Services\\AuthService.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\Services\\AuthService.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Application\\Services\\AuthService.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T16:43:51.452Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "UpdateInfoUserValidator.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\Validators\\Users\\UpdateInfoUserValidator.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Application\\Validators\\Users\\UpdateInfoUserValidator.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\Validators\\Users\\UpdateInfoUserValidator.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Application\\Validators\\Users\\UpdateInfoUserValidator.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T16:46:40.494Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "ResetPasswordEmailRequestDTO.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\ResetPasswordEmailRequestDTO.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\ResetPasswordEmailRequestDTO.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\ResetPasswordEmailRequestDTO.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\ResetPasswordEmailRequestDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T16:21:30.467Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "IAuthOrchestrator.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\Interfaces\\Orchestrators\\IAuthOrchestrator.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Application\\Interfaces\\Orchestrators\\IAuthOrchestrator.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\Interfaces\\Orchestrators\\IAuthOrchestrator.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Application\\Interfaces\\Orchestrators\\IAuthOrchestrator.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T14:05:03.022Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "ResetPasswordEmailHttpRequestDTO.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\ResetPasswordEmailHttpRequestDTO.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\ResetPasswordEmailHttpRequestDTO.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\ResetPasswordEmailHttpRequestDTO.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\ResetPasswordEmailHttpRequestDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAQAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T16:16:32.332Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "VerifyOtpEmailRequestDTO.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\VerifyOtpEmailRequestDTO.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\VerifyOtpEmailRequestDTO.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\VerifyOtpEmailRequestDTO.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Application\\DTOs\\ForgotPassword\\VerifyOtpEmailRequestDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAYAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T14:07:41.501Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "UserRegisterDTO.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\DTOs\\Client\\User\\UserRegisterDTO.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Application\\DTOs\\Client\\User\\UserRegisterDTO.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\DTOs\\Client\\User\\UserRegisterDTO.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Application\\DTOs\\Client\\User\\UserRegisterDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAABHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T15:56:49.201Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "IUserRepository.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\Interfaces\\Repositories\\IUserRepository.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Application\\Interfaces\\Repositories\\IUserRepository.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Application\\Interfaces\\Repositories\\IUserRepository.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Application\\Interfaces\\Repositories\\IUserRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T15:50:41.406Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "AuthDomainService.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Domain\\Services\\AuthDomainService.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Domain\\Services\\AuthDomainService.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Domain\\Services\\AuthDomainService.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Domain\\Services\\AuthDomainService.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAAADUAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T13:44:47.267Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "UserNotFoundException.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Domain\\Exceptions\\NotFounds\\UserNotFoundException.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\UserService\\Domain\\Exceptions\\NotFounds\\UserNotFoundException.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\UserService\\Domain\\Exceptions\\NotFounds\\UserNotFoundException.cs",
+              "RelativeToolTip": "GienPhim_Services\\UserService\\Domain\\Exceptions\\NotFounds\\UserNotFoundException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAYAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T15:38:34.93Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "InvalidAuthProviderException.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\Exceptions\\Invalid\\InvalidAuthProviderException.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Application\\Exceptions\\Invalid\\InvalidAuthProviderException.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\Exceptions\\Invalid\\InvalidAuthProviderException.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Application\\Exceptions\\Invalid\\InvalidAuthProviderException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T14:00:27.174Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "InvalidTokenException.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\Exceptions\\Invalid\\InvalidTokenException.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Application\\Exceptions\\Invalid\\InvalidTokenException.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Application\\Exceptions\\Invalid\\InvalidTokenException.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Application\\Exceptions\\Invalid\\InvalidTokenException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T14:00:22.726Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "OtpDomainService.cs",
+              "DocumentMoniker": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Domain\\Services\\OtpDomainService.cs",
+              "RelativeDocumentMoniker": "GienPhim_Services\\AuthService\\Domain\\Services\\OtpDomainService.cs",
+              "ToolTip": "C:\\File_Hoc\\Visual_Tim\\No_Zip\\GienPhim_Services\\GienPhim_Services\\AuthService\\Domain\\Services\\OtpDomainService.cs",
+              "RelativeToolTip": "GienPhim_Services\\AuthService\\Domain\\Services\\OtpDomainService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T13:42:33.998Z"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 1246,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

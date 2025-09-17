@@ -1,0 +1,7 @@
+﻿namespace GienPhim_Services.UserService.Application.Interfaces.Validators
+{
+    public interface IContextValidator<T, TContext> : IValidator<T>
+    {
+        Task ValidateAsync(T dto, TContext context, CancellationToken cancellationToken = default);
+    }
+}

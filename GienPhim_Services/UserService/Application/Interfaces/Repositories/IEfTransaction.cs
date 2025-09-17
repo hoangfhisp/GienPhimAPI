@@ -1,0 +1,8 @@
+﻿namespace GienPhim_Services.UserService.Application.Interfaces.Repositories
+{
+    public interface IEfTransaction : IAsyncDisposable
+    {
+        Task CommitAsync(CancellationToken cancellationToken = default); // Commit the transaction
+        Task RollbackAsync(CancellationToken cancellationToken = default); // Rollback the transaction
+    }
+}
