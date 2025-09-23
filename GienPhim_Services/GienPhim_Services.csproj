@@ -42,6 +42,7 @@
     <Folder Include="AuthService\Api\Filters\" />
     <Folder Include="AuthService\Application\Exceptions\Duplicates\" />
     <Folder Include="AuthService\Domain\Exceptions\" />
+    <Folder Include="AuthService\Infrastructure\Migrations\" />
     <Folder Include="FilmService\Application\Factories\" />
     <Folder Include="FilmService\Application\Validators\" />
     <Folder Include="FilmService\Application\DTOs\Admin\" />
@@ -64,9 +65,10 @@
     <Folder Include="PaymentService\Models\DTOs\" />
     <Folder Include="PaymentService\Services\" />
     <Folder Include="UserService\Api\Filters\" />
-    <Folder Include="UserService\Application\Exceptions\Failed\" />
-    <Folder Include="UserService\Application\Exceptions\Invalid\" />
     <Folder Include="UserService\Application\Exceptions\Unauthorized\" />
+    <Folder Include="UserService\Domain\Exceptions\Duplicate\" />
+    <Folder Include="UserService\Domain\Exceptions\Failed\" />
+    <Folder Include="UserService\Domain\Exceptions\NotFounds\" />
     <Folder Include="UserService\Domain\ValueObjects\" />
     <Folder Include="WalletService\Data\Migrations\" />
     <Folder Include="WalletService\Data\Repositories\Interfaces\" />

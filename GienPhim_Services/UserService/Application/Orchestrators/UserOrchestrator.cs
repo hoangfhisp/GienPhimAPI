@@ -1,6 +1,5 @@
 ﻿using GienPhim_Services.UserService.Application.DTOs.Client.Login;
 using GienPhim_Services.UserService.Application.DTOs.Client.User;
-using GienPhim_Services.UserService.Application.DTOs.Common;
 using GienPhim_Services.UserService.Application.Exceptions.NotFounds;
 using GienPhim_Services.UserService.Application.Interfaces.Factories;
 using GienPhim_Services.UserService.Application.Interfaces.Mappers;
@@ -36,7 +35,7 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
         }
 
         // Đăng ký tài khoản Local
-        public async Task<ResultDTO> RegisterUserAsync(UserRegisterDTO registerUser, CancellationToken cancellationToken = default)
+        public async Task<User> RegisterUserAsync(UserRegisterDTO registerUser, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu RegisterUserAsync với user {Email}", registerUser.Email);
             // Validate dữ liệu đăng ký
@@ -48,26 +47,48 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
             // Tạo đối tượng User mới
             var user = _userFactory.CreateLocalUser(registerUser, userName);
 
-            // Bắt đầu transaction 
-            var result = await _userDomainService.RegisterUserAsync(user, registerUser.Password, cancellationToken);
+            // Kiểm tra điều kiện đăng ký
+            _userDomainService.EnsureCanRegister(user);
 
             _logger.LogInformation("Orchestrator: Đăng ký user {Email} thành công!", registerUser.Email);
-            return ResultDTO.Success("Đăng ký user mới thành công.");
+            return user;
+        }
+
+        // Login tài khoản từ bên ngoài nếu email chưa có đăng ký   
+        public async Task<User> ProviderRegisterUserAsync(ExternalLoginUserInfoDTO request, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu ProviderRegisterUserAsync với user {Email} bên {External}", request.Email, request.TypeLogin);
+
+            await _validationService.ValidateAsync(request, cancellationToken);
+
+            // username mới đăng ký ngãu nhiên
+            var userName = _guidUserNameGenerator.GenerateUserName();
+
+            // Tạo đối tượng User mới
+            var user = _userFactory.CreateExternalUser(request, userName);
+
+            // Kiểm tra điều kiện đăng ký
+            _userDomainService.EnsureCanProviderRegister(user);
+            _logger.LogInformation("Orchestrator: Đăng ký user {Email} bên {External} thành công!", request.Email, request.TypeLogin);
+            return user;
         }
 
         // Login tài khoản từ bên ngoài nếu email chưa có đăng ký
-        public async Task<ResultDTO<ExternalLoginUserResponseDTO>> ProviderLoginOrRegisterUserAsync(ExternalLoginUserInfoDTO request, CancellationToken cancellationToken = default)
+        public User ProviderLoginUser(ExternalLoginUserInfoDTO request)
         {
-            _logger.LogInformation("Orchestrator: Bắt đầu ProviderLoginOrRegisterUserAsync với user {Email} bên {External}", request.Email,request.TypeLogin);
+            _logger.LogInformation("Orchestrator: Bắt đầu ProviderLoginUserAsync với user {Email} bên {External}", request.Email, request.TypeLogin);
 
-            var result = await _userDomainService.ProviderLoginOrRegisterUserAsync(request, cancellationToken);
+            // Tạo đối tượng User mới
+            var user = _userFactory.CreateExternalUser(request, "");
 
-            _logger.LogInformation("Orchestrator: Đăng ký, đăng nhập user {Email} bên {External} thành công!", request.Email,request.TypeLogin);
-            return ResultDTO<ExternalLoginUserResponseDTO>.Success(_userResponseMapper.ToExternalLogin(result), "Đăng nhập thành công.");
-
+            // Kiểm tra điều kiện đăng nhập
+            _userDomainService.EnsureCanProviderLogin(user);
+            _logger.LogInformation("Orchestrator: Đăng nhập user {Email} bên {External} thành công!", user.Email, user.TypeLogin);
+            return user;
         }
+
         // Cập nhật thông tin user
-        public async Task<ResultDTO<UpdateInfoUserResponseDTO>> UpdateInfoUserAsync(InfoUserUpdateDTO update, CancellationToken cancellationToken = default)
+        public async Task<User> UpdateInfoUserAsync(InfoUserUpdateDTO update, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu UpdateInfoUserAsync với user {UserName}", update.UserName);
 
@@ -82,43 +103,54 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
             // Validate dữ liệu cập nhật
             await _validationService.ValidateAsync(update, userId, cancellationToken);
 
+            // Tạo đối tượng User từ dữ liệu cập nhật
+            var user = _userFactory.CreateUpdateInfoUser(update, userId);
+
             //Update thông tin user
-            var result = await _userDomainService.UpdateInfoUserAsync(update, userId, cancellationToken);
+            _userDomainService.EnsureCanUpdateInfoUser(user);
 
             _logger.LogInformation("Orchestrator: Cập nhật thông tin user {UserName} thành công!", update.UserName);
-            return ResultDTO<UpdateInfoUserResponseDTO>.Success(_userResponseMapper.ToUpdate(result), "Cập nhật thông tin người dùng thành công.");
+            return user;
         }
 
         // Login local
-        public async Task<ResultDTO<LoginLocalUserResponseDTO>> LoginUserAsync(LoginRequestDTO requestLogin , CancellationToken cancellationToken = default)
+        public async Task<User> LoginLocalUserAsync(LoginRequestDTO requestLogin , CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu LoginUserAsync với tài khoản {Account}", requestLogin.Account);
             // Validate dữ liệu đăng nhập
             var user = await _validationService.ValidateAsync<LoginRequestDTO,User>(requestLogin,cancellationToken);
 
             // Đăng nhập user
-            var result = await _userDomainService.LoginUserAsync(user, requestLogin, cancellationToken);
+            _userDomainService.EnsureCanLoginLocal(user);
 
             _logger.LogInformation("Orchestrator: Đăng nhập user {Account} thành công!", requestLogin.Account);
-            return ResultDTO<LoginLocalUserResponseDTO>.Success(_userResponseMapper.ToLocalLogin(result), "Đăng nhập thành công.");
+            
+            return user;
         }
 
         // Tìm user bằng email
-        public async Task<ResultDTO<UserResponseDTO>> FindUserByEmailAsync(FindUserByEmailDTO dto, CancellationToken cancellationToken = default)
+        public User RepareUserByEmail(FindUserByEmailDTO dto)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu FindUserByEmailAsync với email {Email}", dto.Email);
-            var user = await _userDomainService.FindUserByEmailAsync(dto.Email, cancellationToken);
+
+            // Tạo đối tượng User từ email
+            var user = _userFactory.CreateEmail(dto);
+
+            // Validate email
+            _userDomainService.EnsureCanUserEmail(user);
             _logger.LogInformation("Orchestrator: Tìm thấy user với email {Email}", dto.Email);
-            return ResultDTO<UserResponseDTO>.Success(_userResponseMapper.ToDto(user),$"Đã tìm thấy người dùng {dto.Email}");
+            return user;
         }
 
         // Đặt lại mật khẩu
-        public async Task<ResultDTO> ResetPasswordAsync(ResetPasswordRequestDTO dto, CancellationToken cancellationToken = default)
+        public User ResetPasswordAsync(ResetPasswordRequestDTO dto )
         {
             _logger.LogInformation("Orchestrator: Bắt đầu ResetPasswordAsync với user");
-            var result = await _userDomainService.ResetPasswordAsync(dto.UserId,dto.ConfirmNewPassword, cancellationToken);
-            _logger.LogInformation("Orchestrator: Reset mật khẩu thành công cho email {Email}", result.Email);
-            return ResultDTO.Success("Đặt lại mật khẩu thành công.");
+            var user = _userFactory.CreateResetPassword(dto);
+
+            _userDomainService.EnsureCanResetPassword(user);
+            _logger.LogInformation("Orchestrator: Reset mật khẩu thành công cho email {Email}", user.Id);
+            return user;
         }
     }
 }

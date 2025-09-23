@@ -20,7 +20,7 @@ namespace GienPhim_Services.AuthService.Infrastructure.Data.HttpClients
         public async Task<ApiResponse<LoginTokenResponseDTO>?> LoginUserAsync(LoginUserPasswordRequestDTO request,CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("UserServiceClient: Gọi API UserService để đăng nhập user với tài khoản: {Account}", request.Account);
-            var response = await _httpClient.PostAsJsonAsync("api/User/LoginUser", request, cancellationToken);
+            var response = await _httpClient.PostAsJsonAsync("api/User/LoginLocalUser", request, cancellationToken);
 
             // Đọc body JSON
             var body = await response.Content.ReadFromJsonAsync<LoginTokenResponseDTO>(
