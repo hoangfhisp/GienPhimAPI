@@ -1,8 +1,6 @@
-﻿
-using GienPhim_Services.UserService.Domain.Exceptions.Duplicate;
-using GienPhim_Services.UserService.Domain.Exceptions.Failed;
+﻿using GienPhim_Services.UserService.Application.Exceptions.Duplicates;
+using GienPhim_Services.UserService.Application.Exceptions.Failed;
 using GienPhim_Services.UserService.Domain.Exceptions.Invalid;
-using GienPhim_Services.UserService.Domain.Exceptions.NotFounds;
 using GienPhim_Services.UserService.shared.Exceptions;
 using GienPhim_Services.UserService.Shared.Exceptions;
 using System.Net;
@@ -25,21 +23,19 @@ namespace GienPhim_Services.UserService.Api.Middlewares
         private static readonly Dictionary<Type, int> ExceptionStatusMap = new()
         {
             //Duplicate
-            { typeof(DuplicateResetPasswordException), StatusCodes.Status409Conflict },
             // Invalid
-            { typeof(InvalidPasswordException), StatusCodes.Status400BadRequest }, 
-            { typeof(InvalidUserHasNoRoleException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidRoleNameNullException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidUserEmailException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidUserException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidUserAuthIdException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidUserTypeLoginException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidUserIdException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidUserPhoneNumberException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidUserTypeLoginException), StatusCodes.Status400BadRequest },
 
             //NotFounds
-            { typeof(UserNotFoundException), StatusCodes.Status404NotFound },
 
             // Failed
-            { typeof(UpdateUserFailedException), StatusCodes.Status500InternalServerError },
-            { typeof(AssignRoleFailedException), StatusCodes.Status500InternalServerError },
-            { typeof(CreateRoleFailedException), StatusCodes.Status500InternalServerError },
-            { typeof(GenerateResetTokenFailedException), StatusCodes.Status500InternalServerError },
-            { typeof(ResetPasswordFailedException), StatusCodes.Status500InternalServerError },
-            { typeof(CreateUserFailedException), StatusCodes.Status500InternalServerError }
 
         };
 

@@ -6,6 +6,6 @@ namespace GienPhim_Services.UserService.Domain.Services.Interfaces
 {
     public interface IRoleDomainService
     {
-        Task<IdentityResult> CreateRoleAsync(Role role, CancellationToken cancellationToken = default); // Tạo Role mới
+        void EnsureCanCreate(Role role); // Kiểm tra các điều kiện để tạo Role mới  
     }
 }

@@ -2,7 +2,6 @@
 using GienPhim_Services.UserService.Application.DTOs.Client.User;
 using GienPhim_Services.UserService.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GienPhim_Services.UserService.Api.Controllers
@@ -43,12 +42,12 @@ namespace GienPhim_Services.UserService.Api.Controllers
         }
 
         // Đăng nhập không jwt
-        [HttpPost("LoginUser")]
-        public async Task<IActionResult> LoginUser( LoginRequestDTO requestLogin)
+        [HttpPost("LoginLocalUser")]
+        public async Task<IActionResult> LoginLocalUser( LoginRequestDTO requestLogin)
         {
             _logger.LogInformation("API Request: LoginUser Local cho tài khoản {Account}", requestLogin.Account);
 
-            var result = await _userService.LoginUserAsync(requestLogin);
+            var result = await _userService.LoginLocalUserAsync(requestLogin);
             _logger.LogInformation("API Response: LoginUser Local cho tài khoản {Account} với trạng thái {Status}", requestLogin.Account, result.Status);
             return Ok(result);
         }

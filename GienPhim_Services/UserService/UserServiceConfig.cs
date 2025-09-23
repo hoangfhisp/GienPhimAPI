@@ -11,8 +11,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using GienPhim_Services.UserService.Application.Validators.Users;
 using GienPhim_Services.UserService.Application.Interfaces.Validators;
-using GienPhim_Services.UserService.Domain.Factories.Interfaces;
-using GienPhim_Services.UserService.Domain.Factories;
 using GienPhim_Services.UserService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.UserService.Application.Orchestrators;
 using GienPhim_Services.UserService.Api.Middlewares;
@@ -55,9 +53,6 @@ namespace GienPhim_Services.UserService
 
 
             /*-----------------------------------------DOMAIN--------------------------------------------*/
-            // FACTORIES
-            services.AddScoped<IUserFactory, UserFactory>(); // Tạo username ngẫu nhiên
-            services.AddScoped<IRoleFactory, RoleFactory>(); // Tạo role mới
 
             // DOMAINSERVICES
             services.AddScoped<IUserDomainService, UserDomainService>(); // User Domain Service

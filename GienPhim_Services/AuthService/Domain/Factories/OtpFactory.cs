@@ -1,6 +1,5 @@
-﻿
-using GienPhim_Services.AuthService.Domain.Entities;
-using GienPhim_Services.AuthService.Domain.Factories.Interfaces;
+﻿using GienPhim_Services.AuthService.Domain.Factories.Interfaces;
+using GienPhim_Services.AuthService.Domain.Models;
 using System.Security.Cryptography;
 
 namespace GienPhim_Services.AuthService.Domain.Factories

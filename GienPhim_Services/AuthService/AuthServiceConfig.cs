@@ -21,6 +21,9 @@ using GienPhim_Services.AuthService.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using GienPhim_Services.UserService.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using GienPhim_Services.AuthService.Infrastructure;
 
 namespace GienPhim_Services.AuthService
 {
@@ -67,11 +70,19 @@ namespace GienPhim_Services.AuthService
             services.AddScoped<IOtpDomainService, OtpDomainService>(); // Tạo và xác thực token
 
             /*-----------------------------------INFRASTRUCTURE----------------------------------------*/
+
+            // Configure database contexts
+            // UserService
+            services.AddDbContext<AuthDbContext>(options =>
+                options.UseSqlServer(config.GetConnectionString("AuthDb")));
+
             // ExternalAuth
             services.AddScoped<IExternalAuthProvider, GoogleAuthProvider>(); // Đăng nhập bằng google  
 
             // Repositories
             services.AddScoped<IOtpRepository, InMemoryOtpRepository>(); // Token Repository
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>(); // RefreshToken Repository
+            services.AddScoped<IUnitOfWork, UnitOfWork>(); // Base Repository
             services.AddMemoryCache();
             // Services
             services.AddScoped<IEmailService, SmtpEmailService>(); // Gửi email
