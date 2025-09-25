@@ -12,6 +12,8 @@ using GienPhim_Services.FilmService.Application.Interfaces.Validators;
 using GienPhim_Services.FilmService.Application.Services;
 using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
 using GienPhim_Services.FilmService.Application.Mappers;
+using GienPhim_Services.FilmService.Application.DTOs.Client.DaoDien;
+using GienPhim_Services.FilmService.Application.Validators.DaoDien;
 
 namespace GienPhim_Services.FilmService
 {
@@ -23,6 +25,9 @@ namespace GienPhim_Services.FilmService
             // SERVICES
             // SERVICE
             services.AddScoped<IFilmService, FilmService.Application.Services.FilmService>(); // Film Service    
+
+            // Đạo diễn
+            services.AddScoped<IValidator<DaoDienCreateDTO>, CreateDaoDienValidator>();
 
             // ORCHESTRATORS
             services.AddScoped<IFilmOrchestrator,FilmOrchestrator>(); // Film Orchestrator
