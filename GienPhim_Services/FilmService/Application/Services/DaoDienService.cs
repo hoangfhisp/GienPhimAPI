@@ -1,10 +1,12 @@
 ﻿using GienPhim_Services.FilmService.Application.DTOs.Client.DaoDien;
 using GienPhim_Services.FilmService.Application.DTOs.Common;
 using GienPhim_Services.FilmService.Application.Exceptions.Failed;
+using GienPhim_Services.FilmService.Application.Exceptions.NotFounds;
 using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
 using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.FilmService.Application.Interfaces.Services;
+
 
 namespace GienPhim_Services.FilmService.Application.Services
 {
@@ -25,6 +27,49 @@ namespace GienPhim_Services.FilmService.Application.Services
             _daoDienOrchestrator = daoDienOrchestrator;
             _daoDienResponseMapper = daoDienResponseMapper;
             _logger = logger;
+        }
+
+        public async Task<ResultListDTO<List<DaoDienResponseDTO>>> GetAllDaoDiensAsync(int page, int limit, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetAllDaoDiensAsync với trang {Page} và giới hạn {Limit}", page, limit);
+
+            // Gọi Orchestrator để lấy toàn bộ DaoDiens
+            var daoDiens = await _daoDienOrchestrator.GetAllDaoDiensAsync(cancellationToken);
+
+            var total = daoDiens.Count(); // đếm tổng ngay từ danh sách lấy ra
+
+            if (total == 0)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy đạo diễn nào");
+                throw new DaoDienNotFoundException(); // ❌ Trả exception Application Layer
+            }
+
+            var last = (int)Math.Ceiling(total / (double)limit);
+
+            // Phân trang tại Service
+            var paged = daoDiens
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToList();
+
+            // Map sang DTO
+            var resultDaoDien = _daoDienResponseMapper.toDtoList(paged);
+
+            var pagination = new PaginationDTO
+            {
+                Page = page,
+                Limit = limit,
+                Total = total,
+                Last = last
+            };
+
+            _logger.LogInformation("ApplicationService: Lấy danh sách DaoDien thành công, tổng={Total}", total);
+
+            return ResultListDTO<List<DaoDienResponseDTO>>.Success(
+                resultDaoDien,
+                "Lấy danh sách đạo diễn thành công",
+                pagination
+            );
         }
 
         // Tạo DaoDien mới

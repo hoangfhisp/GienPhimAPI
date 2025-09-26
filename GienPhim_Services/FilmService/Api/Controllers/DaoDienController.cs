@@ -29,7 +29,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
         public async Task<IActionResult> GetAllDaoDiens(int page = 1,int limit = 10, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("API Request: GetAllDaoDiensAsync ");
-            var result = await _filmService.GetAllDaoDiensAsync(page,limit,cancellationToken);
+            var result = await _daoDienService.GetAllDaoDiensAsync(page,limit,cancellationToken);
             _logger.LogInformation("API Response: GetAllDaoDiensAsync với trạng thái {Status}", result.Status);
             return Ok(result); 
         }

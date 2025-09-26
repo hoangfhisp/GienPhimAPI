@@ -1,8 +1,12 @@
 ﻿using GienPhim_Services.FilmService.Application.DTOs.Client.DaoDien;
+using GienPhim_Services.FilmService.Application.DTOs.Common;
 using GienPhim_Services.FilmService.Application.Exceptions.NotFounds;
 using GienPhim_Services.FilmService.Application.Interfaces.Factories;
 using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
+using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
+using GienPhim_Services.FilmService.Application.Interfaces.Services;
 using GienPhim_Services.FilmService.Application.Interfaces.Validators;
+using GienPhim_Services.FilmService.Application.Services;
 using GienPhim_Services.FilmService.Domain.Entities;
 using GienPhim_Services.FilmService.Domain.Services.Interfaces;
 
@@ -13,18 +17,32 @@ namespace GienPhim_Services.FilmService.Application.Orchestrators
         private readonly IDaoDienFactory _daoDienFactory;
         private readonly IValidationService _validationService;
         private readonly IDaoDienDomainService _daoDienDomainService;
+        private readonly IDaoDienRepository _daoDienRepository;
         private readonly ILogger<DaoDienOrchestrator> _logger;
 
         public DaoDienOrchestrator(
             IDaoDienFactory daoDienFactory,
             IValidationService validationService,
             IDaoDienDomainService daoDienDomainService,
+            IDaoDienRepository daoDienRepository,
             ILogger<DaoDienOrchestrator> logger)
         {
             _daoDienFactory = daoDienFactory;
             _validationService = validationService;
+            _daoDienRepository = daoDienRepository;
             _daoDienDomainService = daoDienDomainService;
             _logger = logger;
+        }
+
+        public async Task<IEnumerable<DaoDien>> GetAllDaoDiensAsync(CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu GetAllDaoDiensAsync");
+
+            var daoDiens = await _daoDienRepository.GetAllDaoDiensAsync(cancellationToken);
+
+            _logger.LogInformation("Orchestrator: Lấy danh sách đạo diễn thành công, tổng={Count}", daoDiens.Count);
+
+            return daoDiens;
         }
 
         // Tạo đạo diễn mới
@@ -36,13 +54,13 @@ namespace GienPhim_Services.FilmService.Application.Orchestrators
             await _validationService.ValidateAsync(createDto, cancellationToken);
 
             // Tạo đối tượng DaoDien từ DTO
-            var daoDienEntity = _daoDienFactory.CreateDaoDien(createDto);
+            var daoDien = _daoDienFactory.CreateDaoDien(createDto);
 
             // Kiểm tra các điều kiện nghiệp vụ: Đảm bảo có thể tạo được đạo diễn mới
-            _daoDienDomainService.EnsureCanCreate(daoDienEntity);
+            _daoDienDomainService.EnsureCanCreate(daoDien);
 
             _logger.LogInformation("Orchestrator: Đạo diễn {TenDD} đã được validate và khởi tạo thành công", createDto.TenDD);
-            return daoDienEntity;  // Trả về Entity đã được tạo
+            return daoDien;  // Trả về Entity đã được tạo
         }
 
         // Cập nhật đạo diễn
