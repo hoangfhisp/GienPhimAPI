@@ -14,6 +14,8 @@ using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
 using GienPhim_Services.FilmService.Application.Mappers;
 using GienPhim_Services.FilmService.Application.DTOs.Client.DaoDien;
 using GienPhim_Services.FilmService.Application.Validators.DaoDien;
+using GienPhim_Services.FilmService.Application.Factories;
+using GienPhim_Services.FilmService.Application.Interfaces.Factories;
 
 namespace GienPhim_Services.FilmService
 {
@@ -24,13 +26,21 @@ namespace GienPhim_Services.FilmService
             /*-----------------------------------------APPLICATION--------------------------------------------*/
             // SERVICES
             // SERVICE
-            services.AddScoped<IFilmService, FilmService.Application.Services.FilmService>(); // Film Service    
+            services.AddScoped<IFilmService, FilmService.Application.Services.FilmService>(); // Film Service
+            services.AddScoped<IDaoDienService, DaoDienService>(); // Đạo diễn Service                                                                            
 
             // Đạo diễn
             services.AddScoped<IValidator<DaoDienCreateDTO>, CreateDaoDienValidator>();
 
+            // FACTORIES
+            services.AddScoped<IDaoDienFactory, DaoDienFactory>(); // Đạo diễn Factory
+
+            // MAPPERS
+            services.AddScoped<IDaoDienResponseMapper, DaoDienResponseMapper>(); // Đạo diễn Mapper
+
             // ORCHESTRATORS
             services.AddScoped<IFilmOrchestrator,FilmOrchestrator>(); // Film Orchestrator
+            services.AddScoped<IDaoDienOrchestrator, DaoDienOrchestrator>(); // Đạo diễn Orchestrator
 
             // VALIRATORS
             // Dịch vụ validation chung
@@ -46,6 +56,7 @@ namespace GienPhim_Services.FilmService
             /*-----------------------------------------DOMAIN--------------------------------------------*/
             // DOMAIN SERVICES
             services.AddScoped<IFilmDomainService, FilmDomainService>();
+            services.AddScoped<IDaoDienDomainService, DaoDienDomainService>();
 
             //MAPPERS
             services.AddScoped<IPaginationMapper,PaginationMapper>();

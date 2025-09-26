@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using GienPhim_Services.FilmService.Application.Services;
 
 namespace GienPhim_Services.FilmService.Api.Controllers
 {
@@ -15,9 +16,10 @@ namespace GienPhim_Services.FilmService.Api.Controllers
         private readonly IFilmService _filmService;
         private readonly IDaoDienService _daoDienService;
         private readonly ILogger<DaoDienController> _logger;
-        public DaoDienController(IFilmService filmService, ILogger<DaoDienController> logger)
+        public DaoDienController(IFilmService filmService, ILogger<DaoDienController> logger, IDaoDienService daoDienService)
         {
             _filmService = filmService;
+            _daoDienService = daoDienService;
             _logger = logger;
         }
 
@@ -32,33 +34,34 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result); 
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] DaoDienCreateDTO dto, CancellationToken ct = default)
         {
-            if (!ModelState.IsValid) return BadRequest(ResultDTO.Fail("Dữ liệu không hợp lệ"));
-
+            _logger.LogInformation("API Request: CreateDaoDien với tên {TenDD}", dto.TenDD);
             var result = await _daoDienService.CreateDaoDienAsync(dto, ct);
-            if (!result.Status) return BadRequest(result);
-
-            // Nếu service trả về Id trong Data thì có thể dùng CreatedAtAction
+            _logger.LogInformation("API Response: CreateDaoDien Status={Status}", result.Status);
             return Ok(result);
         }
 
-        [HttpPut]
+        [HttpPut("Update")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromBody] DaoDienUpdateDTO dto, CancellationToken ct = default)
         {
-            if (!ModelState.IsValid) return BadRequest(ResultDTO.Fail("Dữ liệu không hợp lệ"));
-
+            _logger.LogInformation("API Request: UpdateDaoDien Id={DaoDienId}", dto.DaoDienId);
             var result = await _daoDienService.UpdateDaoDienAsync(dto, ct);
-            return result.Status ? Ok(result) : BadRequest(result);
+            _logger.LogInformation("API Response: UpdateDaoDien Id={DaoDienId} Status={Status}", dto.DaoDienId, result.Status);
+            return Ok(result);
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken ct = default)
+        [HttpDelete("Delete")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete([FromQuery]DaoDienDeleteDTO deleteDto, CancellationToken ct = default)
         {
-            var result = await _daoDienService.DeleteDaoDienAsync(new DaoDienDeleteDTO { DaoDienId = id }, ct);
-            // Nếu không tìm thấy → service trả Fail với message "Không tìm thấy..." → 404 hợp lý
-            return result.Status ? Ok(result) : NotFound(result);
+            _logger.LogInformation("API Request: DeleteDaoDien Id={DaoDienId}", deleteDto.DaoDienId);
+            var result = await _daoDienService.DeleteDaoDienAsync(deleteDto, ct);
+            _logger.LogInformation("API Response: DeleteDaoDien Id={DaoDienId} Status={Status}", deleteDto.DaoDienId, result.Status);
+            return Ok(result);
         }
     }
 }

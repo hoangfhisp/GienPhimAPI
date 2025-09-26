@@ -1,6 +1,7 @@
 ﻿using GienPhim_Services.FilmService.Application.DTOs.Client.DaoDien;
 using GienPhim_Services.FilmService.Application.DTOs.Common;
 using GienPhim_Services.FilmService.Application.Exceptions.Failed;
+using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
 using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.FilmService.Application.Interfaces.Services;
@@ -10,16 +11,19 @@ namespace GienPhim_Services.FilmService.Application.Services
     public class DaoDienService : IDaoDienService
     {
         private readonly IDaoDienOrchestrator _daoDienOrchestrator;
+        private readonly IDaoDienResponseMapper _daoDienResponseMapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<DaoDienService> _logger;
 
         public DaoDienService(
             IUnitOfWork unitOfWork,
             IDaoDienOrchestrator daoDienOrchestrator,
+            IDaoDienResponseMapper daoDienResponseMapper,
             ILogger<DaoDienService> logger)
         {
             _unitOfWork = unitOfWork;
             _daoDienOrchestrator = daoDienOrchestrator;
+            _daoDienResponseMapper = daoDienResponseMapper;
             _logger = logger;
         }
 
@@ -49,7 +53,7 @@ namespace GienPhim_Services.FilmService.Application.Services
         }
 
         // Cập nhật DaoDien
-        public async Task<ResultDTO> UpdateDaoDienAsync(DaoDienUpdateDTO updateDto, CancellationToken cancellationToken = default)
+        public async Task<ResultDTO<UpdateDaoDienResponseDTO>> UpdateDaoDienAsync(DaoDienUpdateDTO updateDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu UpdateDaoDienAsync với Id={DaoDienId}", updateDto.DaoDienId);
 
@@ -71,7 +75,12 @@ namespace GienPhim_Services.FilmService.Application.Services
             await transaction.CommitAsync(cancellationToken);
             _logger.LogInformation("ApplicationService: Cập nhật DaoDien {DaoDienId} thành công!", daoDien.DaoDienId);
 
-            return ResultDTO.Success($"Cập nhật đạo diễn {daoDien.TenDD} thành công");
+            // Map sang ResponseDTO
+            var response = _daoDienResponseMapper.ToUpdateDto(daoDien);
+
+            return ResultDTO<UpdateDaoDienResponseDTO>.Success(
+                response,
+                $"Cập nhật đạo diễn {daoDien.TenDD} thành công");
         }
 
         // Xoá DaoDien

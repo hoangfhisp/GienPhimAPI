@@ -6,6 +6,7 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Factories
     public interface IDaoDienFactory
     {
         DaoDien CreateDaoDien(DaoDienCreateDTO dto);
-        void UpdateDaoDien(DaoDien existing, DaoDienUpdateDTO dto);
+        DaoDien UpdateDaoDien(DaoDienUpdateDTO dto);
+        DaoDien DeleteDaoDien(DaoDienDeleteDTO dto);
     }
 }

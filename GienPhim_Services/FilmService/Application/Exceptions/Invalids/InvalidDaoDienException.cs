@@ -2,7 +2,7 @@
 
 namespace GienPhim_Services.FilmService.Application.Exceptions.Invalids
 {
-    public sealed class InvalidDaoDienException : BusinessException
+    public class InvalidDaoDienException : BusinessException
     {
         public override int StatusCode => 400;
 

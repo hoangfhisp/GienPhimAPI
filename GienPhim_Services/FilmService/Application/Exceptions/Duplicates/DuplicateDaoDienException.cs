@@ -2,7 +2,7 @@
 
 namespace GienPhim_Services.FilmService.Application.Exceptions.Duplicates
 {
-    public sealed class DuplicateDaoDienException : BusinessException
+    public class DuplicateDaoDienException : BusinessException
     {
         public override int StatusCode => 409;
 

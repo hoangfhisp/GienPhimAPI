@@ -5,7 +5,7 @@ using GienPhim_Services.FilmService.Domain.Services.Interfaces;
 
 namespace GienPhim_Services.FilmService.Domain.Services
 {
-    public sealed class DaoDienDomainService : IDaoDienDomainService
+    public class DaoDienDomainService : IDaoDienDomainService
     {
         public void EnsureCanCreate(DaoDien daoDien)
         {

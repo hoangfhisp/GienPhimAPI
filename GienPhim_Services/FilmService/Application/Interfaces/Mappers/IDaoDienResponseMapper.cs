@@ -7,5 +7,7 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Mappers
     {
         DaoDienResponseDTO toDto(DaoDien daoDien); // Chuyển đổi từ DaoDien entity sang DaoDienResponseDTO
         List<DaoDienResponseDTO> toDtoList(List<DaoDien> daoDiens);// Chuyển đổi từ danh sách DaoDien entity sang danh sách DaoDienResponseDTO
+        UpdateDaoDienResponseDTO ToUpdateDto(DaoDien daoDien);
+        List<UpdateDaoDienResponseDTO> ToUpdateDtoList(List<DaoDien> daoDiens);
     }
 }

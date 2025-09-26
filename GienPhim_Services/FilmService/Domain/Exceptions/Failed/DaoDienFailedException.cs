@@ -2,10 +2,8 @@
 
 namespace GienPhim_Services.FilmService.Domain.Exceptions.Failed
 {
-    public class DaoDienFailedException : BusinessException
+    public class DaoDienFailedException : DomainException
     {
-        public override int StatusCode => 422; // Unprocessable Entity
-
         public DaoDienFailedException(string action, string reason)
             : base($"Thực hiện '{action}' với Đạo diễn thất bại: {reason}.") { }
     }

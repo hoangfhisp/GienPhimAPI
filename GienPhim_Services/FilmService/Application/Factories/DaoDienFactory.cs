@@ -17,11 +17,25 @@ namespace GienPhim_Services.FilmService.Application.Factories
             };
         }
 
-        public void UpdateDaoDien(DaoDien existing, DaoDienUpdateDTO dto)
+        public DaoDien UpdateDaoDien(DaoDienUpdateDTO dto)
         {
-            existing.TenDD = dto.TenDD?.Trim() ?? string.Empty;
-            existing.MoTaDD = dto.MoTaDD?.Trim();
-            existing.ThoiGianCapNhat = DateTime.UtcNow;
+            var now = DateTime.UtcNow;
+
+            return new DaoDien
+            {
+                DaoDienId = dto.DaoDienId,
+                TenDD = (dto.TenDD ?? string.Empty).Trim(),
+                MoTaDD = string.IsNullOrWhiteSpace(dto.MoTaDD) ? null : dto.MoTaDD.Trim(),
+                ThoiGianCapNhat = now
+            };
+        }
+
+        public DaoDien DeleteDaoDien(DaoDienDeleteDTO dto)
+        {
+            return new DaoDien
+            {
+                DaoDienId = dto.DaoDienId
+            };
         }
     }
 }

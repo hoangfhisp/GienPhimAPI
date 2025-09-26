@@ -4,14 +4,11 @@ namespace GienPhim_Services.FilmService.Application.Exceptions.Failed
 {
     public class UpdateDaoDienFailedException : BusinessException
     {
-        public override int StatusCode => 400; 
-
-        public string DaoDienName { get; }
+        public override int StatusCode => base.StatusCode;
 
         public UpdateDaoDienFailedException(string daoDienName)
             : base($"Cập nhật DaoDien với tên {daoDienName} thất bại.")
         {
-            DaoDienName = daoDienName;
         }
     }
 }

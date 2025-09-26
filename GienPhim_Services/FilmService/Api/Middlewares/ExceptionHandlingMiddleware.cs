@@ -1,4 +1,8 @@
-﻿using GienPhim_Services.FilmService.Shared.Exceptions;
+﻿using GienPhim_Services.FilmService.Domain.Exceptions.Duplicates;
+using GienPhim_Services.FilmService.Domain.Exceptions.Failed;
+using GienPhim_Services.FilmService.Domain.Exceptions.Invalid;
+using GienPhim_Services.FilmService.Domain.Exceptions.NotFounds;
+using GienPhim_Services.FilmService.Shared.Exceptions;
 using System.Net;
 
 namespace GienPhim_Services.FilmService.Api.Middlewares
@@ -20,7 +24,10 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
         {
 
             // { typeof(CreateUserFailedException), StatusCodes.Status500InternalServerError }
-
+            { typeof(DuplicateDaoDienException), StatusCodes.Status500InternalServerError },
+            { typeof(DaoDienFailedException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidDaoDienException), StatusCodes.Status500InternalServerError },
+            { typeof(DaoDienNotFoundException), StatusCodes.Status500InternalServerError }
         };
 
         public async Task InvokeAsync(HttpContext context)

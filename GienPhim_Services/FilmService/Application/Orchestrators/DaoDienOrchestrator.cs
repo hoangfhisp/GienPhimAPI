@@ -53,16 +53,13 @@ namespace GienPhim_Services.FilmService.Application.Orchestrators
             // Validate: kiểm tra tồn tại và các điều kiện cập nhật
             await _validationService.ValidateAsync(updateDto, cancellationToken);
 
-            // Chỉ validate và xử lý logic nghiệp vụ, không gọi Repository ở đây
-            var existingDaoDien = new DaoDien { DaoDienId = updateDto.DaoDienId, TenDD = updateDto.TenDD }; // Mock data để test (thực tế phải lấy từ Repository trong Application Service)
-
-            _daoDienFactory.UpdateDaoDien(existingDaoDien, updateDto);  // Áp dụng các thay đổi vào entity hiện tại
+            var daoDien = _daoDienFactory.UpdateDaoDien(updateDto);
 
             // Kiểm tra điều kiện nghiệp vụ
-            _daoDienDomainService.EnsureCanUpdate(existingDaoDien);
+            _daoDienDomainService.EnsureCanUpdate(daoDien);
 
             _logger.LogInformation("Orchestrator: Đạo diễn Id={DaoDienId} đã được cập nhật thành công", updateDto.DaoDienId);
-            return existingDaoDien;
+            return daoDien;
         }
 
         // Xoá đạo diễn
@@ -74,8 +71,9 @@ namespace GienPhim_Services.FilmService.Application.Orchestrators
             await _validationService.ValidateAsync(deleteDto, cancellationToken);
 
             // Kiểm tra điều kiện nghiệp vụ trước khi xóa
-            var existingDaoDien = new DaoDien { DaoDienId = deleteDto.DaoDienId }; // Mock data để test (thực tế phải lấy từ Repository trong Application Service)
-            _daoDienDomainService.EnsureCanDelete(existingDaoDien);
+            var daoDien = _daoDienFactory.DeleteDaoDien(deleteDto);
+
+            _daoDienDomainService.EnsureCanDelete(daoDien);
 
             _logger.LogInformation("Orchestrator: Đạo diễn Id={DaoDienId} đã được xoá thành công", deleteDto.DaoDienId);
         }
