@@ -2,51 +2,319 @@
 using GienPhim_Services.AuthService.Application.DTOs.ForgotPassword;
 using GienPhim_Services.AuthService.Application.DTOs.Login;
 using GienPhim_Services.AuthService.Application.DTOs.Token;
+using GienPhim_Services.AuthService.Application.Exceptions.Failed;
+using GienPhim_Services.AuthService.Application.Exceptions.Invalid;
+using GienPhim_Services.AuthService.Application.Exceptions.NotFounds;
+using GienPhim_Services.AuthService.Application.Interfaces.Factories;
+using GienPhim_Services.AuthService.Application.Interfaces.Mappers;
 using GienPhim_Services.AuthService.Application.Interfaces.Orchestrators;
-using GienPhim_Services.AuthService.Application.Interfaces.Services; 
+using GienPhim_Services.AuthService.Application.Interfaces.Repositories;
+using GienPhim_Services.AuthService.Application.Interfaces.Services;
+using GienPhim_Services.AuthService.Application.Interfaces.Templates;
+using GienPhim_Services.AuthService.Domain.Interfaces.Services;
+using GienPhim_Services.AuthService.Infrastructure.Data.HttpClients.Interfaces;
 
 namespace GienPhim_Services.AuthService.Application.Services
 {
     public class AuthService : IAuthService
     {
         private readonly IAuthOrchestrator _authOrchestrator;
+        private readonly IAuthDomainService _authDomainService;
+        private readonly IOtpDomainService _otpDomainService;
+        private readonly IUserServiceClient _userServiceClient;
+        private readonly IEmailService _emailService;
+        private readonly IEmailTemplateService _emailTemplateService;
+        private readonly IOtpRepository _otpRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IEnumerable<IExternalAuthProvider> _externalAuthProvider;
+        private readonly IExternalUserMapper _externalUserMapper;
+        private readonly IUserHttpMapper _userHttpMapper;
+        private readonly ITokenFactory _tokenFactory;
         private readonly ILogger<AuthService> _logger;
 
-        public AuthService(IAuthOrchestrator authOrchestrator, ILogger<AuthService> logger)
+        public AuthService(IAuthOrchestrator authOrchestrator , IAuthDomainService authDomainService
+            , IUserServiceClient userServiceClient , IOtpDomainService otpDomainService
+            , IEmailService emailService , IEmailTemplateService emailTemplateService
+            , IOtpRepository otpRepository , IUnitOfWork unitOfWork
+            , IEnumerable<IExternalAuthProvider> externalAuthProvider
+            , IExternalUserMapper externalUserMapper , IUserHttpMapper userHttpMapper
+            , ITokenFactory tokenFactory, ILogger<AuthService> logger)
         {
             _authOrchestrator = authOrchestrator;
+            _authDomainService = authDomainService;
+            _otpDomainService = otpDomainService;
+            _userServiceClient = userServiceClient;
+            _emailService = emailService;
+            _emailTemplateService = emailTemplateService;
+            _otpRepository = otpRepository;
+            _unitOfWork = unitOfWork;
+            _externalAuthProvider = externalAuthProvider;
+            _externalUserMapper = externalUserMapper;
+            _userHttpMapper = userHttpMapper;
+            _tokenFactory = tokenFactory;
             _logger = logger;
         }
 
         // Đăng nhập và tạo token cho người dùng
         public async Task<ResultDTO<GenerateTokenUserDTO>> LoginUserGenerateTokenAsync(LoginUserPasswordRequestDTO request ,CancellationToken cancellationToken = default)
         {
-            return await _authOrchestrator.LoginUserGenerateTokenAsync(request, cancellationToken);
+            _logger.LogInformation("ApplicationService: LoginUserGenerateTokenAsync gọi với: {Account}", request.Account);
+            
+            var userClaims = await _authOrchestrator.FetchUserClaimsForLoginAsync(request, cancellationToken);
+
+            // Tạo token
+            var token = _authDomainService.GenerateToken(userClaims);
+
+            var refreshToken = _authDomainService.GenarateRefreshToken();
+            var refreshTokenEntity = _tokenFactory.CreateRefreshToken(refreshToken, userClaims.UserId);
+
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            var saveRefresh = await _unitOfWork.RefreshTokens.AddRefreshTokenAsync(refreshTokenEntity);
+            if (saveRefresh == null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.LogError("ApplicationService: LoginUserGenerateTokenAsync lưu mã refresh token thất bại với: {Account}", request.Account);
+                throw new SaveRefreshTokenFailedException();
+            }
+
+            var result = new GenerateTokenUserDTO
+            {
+                Token = token.Value,
+                RefreshToken = saveRefresh.Token
+            };
+
+            await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation("ApplicationService: LoginUserGenerateTokenAsync đăng nhập thành công với: {Account}", request.Account);
+            return ResultDTO<GenerateTokenUserDTO>.Success(result, "Đăng nhập thành công");
+        }
+
+        // Refresh Token khi 
+        public async Task<ResultDTO<GenerateTokenUserDTO>> RefreshTokenAsync(RefreshTokenRequestDTO request, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: RefreshTokenAsync bắt đầu với refreshToken = {RefreshToken}", request.RefreshToken);
+
+            // Lấy refresh token từ DB
+            var refreshToken = await _unitOfWork.RefreshTokens.GetByTokenAsync(request.RefreshToken, cancellationToken);
+            if (refreshToken == null)
+            {
+                _logger.LogWarning("ApplicationService: RefreshTokenAsync không tìm thấy refresh token = {RefreshToken}", request.RefreshToken);
+                throw new InvalidRefreshTokenException();
+            }
+
+            // Domain check: refresh token có còn hợp lệ không?
+            _authDomainService.IsActiveRefreshToken(refreshToken);
+
+            // Lấy thông tin user từ refresh token
+            var userClaims = await _authOrchestrator.FetchUserClaimsByIdAsync(refreshToken.UserId, cancellationToken);
+
+            // Sinh access token mới
+            var newAccessToken = _authDomainService.GenerateToken(userClaims);
+
+            var result = new GenerateTokenUserDTO
+            {
+                Token = newAccessToken.Value,
+            };
+
+            _logger.LogInformation("ApplicationService: RefreshTokenAsync thành công cho userId = {UserId}", refreshToken.UserId);
+            return ResultDTO<GenerateTokenUserDTO>.Success(result, "Cấp lại token thành công");
+        }
+
+        // Thu hồi refresh token nội bộ
+        private async Task<ResultDTO> RevokeInternalAsync(string refreshTokenValue, string successMsg, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("ApplicationService: RevokeInternalAsync bắt đầu với refreshToken = {RefreshToken}", refreshTokenValue);
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            var refreshToken = await _unitOfWork.RefreshTokens.GetByTokenAsync(refreshTokenValue, cancellationToken);
+            if (refreshToken == null)
+            {
+                _logger.LogWarning("ApplicationService: RevokeInternalAsync không tìm thấy refresh token = { RefreshToken}" , refreshTokenValue);
+                throw new InvalidRefreshTokenException();
+            }
+
+            _authDomainService.RevokeRefreshToken(refreshToken);
+
+            var updated = await _unitOfWork.RefreshTokens.UpdateRefreshTokenAsync(refreshToken);
+            if (updated == null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.LogError("ApplicationService: RevokeInternalAsync thất bại khi revoke refresh token = {RefreshToken}", refreshTokenValue);
+                throw new RevokeRefreshTokenFailedException();
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation("ApplicationService: RevokeInternalAsync thành công cho refreshToken = {RefreshToken}", refreshTokenValue);
+            return ResultDTO.Success(successMsg);
+        }
+
+        // Đăng xuất và thu hồi refresh token
+        public async Task<ResultDTO> LogoutAsync(LogOutRequestDTO request, CancellationToken cancellationToken = default)
+        {
+           return await RevokeInternalAsync(request.RefreshToken, "Đăng xuất thành công", cancellationToken);
+        }
+
+        // Thu hồi refresh token
+        public async Task<ResultDTO> RevokeRefreshTokenAsync(RevokeRefreshTokenRequestDTO request, CancellationToken cancellationToken = default)
+        {
+            return await RevokeInternalAsync(request.RefreshToken, "Thu hồi refresh token thành công", cancellationToken);
         }
 
         // Đăng nhập bằng phương thức bên ngoài sinh token
         public async Task<ResultDTO<GenerateTokenUserDTO>> LoginExternalGenerateTokenAsync(ExternalAuthTokenRequestDTO requestExternal, CancellationToken cancellationToken = default) // Nhà cung cấp , id user của bên cung cấp
         {
-           return await _authOrchestrator.LoginExternalGenerateTokenAsync(requestExternal, cancellationToken);
+            _logger.LogInformation("ApplicationService: LoginExternalGenerateTokenAsync gọi với: {Provider}", requestExternal.Provider);
+            // tìm nhà cung cấp
+            var externalProvider = _externalAuthProvider.FirstOrDefault(p => p.ProviderName.Equals(requestExternal.Provider, StringComparison.OrdinalIgnoreCase)); // tìm không phân biệt chử hoa thường
+
+            if (externalProvider == null)
+            {
+                _logger.LogWarning("ApplicationService: LoginExternalGenerateTokenAsync nhà cung cấp không hợp lệ: {Provider}", requestExternal.Provider);
+                throw new InvalidAuthProviderException(requestExternal.Provider);
+            }
+
+            // xác thực token bên cung cấp
+            var externalUser = await externalProvider.ValidateAsync(requestExternal.IdToken);
+            if (externalUser == null)
+            {
+                _logger.LogWarning("ApplicationService: LoginExternalGenerateTokenAsync token không hợp lệ từ nhà cung cấp: {Provider}", requestExternal.Provider);
+                throw new InvalidTokenException();
+            }
+
+            // ánh xạ sang DTO gửi đến UserService
+            var request = _externalUserMapper.ToAuthDTO(externalUser);
+
+            var claims = await _authOrchestrator.FetchUserClaimsFromExternalAsync(request, cancellationToken);
+
+            // Tạo token
+            var token = _authDomainService.GenerateToken(claims);
+
+            // Tạo refresh token và lưu vào DB
+            var refreshToken = _authDomainService.GenarateRefreshToken();
+            var refreshTokenEntity = _tokenFactory.CreateRefreshToken(refreshToken, claims.UserId);
+
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            var saveRefresh = await _unitOfWork.RefreshTokens.AddRefreshTokenAsync(refreshTokenEntity);
+            if (saveRefresh == null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.LogError("ApplicationService: LoginUserGenerateTokenAsync lưu mã refresh token thất bại với: {Account}", request.Email);
+                throw new SaveRefreshTokenFailedException();
+            }
+
+            var result = new GenerateTokenUserDTO
+            {
+                Token = token.Value,
+                RefreshToken = saveRefresh.Token
+            };
+
+            await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation("ApplicationService: LoginExternalGenerateTokenAsync đăng nhập thành công với: {Account}", request.Email);
+            return ResultDTO<GenerateTokenUserDTO>.Success(result, "Đăng nhập thành công");
 
         }
 
         // Gửi mã OTP đến email người dùng
         public async Task<ResultDTO> GenerateAndSendOtpEmailAsync(ForgotPasswordEmailRequestDTO forgot, CancellationToken cancellationToken = default)
         {
-            return await _authOrchestrator.GenerateAndSendOtpEmailAsync(forgot, cancellationToken);
+            _logger.LogInformation("ApplicationService: bắt đầu tạo OTP cho user {Email}", forgot.Email);
+            var userResponse = await _userServiceClient.FindUserByEmailAsync(forgot.Email, cancellationToken);
+
+            if (userResponse == null)
+            {
+                _logger.LogError("ApplicationService: LoginUserGenerateTokenAsync không kết nối được UserService");
+                throw new ConnectServiceFailedException("UserSerivce");
+            }
+
+            if (!userResponse.Data.Status)
+            {
+                _logger.LogError("ApplicationService: không tìm thấy user với email {Email}", forgot.Email);
+                throw new UserNotFoundException(userResponse.Data.Msg, userResponse.StatusCode);
+            }
+
+            if (userResponse.Data.Data.TypeLogin != "Local")
+            {
+                _logger.LogError("ApplicationService: không thể gửi OTP cho user {Email} vì đăng nhập bằng nhà cung cấp bên ngoài", forgot.Email);
+                throw new SendOtpForgotForExternalUserFailedException(forgot.Email, userResponse.Data.Data.TypeLogin);
+            }
+
+            var otpCode = _otpDomainService.CreateOtp(userResponse.Data.Data.UserId, forgot.Type);
+            await _otpRepository.SaveAsync(otpCode, cancellationToken);
+
+            var subject = _emailTemplateService.GetOtpSubject();
+            var body = _emailTemplateService.GetOtpBody(otpCode.Code);
+
+            await _emailService.SendAsync(userResponse.Data.Data.Email,subject,body);
+
+            _logger.LogInformation("ApplicationService: đã gửi OTP qua email {Email}", userResponse.Data.Data.Email);
+            return ResultDTO.Success($"OTP đã được gửi đến: {userResponse.Data.Data.Email}");
         }
 
         // Xác thực mã OTP cho việc quên mật khẩu
         public async Task<ResultDTO> VerifyForgotPasswordOtpAsync(VerifyOtpEmailRequestDTO request, CancellationToken cancellationToken = default)
         {
-            return await _authOrchestrator.VerifyForgotPasswordOtpAsync(request, cancellationToken);
+            _logger.LogInformation("ApplicationService: bắt đầu xác thực OTP cho user {Email}", request.Email);
+
+            var userResponse = await _userServiceClient.FindUserByEmailAsync(request.Email, cancellationToken);
+            if (userResponse == null)
+            {
+                _logger.LogError("ApplicationService: VerifyForgotPasswordOtpAsync không kết nối được UserService");
+                throw new ConnectServiceFailedException("UserSerivce");
+            }
+            if (!userResponse.Data.Status)
+            {
+                _logger.LogError("ApplicationService: không tìm thấy user với email {Email}", request.Email);
+                throw new UserNotFoundException(userResponse.Data.Msg, userResponse.StatusCode);
+            }
+
+            var codeOtp = await _otpRepository.GetAsync(userResponse.Data.Data.UserId, request.Type, cancellationToken);
+
+            var valid = _otpDomainService.VerifyOtp(codeOtp,request.Otp);
+
+            _logger.LogInformation("ApplicationService: OTP hợp lệ cho user {Email}", request.Email);
+            return ResultDTO.Success("Xác thực OTP thành công");
+
         }
 
         // Xác thực mã OTP và đặt lại mật khẩu
         public async Task<ResultDTO> VerifyOtpForResetPasswordAsync(VerifyOtpEmailResetPasswordRequestDTO request, CancellationToken cancellationToken = default)
         {
-            return await _authOrchestrator.VerifyOtpForResetPasswordAsync(request, cancellationToken);
+            _logger.LogInformation("ApplicationService: bắt đầu xác thực OTP cho user {Email}", request.Email);
+            var userResponse = await _userServiceClient.FindUserByEmailAsync(request.Email, cancellationToken);
+            if (userResponse == null)
+            {
+                _logger.LogError("ApplicationService: VerifyForgotPasswordOtpAsync không kết nối được UserService");
+                throw new ConnectServiceFailedException("UserSerivce");
+            }
+            if (!userResponse.Data.Status)
+            {
+                _logger.LogError("ApplicationService: không tìm thấy user với email {Email}", request.Email);
+                throw new UserNotFoundException(userResponse.Data.Msg, userResponse.StatusCode);
+            }
+
+            var codeOtp = await _otpRepository.GetAsync(userResponse.Data.Data.UserId, request.Type, cancellationToken);
+
+            var valid = _otpDomainService.VerifyOtp(codeOtp, request.Otp);
+            await _otpRepository.RemoveAsync(codeOtp.UserId, codeOtp.Type); // Xóa OTP sau khi xác thực thành công
+
+            var resetRequest = _userHttpMapper.ToResetPasswordDTO(request, userResponse.Data.Data.UserId);
+
+            var result = await _userServiceClient.ResetPasswordAsync(resetRequest, cancellationToken);
+            if (result == null)
+            {
+                _logger.LogError("ApplicationService: VerifyForgotPasswordOtpAsync không kết nối được UserService");
+                throw new ConnectServiceFailedException("UserSerivce");
+            }
+
+            if (!result.Data.Status)
+            {
+                _logger.LogWarning("ApplicationService: ResetPasswordAsync thất bại cho user {Email} với lỗi {Error}", request.Email, result.Data.Msg);
+                throw new ResetPasswordFailedException(result.Data.Msg, result.StatusCode);
+            }
+
+            _logger.LogInformation("Orchestrator: OTP hợp lệ cho user {Email}", request.Email);
+            return ResultDTO.Success(result.Data.Msg);
         }
     }
 }

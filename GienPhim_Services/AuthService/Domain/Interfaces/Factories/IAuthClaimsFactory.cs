@@ -2,7 +2,7 @@
 using GienPhim_Services.AuthService.Domain.Models;
 using System.Security.Claims;
 
-namespace GienPhim_Services.AuthService.Domain.Factories.Interfaces
+namespace GienPhim_Services.AuthService.Domain.Interfaces.Factories
 {
     public interface IAuthClaimsFactory
     {

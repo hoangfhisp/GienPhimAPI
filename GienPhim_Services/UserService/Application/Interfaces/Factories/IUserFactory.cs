@@ -10,6 +10,7 @@ namespace GienPhim_Services.UserService.Application.Interfaces.Factories
         User CreateExternalUser(ExternalLoginUserInfoDTO externalUser, string userName); // Tạo user từ thông tin đăng nhập bên thứ 3 (Google, Facebook,...)
         User CreateUpdateInfoUser(InfoUserUpdateDTO update, string userId); // Tạo user từ thông tin cập nhật
         User CreateEmail(FindUserByEmailDTO dto); // Tạo user từ email để tìm kiếm
+        User CreateUserId(FindUserByIdDTO dto); // Tạo user từ userId để tìm kiếm
         User CreateResetPassword(ResetPasswordRequestDTO dto); // Tạo user từ thông tin reset mật khẩu
     }
 }

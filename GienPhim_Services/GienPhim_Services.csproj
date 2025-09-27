@@ -41,7 +41,6 @@
   <ItemGroup>
     <Folder Include="AuthService\Api\Filters\" />
     <Folder Include="AuthService\Application\Exceptions\Duplicates\" />
-    <Folder Include="AuthService\Domain\Exceptions\" />
     <Folder Include="AuthService\Infrastructure\Migrations\" />
     <Folder Include="FilmService\Application\Factories\" />
     <Folder Include="FilmService\Application\Validators\" />

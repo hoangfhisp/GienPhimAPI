@@ -7,7 +7,9 @@ namespace GienPhim_Services.UserService.Application.Mappers
 {
     public class UserResponseMapper : IUserResponseMapper
     {
-        // Map Cập nhật thông tin user
+        // Map Cập nhật thông tin
+        //
+        // user
         public UpdateInfoUserResponseDTO ToUpdate(User user)
         {
             return new UpdateInfoUserResponseDTO
@@ -25,6 +27,7 @@ namespace GienPhim_Services.UserService.Application.Mappers
             };
         }
 
+        // Map Đăng nhập bên ngoài
         public ExternalLoginUserResponseDTO ToExternalLogin(User user)
         {
             return new ExternalLoginUserResponseDTO
@@ -36,6 +39,7 @@ namespace GienPhim_Services.UserService.Application.Mappers
             };
         }
 
+        // Map Đăng nhập local
         public LoginLocalUserResponseDTO ToLocalLogin(User user)
         {
             return new LoginLocalUserResponseDTO
@@ -47,6 +51,7 @@ namespace GienPhim_Services.UserService.Application.Mappers
             };
         }
 
+        // Map User sang UserResponseDTO
         public UserResponseDTO ToDto(User user)
         {
             return new UserResponseDTO
@@ -60,6 +65,7 @@ namespace GienPhim_Services.UserService.Application.Mappers
                 Mota = user.MoTa,
                 AvatarND = user.AvatarND,
                 TypeLogin = user.TypeLogin,
+                Role = user.Roles.FirstOrDefault(),
                 ThoiGianCapNhat = user.ThoiGianCapNhat ?? DateTime.Now,
                 ThoiGianTao = user.ThoiGianTao
             };

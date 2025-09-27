@@ -1,5 +1,4 @@
-﻿// using thư viện
-using GienPhim_Services.UserService.Application.DTOs.Common;
+﻿using GienPhim_Services.UserService.Application.DTOs.Common;
 using GienPhim_Services.UserService.Application.DTOs.Client.Login;
 using GienPhim_Services.UserService.Application.DTOs.Client.User;
 using GienPhim_Services.UserService.Application.Interfaces.Services;
@@ -257,6 +256,43 @@ namespace GienPhim_Services.UserService.Application.Services
                 _logger.LogWarning("ApplicationSerVice: Người dùng không tồn tại với Email {Email}", userFind.Email);
                 throw new UserNotFoundException(userFind.Email);
             }
+
+            // Kiểm tra user có Role không
+            var roles = await _unitOfWork.Users.GetRolesUserAsync(user);
+            if (roles == null || !roles.Any())
+            {
+                _logger.LogError("ApplicationSerVice: User {Account} không có vai trò!", user.Email);
+                throw new InvalidUserHasNoRoleException(user.Email);
+            }
+            // Trả về kết quả login
+            user.Roles = roles.ToList();
+            _logger.LogInformation("ApplicationSerVice: Tìm thấy người dùng với Email {Email}", userFind.Email);
+            return ResultDTO<UserResponseDTO>.Success(_userResponseMapper.ToDto(user), $"Tìm thấy người dùng '{userFind.Email}' thành công.");
+        }
+
+        // Tìm User theo userId
+        public async Task<ResultDTO<UserResponseDTO>> FindUserByUserIdAsync(FindUserByIdDTO dto, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationSerVice: Tìm kiếm người dùng với id {id}", dto.UserId);
+
+            var userFind = _userOrchestrator.RepareUserByUserId(dto);
+
+            // Tìm người dùng theo email
+            var user = await _unitOfWork.Users.FindByUserIdAsync(userFind.Id, cancellationToken);
+            if (user == null)
+            {
+                _logger.LogWarning("ApplicationSerVice: Người dùng không tồn tại với id {id}", userFind.Id);
+                throw new UserNotFoundException(userFind.Email);
+            }
+            // Kiểm tra user có Role không
+            var roles = await _unitOfWork.Users.GetRolesUserAsync(user);
+            if (roles == null || !roles.Any())
+            {
+                _logger.LogError("ApplicationSerVice: User {Account} không có vai trò!", user.Email);
+                throw new InvalidUserHasNoRoleException(user.Email);
+            }
+            // Trả về kết quả login
+            user.Roles = roles.ToList();
             _logger.LogInformation("ApplicationSerVice: Tìm thấy người dùng với Email {Email}", userFind.Email);
             return ResultDTO<UserResponseDTO>.Success(_userResponseMapper.ToDto(user), $"Tìm thấy người dùng '{userFind.Email}' thành công.");
         }

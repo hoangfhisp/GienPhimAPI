@@ -1,5 +1,5 @@
 ﻿using GienPhim_Services.AuthService.Application.DTOs.Token;
-using GienPhim_Services.AuthService.Domain.Factories.Interfaces;
+using GienPhim_Services.AuthService.Domain.Interfaces.Factories;
 using GienPhim_Services.AuthService.Domain.Models;
 using System.Security.Claims;
 

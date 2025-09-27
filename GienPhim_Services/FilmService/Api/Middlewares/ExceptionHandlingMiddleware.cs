@@ -23,6 +23,7 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
 
         };
 
+
         public async Task InvokeAsync(HttpContext context)
         {
             if (!context.Request.Path.StartsWithSegments("/api/DaoDien"))

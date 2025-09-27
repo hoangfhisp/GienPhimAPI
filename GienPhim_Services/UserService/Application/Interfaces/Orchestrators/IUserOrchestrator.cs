@@ -12,6 +12,7 @@ namespace GienPhim_Services.UserService.Application.Interfaces.Orchestrators
         Task<User> UpdateInfoUserAsync(InfoUserUpdateDTO update, CancellationToken cancellationToken = default); // Cập nhật thông tin User
         Task<User> LoginLocalUserAsync(LoginRequestDTO requestLogin, CancellationToken cancellationToken = default); // Đăng nhập User Local
         User RepareUserByEmail(FindUserByEmailDTO dto); // Tìm User theo email
+        User RepareUserByUserId(FindUserByIdDTO dto); // Tìm User theo userId
         User ResetPasswordAsync(ResetPasswordRequestDTO dto); // Reset mật khẩu User
     }
 } 
