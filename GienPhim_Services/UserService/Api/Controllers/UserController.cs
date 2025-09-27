@@ -73,6 +73,16 @@ namespace GienPhim_Services.UserService.Api.Controllers
             return Ok(result);
         }
 
+        // Tìm User theo email
+        [HttpGet("GetUserByUserId")]
+        public async Task<IActionResult> GetUserByUserId([FromQuery] FindUserByIdDTO dto, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("API Request: FindUserByUserId cho id {id}", dto.UserId);
+            var result = await _userService.FindUserByUserIdAsync(dto, cancellationToken);
+            _logger.LogInformation("API Response: FindUserByUserId cho email {Email} với trạng thái {Status}", result.Data.Email, result.Status);
+            return Ok(result);
+        }
+
         // Reset mật khẩu
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword(ResetPasswordRequestDTO dto, CancellationToken cancellationToken)

@@ -22,6 +22,7 @@ namespace GienPhim_Services.UserService.Domain.Entities
 
         public DateTime? ThoiGianCapNhat { get; set; }
 
+        public DateTime ThoiGianDoiEmail { get; set; }
         [NotMapped]
         public List<string> Roles { get; set; } = new List<string>();
     }

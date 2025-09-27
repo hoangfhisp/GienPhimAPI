@@ -72,6 +72,22 @@ namespace GienPhim_Services.AuthService.Infrastructure.Data.HttpClients
             };
         }
 
+        public async Task<ApiResponse<ResultDTO<UserResponseDTO>>?> FindUserByUserIdAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("UserServiceClient: Gọi API UserService để lấy thông tin user với UserId: {UserId}", userId);
+            var response = await _httpClient.GetAsync($"api/User/GetUserByUserId?userId={userId}", cancellationToken);
+            // Đọc body JSON
+            var body = await response.Content.ReadFromJsonAsync<ResultDTO<UserResponseDTO>>(
+                cancellationToken: cancellationToken);
+            _logger.LogInformation("UserServiceClient: API UserService trả về mã trạng thái: {StatusCode}", (int)response.StatusCode);
+            // Trả về wrapper có cả status code
+            return new ApiResponse<ResultDTO<UserResponseDTO>>
+            {
+                Data = body,
+                StatusCode = (int)response.StatusCode
+            };
+        }
+
         // Đặt lại mật khẩu cho user
         public async Task<ApiResponse<ResultDTO>> ResetPasswordAsync(ResetPasswordEmailHttpRequestDTO requet,CancellationToken cancellationToken = default) 
         {

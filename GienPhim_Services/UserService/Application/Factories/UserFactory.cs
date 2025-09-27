@@ -18,7 +18,8 @@ namespace GienPhim_Services.UserService.Application.Factories
                 PhoneNumber = userRegister.PhoneNumber,
                 TypeLogin = "Local",
                 ThoiGianTao = DateTime.UtcNow,
-                ThoiGianCapNhat = DateTime.UtcNow
+                ThoiGianCapNhat = DateTime.UtcNow,
+                ThoiGianDoiEmail = DateTime.UtcNow
             };
         }
 
@@ -34,7 +35,8 @@ namespace GienPhim_Services.UserService.Application.Factories
                 TypeLogin = externalUser.TypeLogin,
                 AuthId = externalUser.AuthId,
                 ThoiGianTao = DateTime.UtcNow,
-                ThoiGianCapNhat = DateTime.UtcNow
+                ThoiGianCapNhat = DateTime.UtcNow,
+                ThoiGianDoiEmail = DateTime.UtcNow
             };
         }
 
@@ -57,6 +59,14 @@ namespace GienPhim_Services.UserService.Application.Factories
             return new User
             {
                 Email = dto.Email
+            };
+        }
+
+        public User CreateUserId(FindUserByIdDTO dto)
+        {
+            return new User
+            {
+                Id = dto.UserId
             };
         }
 

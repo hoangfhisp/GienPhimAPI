@@ -80,8 +80,16 @@ namespace GienPhim_Services.UserService.Domain.Services
         {
             if (user == null)
                 throw new InvalidUserException(user?.Email);
-
             
+        }
+
+        public void EnsureCanUserId(User user)
+        {
+            if (user == null)
+                throw new InvalidUserException(user?.Id);
+
+            if (string.IsNullOrWhiteSpace(user.Id))
+                throw new InvalidUserIdException(user.Id);
         }
 
         // Tìm User Dựa vào userId

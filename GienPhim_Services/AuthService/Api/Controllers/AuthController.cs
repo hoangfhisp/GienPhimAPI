@@ -1,6 +1,8 @@
 ﻿using GienPhim_Services.AuthService.Application.DTOs.ForgotPassword;
 using GienPhim_Services.AuthService.Application.DTOs.Login;
+using GienPhim_Services.AuthService.Application.DTOs.Token;
 using GienPhim_Services.AuthService.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GienPhim_Services.AuthService.Api.Controllers
@@ -34,6 +36,35 @@ namespace GienPhim_Services.AuthService.Api.Controllers
             _logger.LogInformation("API Response: Bắt đầu ExternalProviderLoginUserToken gọi với: {Provider}", request.Provider);
             var result = await _authService.LoginExternalGenerateTokenAsync(request,cancellationToken);
             _logger.LogInformation("API Response: ExternalProviderLoginUserToken cho Provider {Provider} với trạng thái {Status}", request.Provider, result.Status);
+            return Ok(result);
+        }
+
+        // Tạo mới token từ refresh token
+        [HttpPost("RefreshToken")]
+        public async Task<IActionResult> RefreshToken(RefreshTokenRequestDTO request, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Response: Bắt đầu RefreshToken gọi với: {RefreshToken}", request.RefreshToken);
+            var result = await _authService.RefreshTokenAsync(request, cancellationToken);
+            _logger.LogInformation("API Response: RefreshToken cho mã refresh token với trạng thái {Status}", result.Status);
+            return Ok(result);
+        }
+
+        [HttpPost("RevokeToken")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RevokeToken(RevokeRefreshTokenRequestDTO request, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Response: Bắt đầu RevokeToken gọi với: {RefreshToken}", request.RefreshToken);
+            var result = await _authService.RevokeRefreshTokenAsync(request, cancellationToken);
+            _logger.LogInformation("API Response: RevokeToken cho mã refresh token với trạng thái {Status}", result.Status);
+            return Ok(result);
+        }
+
+        [HttpPost("UserLogOut")]
+        public async Task<IActionResult> UserLogOut(LogOutRequestDTO request, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Response: Bắt đầu LogOut");
+            var result = await _authService.LogoutAsync(request, cancellationToken);
+            _logger.LogInformation("API Response: LogOut với trạng thái {Status}", result.Status);
             return Ok(result);
         }
 

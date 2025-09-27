@@ -142,6 +142,18 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
             return user;
         }
 
+        // Tìm user bằng userId
+        public User RepareUserByUserId(FindUserByIdDTO dto)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu FindUserByIdAsync với userId {UserId}", dto.UserId);
+            // Tạo đối tượng User từ userId
+            var user = _userFactory.CreateUserId(dto);
+            // Validate userId
+            _userDomainService.EnsureCanUserId(user);
+            _logger.LogInformation("Orchestrator: Tìm thấy user với userId {UserId}", dto.UserId);
+            return user;
+        }
+
         // Đặt lại mật khẩu
         public User ResetPasswordAsync(ResetPasswordRequestDTO dto )
         {

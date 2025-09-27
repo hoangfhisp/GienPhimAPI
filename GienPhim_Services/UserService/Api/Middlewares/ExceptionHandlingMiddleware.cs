@@ -31,7 +31,6 @@ namespace GienPhim_Services.UserService.Api.Middlewares
             { typeof(InvalidUserTypeLoginException), StatusCodes.Status400BadRequest },
             { typeof(InvalidUserIdException), StatusCodes.Status400BadRequest },
             { typeof(InvalidUserPhoneNumberException), StatusCodes.Status400BadRequest },
-            { typeof(InvalidUserTypeLoginException), StatusCodes.Status400BadRequest },
 
             //NotFounds
 

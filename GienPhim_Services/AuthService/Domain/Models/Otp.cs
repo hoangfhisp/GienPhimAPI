@@ -3,23 +3,36 @@
     public class Otp
     {
         public string UserId { get; }
-        public string Code { get; }
         public string Type { get; }
-        public DateTime ExpiryTime { get; }
+        public string Code { get; }
+        public DateTime Expiry { get; }
 
-        public Otp(string userId, string code, string type, int expiryMinutes = 5)
+        private const int ExpiryMinutes = 5;
+
+        private Otp(string userId, string type, string code)
         {
             UserId = userId;
-            Code = code;
             Type = type;
-            ExpiryTime = DateTime.UtcNow.AddMinutes(expiryMinutes);
+            Code = code;
+            Expiry = DateTime.UtcNow.AddMinutes(ExpiryMinutes);
         }
 
-        // ktra hết hạn
-        public bool IsExpired() => DateTime.UtcNow > ExpiryTime;
+        public static Otp Create(string userId, string type)
+        {
+            var random = new Random();
+            var code = random.Next(100000, 999999).ToString();
+            return new Otp(userId, type, code);
+        }
 
-        // ktra mã đúng và chưa hết hạn
-        public bool Verify(string input) => input == Code && !IsExpired();
+        public static Otp Restore(string userId, string type, string code)
+        {
+            return new Otp(userId, type, code);
+        }
+
+        public bool Verify(string code)
+        {
+            return Code == code && Expiry > DateTime.UtcNow;
+        }
     }
 
 }

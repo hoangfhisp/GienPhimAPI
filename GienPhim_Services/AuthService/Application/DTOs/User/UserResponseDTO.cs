@@ -11,6 +11,7 @@
         public string Mota { get; set; } // Mô tả
         public string AvatarND { get; set; } // AvatarND
         public string TypeLogin { get; set; } // AvatarND
+        public string Role { get; set; } // Role
         public DateTime ThoiGianCapNhat { get; set; } // Thời gian cập nhậts
         public DateTime ThoiGianTao { get; set; } // Thời gian tạo tài khoản
     }
