@@ -1,0 +1,140 @@
+﻿using GienPhim_Services.FilmService.Application.DTOs.Client.TheLoai;
+using GienPhim_Services.FilmService.Application.DTOs.Common;
+using GienPhim_Services.FilmService.Application.Exceptions.Failed;
+using GienPhim_Services.FilmService.Application.Exceptions.NotFounds;
+using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
+using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
+using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
+using GienPhim_Services.FilmService.Application.Interfaces.Services;
+
+namespace GienPhim_Services.FilmService.Application.Services
+{
+    public class TheLoaiService : ITheLoaiService
+    {
+        private readonly ITheLoaiOrchestrator _theLoaiOrchestrator;
+        private readonly ITheLoaiResponseMapper _theLoaiResponseMapper;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<TheLoaiService> _logger;
+
+        public TheLoaiService(
+            IUnitOfWork unitOfWork,
+            ITheLoaiOrchestrator theLoaiOrchestrator,
+            ITheLoaiResponseMapper theLoaiResponseMapper,
+            ILogger<TheLoaiService> logger)
+        {
+            _unitOfWork = unitOfWork;
+            _theLoaiOrchestrator = theLoaiOrchestrator;
+            _theLoaiResponseMapper = theLoaiResponseMapper;
+            _logger = logger;
+        }
+
+        public async Task<ResultListDTO<List<TheLoaiResponseDTO>>> GetAllTheLoaisAsync(int page, int limit, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetAllTheLoaisAsync với page={Page}, limit={Limit}", page, limit);
+
+            var theLoais = await _theLoaiOrchestrator.GetAllTheLoaisAsync(cancellationToken);
+
+            var total = theLoais.Count();
+
+            if (total == 0)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy thể loại nào");
+                throw new TheLoaiNotFoundException(); // exception Application Layer
+            }
+
+            var last = (int)Math.Ceiling(total / (double)limit);
+
+            var paged = theLoais
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToList();
+
+            var resultDtos = _theLoaiResponseMapper.toDtoList(paged);
+
+            var pagination = new PaginationDTO
+            {
+                Page = page,
+                Limit = limit,
+                Total = total,
+                Last = last
+            };
+
+            _logger.LogInformation("ApplicationService: Lấy danh sách TheLoai thành công, tổng={Total}", total);
+
+            return ResultListDTO<List<TheLoaiResponseDTO>>.Success(
+                resultDtos,
+                "Lấy danh sách thể loại thành công",
+                pagination
+            );
+        }
+
+        public async Task<ResultDTO> CreateTheLoaiAsync(TheLoaiCreateDTO createDto, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu CreateTheLoaiAsync với tên thể loại {TenTL}", createDto.TenTL);
+
+            var theLoai = await _theLoaiOrchestrator.CreateTheLoaiAsync(createDto, cancellationToken);
+
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            var result = await _unitOfWork.TheLoais.CreateAsync(theLoai, cancellationToken);
+            if (result is null)
+            {
+                _logger.LogError("ApplicationService: Tạo TheLoai {TenTL} thất bại!", theLoai.TenTL);
+                await transaction.RollbackAsync(cancellationToken);
+                throw new CreateTheLoaiFailedException(theLoai.TenTL);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation("ApplicationService: Tạo TheLoai {TenTL} thành công!", theLoai.TenTL);
+            return ResultDTO.Success($"Tạo thể loại {theLoai.TenTL} thành công");
+        }
+
+        public async Task<ResultDTO<UpdateTheLoaiResponseDTO>> UpdateTheLoaiAsync(TheLoaiUpdateDTO updateDto, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu UpdateTheLoaiAsync với Id={TheLoaiId}", updateDto.TheLoaiId);
+
+            var theLoai = await _theLoaiOrchestrator.UpdateTheLoaiAsync(updateDto, cancellationToken);
+
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            var result = await _unitOfWork.TheLoais.UpdateAsync(theLoai, cancellationToken);
+            if (result is null)
+            {
+                _logger.LogError("ApplicationService: Cập nhật TheLoai {TheLoaiId} thất bại!", updateDto.TheLoaiId);
+                await transaction.RollbackAsync(cancellationToken);
+                throw new UpdateTheLoaiFailedException(theLoai.TenTL);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation("ApplicationService: Cập nhật TheLoai {TheLoaiId} thành công!", theLoai.TheLoaiId);
+
+            var response = _theLoaiResponseMapper.toUpdateDto(theLoai);
+
+            return ResultDTO<UpdateTheLoaiResponseDTO>.Success(
+                response,
+                $"Cập nhật thể loại {theLoai.TenTL} thành công");
+        }
+
+        public async Task<ResultDTO> DeleteTheLoaiAsync(TheLoaiDeleteDTO deleteDto, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu DeleteTheLoaiAsync với Id={TheLoaiId}", deleteDto.TheLoaiId);
+
+            await _theLoaiOrchestrator.DeleteTheLoaiAsync(deleteDto, cancellationToken);
+
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            var theLoai = await _unitOfWork.TheLoais.GetByIdAsync(deleteDto.TheLoaiId, cancellationToken);
+            if (theLoai is null)
+            {
+                _logger.LogWarning("ApplicationService: TheLoai không tồn tại khi xóa {TheLoaiId}", deleteDto.TheLoaiId);
+                return ResultDTO.Fail($"Không tìm thấy thể loại với Id {deleteDto.TheLoaiId}");
+            }
+
+            await _unitOfWork.TheLoais.DeleteAsync(theLoai, cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation("ApplicationService: Xóa TheLoai {TheLoaiId} thành công!", deleteDto.TheLoaiId);
+            return ResultDTO.Success($"Xóa thể loại {theLoai.TenTL} thành công");
+        }
+    }
+}

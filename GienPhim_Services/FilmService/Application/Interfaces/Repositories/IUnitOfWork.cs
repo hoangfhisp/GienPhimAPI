@@ -4,6 +4,7 @@
     {
         IDaoDienRepository DaoDiens { get; } // Repository
         IDienVienRepository DienViens { get; } // Repository
+        ITheLoaiRepository TheLoais { get; } // Repository
         Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default); // Transaction
     }
 }

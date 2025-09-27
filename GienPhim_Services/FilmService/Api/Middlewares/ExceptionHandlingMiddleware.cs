@@ -31,13 +31,18 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
             { typeof(DuplicateDienVienException), StatusCodes.Status500InternalServerError },
             { typeof(DienVienFailedException), StatusCodes.Status500InternalServerError },
             { typeof(InvalidDienVienException), StatusCodes.Status500InternalServerError },
-            { typeof(DienVienNotFoundException), StatusCodes.Status500InternalServerError }
+            { typeof(DienVienNotFoundException), StatusCodes.Status500InternalServerError },
+            { typeof(DuplicateTheLoaiException), StatusCodes.Status500InternalServerError },
+            { typeof(TheLoaiFailedException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidTheLoaiException), StatusCodes.Status500InternalServerError },
+            { typeof(TheLoaiNotFoundException), StatusCodes.Status500InternalServerError }
         };
 
         public async Task InvokeAsync(HttpContext context)
         {
             if (!context.Request.Path.StartsWithSegments("/api/DaoDien") && 
-                !context.Request.Path.StartsWithSegments("/api/DienVien"))
+                !context.Request.Path.StartsWithSegments("/api/DienVien") &&
+                !context.Request.Path.StartsWithSegments("/api/TheLoai"))
             {
                 await _next(context);
                 return;
