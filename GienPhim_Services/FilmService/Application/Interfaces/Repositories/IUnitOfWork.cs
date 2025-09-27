@@ -3,6 +3,7 @@
     public interface IUnitOfWork
     {
         IDaoDienRepository DaoDiens { get; } // Repository
+        IDienVienRepository DienViens { get; } // Repository
         Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default); // Transaction
     }
 }

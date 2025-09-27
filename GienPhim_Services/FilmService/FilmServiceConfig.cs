@@ -14,8 +14,10 @@ using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
 using GienPhim_Services.FilmService.Application.Mappers;
 using GienPhim_Services.FilmService.Application.DTOs.Client.DaoDien;
 using GienPhim_Services.FilmService.Application.Validators.DaoDien;
+using GienPhim_Services.FilmService.Application.Validators.DienVien;
 using GienPhim_Services.FilmService.Application.Factories;
 using GienPhim_Services.FilmService.Application.Interfaces.Factories;
+using GienPhim_Services.FilmService.Application.DTOs.Client.DienVien;
 
 namespace GienPhim_Services.FilmService
 {
@@ -28,19 +30,24 @@ namespace GienPhim_Services.FilmService
             // SERVICE
             services.AddScoped<IFilmService, FilmService.Application.Services.FilmService>(); // Film Service
             services.AddScoped<IDaoDienService, DaoDienService>(); // Đạo diễn Service                                                                            
+            services.AddScoped<IDienVienService, DienVienService>(); // Diễn viên Service
 
             // Đạo diễn
-            services.AddScoped<IValidator<DaoDienCreateDTO>, CreateDaoDienValidator>();
+            services.AddScoped<IValidator<DaoDienCreateDTO>, CreateDaoDienValidator>(); // Validator tạo đạo diễn
+            services.AddScoped<IValidator<DienVienCreateDTO>, CreateDienVienValidator>(); // Validator cập nhật đạo diễn
 
             // FACTORIES
             services.AddScoped<IDaoDienFactory, DaoDienFactory>(); // Đạo diễn Factory
+            services.AddScoped<IDienVienFactory, DienVienFactory>(); // Diễn viên Factory
 
             // MAPPERS
             services.AddScoped<IDaoDienResponseMapper, DaoDienResponseMapper>(); // Đạo diễn Mapper
+            services.AddScoped<IDienVienResponseMapper, DienVienResponseMapper>(); // Diễn viên Mapper
 
             // ORCHESTRATORS
             services.AddScoped<IFilmOrchestrator,FilmOrchestrator>(); // Film Orchestrator
             services.AddScoped<IDaoDienOrchestrator, DaoDienOrchestrator>(); // Đạo diễn Orchestrator
+            services.AddScoped<IDienVienOrchestrator, DienVienOrchestrator>(); // Diễn viên Orchestrator
 
             // VALIRATORS
             // Dịch vụ validation chung
@@ -57,6 +64,7 @@ namespace GienPhim_Services.FilmService
             // DOMAIN SERVICES
             services.AddScoped<IFilmDomainService, FilmDomainService>();
             services.AddScoped<IDaoDienDomainService, DaoDienDomainService>();
+            services.AddScoped<IDienVienDomainService, DienVienDomainService>();
 
             //MAPPERS
             services.AddScoped<IPaginationMapper,PaginationMapper>();
@@ -70,6 +78,7 @@ namespace GienPhim_Services.FilmService
 
             // REPOSITORIES
             services.AddScoped<IDaoDienRepository, DaoDienRepository>(); // Đạo Diễn
+            services.AddScoped<IDienVienRepository, DienVienRepository>(); // Diễn Viên
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Unit of Work
             return services;
         }
