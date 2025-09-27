@@ -37,6 +37,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IDienVienService, DienVienService>(); // Diễn viên Service
             services.AddScoped<ITheLoaiService, TheLoaiService>(); // Thể loại Service
             services.AddScoped<ITheTagService, TheTagService>(); // Thẻ Tag Service
+            services.AddScoped<INgonNguService, NgonNguService>(); // Ngôn ngữ Service
 
             // Đạo diễn
             services.AddScoped<IValidator<DaoDienCreateDTO>, CreateDaoDienValidator>(); // Validator tạo đạo diễn
@@ -49,12 +50,14 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IDienVienFactory, DienVienFactory>(); // Diễn viên Factory
             services.AddScoped<ITheLoaiFactory, TheLoaiFactory>(); // Thể loại Factory
             services.AddScoped<ITheTagFactory, TheTagFactory>(); // Thẻ Tag Factory
+            services.AddScoped<INgonNguFactory, NgonNguFactory>(); // Ngôn ngữ Factory
 
             // MAPPERS
             services.AddScoped<IDaoDienResponseMapper, DaoDienResponseMapper>(); // Đạo diễn Mapper
             services.AddScoped<IDienVienResponseMapper, DienVienResponseMapper>(); // Diễn viên Mapper
             services.AddScoped<ITheLoaiResponseMapper, TheLoaiResponseMapper>(); // Thể loại Mapper
             services.AddScoped<ITheTagResponseMapper, TheTagResponseMapper>(); // Thẻ Tag Mapper
+            services.AddScoped<INgonNguResponseMapper, NgonNguResponseMapper>(); // Ngôn ngữ Mapper
 
             // ORCHESTRATORS
             services.AddScoped<IFilmOrchestrator,FilmOrchestrator>(); // Film Orchestrator
@@ -62,6 +65,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IDienVienOrchestrator, DienVienOrchestrator>(); // Diễn viên Orchestrator
             services.AddScoped<ITheLoaiOrchestrator, TheLoaiOrchestrator>(); // Thể loại Orchestrator
             services.AddScoped<ITheTagOrchestrator, TheTagOrchestrator>(); // Thẻ Tag Orchestrator
+            services.AddScoped<INgonNguOrchestrator, NgonNguOrchestrator>(); // Ngôn ngữ Orchestrator
 
             // VALIRATORS
             // Dịch vụ validation chung
@@ -81,6 +85,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IDienVienDomainService, DienVienDomainService>();
             services.AddScoped<ITheLoaiDomainService, TheLoaiDomainService>();
             services.AddScoped<ITheTagDomainService, TheTagDomainService>();
+            services.AddScoped<INgonNguDomainService, NgonNguDomainService>();
 
             //MAPPERS
             services.AddScoped<IPaginationMapper,PaginationMapper>();
@@ -97,6 +102,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IDienVienRepository, DienVienRepository>(); // Diễn Viên
             services.AddScoped<ITheLoaiRepository, TheLoaiRepository>(); // Thể Loại
             services.AddScoped<ITheTagRepository, TheTagRepository>(); // Thẻ Tag
+            services.AddScoped<INgonNguRepository, NgonNguRepository>(); // Ngôn Ngữ
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Unit of Work
             return services;
         }

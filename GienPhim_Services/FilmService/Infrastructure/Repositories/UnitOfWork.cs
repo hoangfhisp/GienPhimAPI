@@ -7,19 +7,28 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
     {
         private readonly FilmDbContext _context;
 
-        public UnitOfWork(FilmDbContext context, IDaoDienRepository daoDien, IDienVienRepository dienVien, ITheLoaiRepository theLoai, ITheTagRepository TheTag)
+        public UnitOfWork
+        (
+            FilmDbContext context, 
+            IDaoDienRepository daoDien, 
+            IDienVienRepository dienVien, 
+            ITheLoaiRepository theLoai, 
+            ITheTagRepository TheTag, 
+            INgonNguRepository ngonNgu)
         {
             _context = context;
             DaoDiens = daoDien;
             DienViens = dienVien;
             TheLoais = theLoai;
             TheTags = TheTag;
+            NgonNgus = ngonNgu;
         }
 
         public IDaoDienRepository DaoDiens { get; }
         public IDienVienRepository DienViens { get; }
         public ITheLoaiRepository TheLoais { get; }
         public ITheTagRepository TheTags { get; }
+        public INgonNguRepository NgonNgus { get; }
 
         public async Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
         {

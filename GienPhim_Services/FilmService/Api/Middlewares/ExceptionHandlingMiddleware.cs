@@ -46,7 +46,13 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
             { typeof(DuplicateTheTagException), StatusCodes.Status500InternalServerError },
             { typeof(TheTagFailedException), StatusCodes.Status500InternalServerError },
             { typeof(InvalidTheTagException), StatusCodes.Status500InternalServerError },
-            { typeof(TheTagNotFoundException), StatusCodes.Status500InternalServerError }
+            { typeof(TheTagNotFoundException), StatusCodes.Status500InternalServerError },
+
+            // Ngôn ngữ
+            { typeof(DuplicateNgonNguException), StatusCodes.Status500InternalServerError },
+            { typeof(NgonNguFailedException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidNgonNguException), StatusCodes.Status500InternalServerError },
+            { typeof(NgonNguNotFoundException), StatusCodes.Status500InternalServerError }
         };
 
         public async Task InvokeAsync(HttpContext context)
@@ -54,7 +60,8 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
             if (!context.Request.Path.StartsWithSegments("/api/DaoDien") && 
                 !context.Request.Path.StartsWithSegments("/api/DienVien") &&
                 !context.Request.Path.StartsWithSegments("/api/TheLoai") &&
-                !context.Request.Path.StartsWithSegments("/api/TheTag"))
+                !context.Request.Path.StartsWithSegments("/api/TheTag") &&
+                !context.Request.Path.StartsWithSegments("/api/NgonNgu"))
             {
                 await _next(context);
                 return;
