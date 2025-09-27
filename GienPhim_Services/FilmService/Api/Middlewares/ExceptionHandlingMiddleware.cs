@@ -24,25 +24,37 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
         {
 
             // { typeof(CreateUserFailedException), StatusCodes.Status500InternalServerError }
+            // Đạo diễn
             { typeof(DuplicateDaoDienException), StatusCodes.Status500InternalServerError },
             { typeof(DaoDienFailedException), StatusCodes.Status500InternalServerError },
             { typeof(InvalidDaoDienException), StatusCodes.Status500InternalServerError },
             { typeof(DaoDienNotFoundException), StatusCodes.Status500InternalServerError },
+
+            // Diễn viên
             { typeof(DuplicateDienVienException), StatusCodes.Status500InternalServerError },
             { typeof(DienVienFailedException), StatusCodes.Status500InternalServerError },
             { typeof(InvalidDienVienException), StatusCodes.Status500InternalServerError },
             { typeof(DienVienNotFoundException), StatusCodes.Status500InternalServerError },
+
+            // Thể loại
             { typeof(DuplicateTheLoaiException), StatusCodes.Status500InternalServerError },
             { typeof(TheLoaiFailedException), StatusCodes.Status500InternalServerError },
             { typeof(InvalidTheLoaiException), StatusCodes.Status500InternalServerError },
-            { typeof(TheLoaiNotFoundException), StatusCodes.Status500InternalServerError }
+            { typeof(TheLoaiNotFoundException), StatusCodes.Status500InternalServerError },
+
+            // Thẻ Tag
+            { typeof(DuplicateTheTagException), StatusCodes.Status500InternalServerError },
+            { typeof(TheTagFailedException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidTheTagException), StatusCodes.Status500InternalServerError },
+            { typeof(TheTagNotFoundException), StatusCodes.Status500InternalServerError }
         };
 
         public async Task InvokeAsync(HttpContext context)
         {
             if (!context.Request.Path.StartsWithSegments("/api/DaoDien") && 
                 !context.Request.Path.StartsWithSegments("/api/DienVien") &&
-                !context.Request.Path.StartsWithSegments("/api/TheLoai"))
+                !context.Request.Path.StartsWithSegments("/api/TheLoai") &&
+                !context.Request.Path.StartsWithSegments("/api/TheTag"))
             {
                 await _next(context);
                 return;
