@@ -24,7 +24,7 @@ namespace GienPhim_Services.AuthService.Infrastructure.Security
             {
                 new Claim(ClaimTypes.NameIdentifier, userClaims.UserId),
                 new Claim(ClaimTypes.Name, userClaims.UserName),
-                new Claim(ClaimTypes.Email, userClaims.Email ?? string.Empty),
+                new Claim(ClaimTypes.Email, userClaims.Email),
                 new Claim(ClaimTypes.Role, userClaims.Role),
             };
 

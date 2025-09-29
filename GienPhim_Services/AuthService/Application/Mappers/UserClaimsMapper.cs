@@ -27,13 +27,13 @@ namespace GienPhim_Services.AuthService.Application.Mappers
         }
         public UserClaims FromUserServiceLoginResponse(LoginTokenResponseDTO user)
         {
-            return new UserClaims(user.Data.UserId, user.Data.Email, user.Data.UserName, user.Data.Role);
+            return new UserClaims(user.Data.UserId, user.Data.UserName, user.Data.Email, user.Data.Role);
                
         }
        
         public UserClaims FormUserServiceUserResponseClaims (UserResponseDTO user)
         {
-            return new UserClaims(user.UserId, user.Email, user.UserName, user.Role);
+            return new UserClaims(user.UserId, user.UserName, user.Email, user.Role);
         }
     }
 }

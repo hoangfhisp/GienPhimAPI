@@ -1,11 +1,7 @@
-﻿using GienPhim_Services.AuthService.Application.Exceptions.Failed;
-using GienPhim_Services.AuthService.Application.Interfaces.Repositories;
-using GienPhim_Services.AuthService.Domain.Exceptions.Failed;
+﻿using GienPhim_Services.AuthService.Domain.Exceptions.Failed;
 using GienPhim_Services.AuthService.Domain.Exceptions.Invalid;
-using GienPhim_Services.AuthService.Domain.Interfaces.Factories;
 using GienPhim_Services.AuthService.Domain.Interfaces.Services;
 using GienPhim_Services.AuthService.Domain.Models;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace GienPhim_Services.AuthService.Domain.Services
 {

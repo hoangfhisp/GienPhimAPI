@@ -2,6 +2,7 @@
 using GienPhim_Services.AuthService.Application.DTOs.ForgotPassword;
 using GienPhim_Services.AuthService.Application.DTOs.Login;
 using GienPhim_Services.AuthService.Application.DTOs.Token;
+using GienPhim_Services.AuthService.Application.DTOs.User;
 using GienPhim_Services.AuthService.Application.Exceptions.Failed;
 using GienPhim_Services.AuthService.Application.Exceptions.Invalid;
 using GienPhim_Services.AuthService.Application.Exceptions.NotFounds;
@@ -30,6 +31,7 @@ namespace GienPhim_Services.AuthService.Application.Services
         private readonly IExternalUserMapper _externalUserMapper;
         private readonly IUserHttpMapper _userHttpMapper;
         private readonly ITokenFactory _tokenFactory;
+        private readonly IHttpUserContextAccessor _httpUserContextAccessor;
         private readonly ILogger<AuthService> _logger;
 
         public AuthService(IAuthOrchestrator authOrchestrator , IAuthDomainService authDomainService
@@ -38,6 +40,7 @@ namespace GienPhim_Services.AuthService.Application.Services
             , IOtpRepository otpRepository , IUnitOfWork unitOfWork
             , IEnumerable<IExternalAuthProvider> externalAuthProvider
             , IExternalUserMapper externalUserMapper , IUserHttpMapper userHttpMapper
+            , IHttpUserContextAccessor httpUserContextAccessor
             , ITokenFactory tokenFactory, ILogger<AuthService> logger)
         {
             _authOrchestrator = authOrchestrator;
@@ -52,6 +55,7 @@ namespace GienPhim_Services.AuthService.Application.Services
             _externalUserMapper = externalUserMapper;
             _userHttpMapper = userHttpMapper;
             _tokenFactory = tokenFactory;
+            _httpUserContextAccessor = httpUserContextAccessor;
             _logger = logger;
         }
 
@@ -219,36 +223,25 @@ namespace GienPhim_Services.AuthService.Application.Services
         public async Task<ResultDTO> GenerateAndSendOtpEmailAsync(ForgotPasswordEmailRequestDTO forgot, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: bắt đầu tạo OTP cho user {Email}", forgot.Email);
-            var userResponse = await _userServiceClient.FindUserByEmailAsync(forgot.Email, cancellationToken);
 
-            if (userResponse == null)
-            {
-                _logger.LogError("ApplicationService: LoginUserGenerateTokenAsync không kết nối được UserService");
-                throw new ConnectServiceFailedException("UserSerivce");
-            }
+            var userResponse = await _authOrchestrator.FetchUserByEmailAsync(forgot.Email, cancellationToken);
 
-            if (!userResponse.Data.Status)
-            {
-                _logger.LogError("ApplicationService: không tìm thấy user với email {Email}", forgot.Email);
-                throw new UserNotFoundException(userResponse.Data.Msg, userResponse.StatusCode);
-            }
-
-            if (userResponse.Data.Data.TypeLogin != "Local")
+            if (userResponse.TypeLogin != "Local")
             {
                 _logger.LogError("ApplicationService: không thể gửi OTP cho user {Email} vì đăng nhập bằng nhà cung cấp bên ngoài", forgot.Email);
-                throw new SendOtpForgotForExternalUserFailedException(forgot.Email, userResponse.Data.Data.TypeLogin);
+                throw new SendOtpForgotForExternalUserFailedException(forgot.Email, userResponse.TypeLogin);
             }
 
-            var otpCode = _otpDomainService.CreateOtp(userResponse.Data.Data.UserId, forgot.Type);
+            var otpCode = _otpDomainService.CreateOtp(userResponse.UserId, forgot.Type);
             await _otpRepository.SaveAsync(otpCode, cancellationToken);
 
-            var subject = _emailTemplateService.GetOtpSubject();
+            var subject = _emailTemplateService.GetOtpSubject(forgot.Type);
             var body = _emailTemplateService.GetOtpBody(otpCode.Code);
 
-            await _emailService.SendAsync(userResponse.Data.Data.Email,subject,body);
+            await _emailService.SendAsync(userResponse.Email,subject,body);
 
-            _logger.LogInformation("ApplicationService: đã gửi OTP qua email {Email}", userResponse.Data.Data.Email);
-            return ResultDTO.Success($"OTP đã được gửi đến: {userResponse.Data.Data.Email}");
+            _logger.LogInformation("ApplicationService: đã gửi OTP qua email {Email}", userResponse.Email);
+            return ResultDTO.Success($"OTP đã được gửi đến: {userResponse.Email}");
         }
 
         // Xác thực mã OTP cho việc quên mật khẩu
@@ -256,19 +249,9 @@ namespace GienPhim_Services.AuthService.Application.Services
         {
             _logger.LogInformation("ApplicationService: bắt đầu xác thực OTP cho user {Email}", request.Email);
 
-            var userResponse = await _userServiceClient.FindUserByEmailAsync(request.Email, cancellationToken);
-            if (userResponse == null)
-            {
-                _logger.LogError("ApplicationService: VerifyForgotPasswordOtpAsync không kết nối được UserService");
-                throw new ConnectServiceFailedException("UserSerivce");
-            }
-            if (!userResponse.Data.Status)
-            {
-                _logger.LogError("ApplicationService: không tìm thấy user với email {Email}", request.Email);
-                throw new UserNotFoundException(userResponse.Data.Msg, userResponse.StatusCode);
-            }
+            var userResponse = await _authOrchestrator.FetchUserByEmailAsync(request.Email, cancellationToken);
 
-            var codeOtp = await _otpRepository.GetAsync(userResponse.Data.Data.UserId, request.Type, cancellationToken);
+            var codeOtp = await _otpRepository.GetAsync(userResponse.UserId, request.Type, cancellationToken);
 
             var valid = _otpDomainService.VerifyOtp(codeOtp,request.Otp);
 
@@ -281,40 +264,79 @@ namespace GienPhim_Services.AuthService.Application.Services
         public async Task<ResultDTO> VerifyOtpForResetPasswordAsync(VerifyOtpEmailResetPasswordRequestDTO request, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: bắt đầu xác thực OTP cho user {Email}", request.Email);
-            var userResponse = await _userServiceClient.FindUserByEmailAsync(request.Email, cancellationToken);
-            if (userResponse == null)
-            {
-                _logger.LogError("ApplicationService: VerifyForgotPasswordOtpAsync không kết nối được UserService");
-                throw new ConnectServiceFailedException("UserSerivce");
-            }
-            if (!userResponse.Data.Status)
-            {
-                _logger.LogError("ApplicationService: không tìm thấy user với email {Email}", request.Email);
-                throw new UserNotFoundException(userResponse.Data.Msg, userResponse.StatusCode);
-            }
+            // Kiểm tra mật khẩu mới và xác nhận mật khẩu mới có khớp không
+            var userResponse = await _authOrchestrator.FetchUserByEmailAsync(request.Email, cancellationToken);
 
-            var codeOtp = await _otpRepository.GetAsync(userResponse.Data.Data.UserId, request.Type, cancellationToken);
+            var codeOtp = await _otpRepository.GetAsync(userResponse.UserId, request.Type, cancellationToken);
 
             var valid = _otpDomainService.VerifyOtp(codeOtp, request.Otp);
             await _otpRepository.RemoveAsync(codeOtp.UserId, codeOtp.Type); // Xóa OTP sau khi xác thực thành công
 
-            var resetRequest = _userHttpMapper.ToResetPasswordDTO(request, userResponse.Data.Data.UserId);
+            var resetRequest = _userHttpMapper.ToResetPasswordDTO(request, userResponse.UserId);
 
-            var result = await _userServiceClient.ResetPasswordAsync(resetRequest, cancellationToken);
-            if (result == null)
-            {
-                _logger.LogError("ApplicationService: VerifyForgotPasswordOtpAsync không kết nối được UserService");
-                throw new ConnectServiceFailedException("UserSerivce");
-            }
-
-            if (!result.Data.Status)
-            {
-                _logger.LogWarning("ApplicationService: ResetPasswordAsync thất bại cho user {Email} với lỗi {Error}", request.Email, result.Data.Msg);
-                throw new ResetPasswordFailedException(result.Data.Msg, result.StatusCode);
-            }
+            // Đặt lại mật khẩu
+            var result = await _authOrchestrator.ResetPasswordAsync(resetRequest, cancellationToken);
 
             _logger.LogInformation("Orchestrator: OTP hợp lệ cho user {Email}", request.Email);
-            return ResultDTO.Success(result.Data.Msg);
+            return ResultDTO.Success(result.Msg);
+        }
+
+        // Gửi mã OTP đến email người dùng để thay đổi email
+        public async Task<ResultDTO> GenerateAndSendOtpChangeEmailAsync(ChangeEmailOtpRequestDTO request, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: bắt đầu tạo OTP thay đổi email ");
+
+            var userId = _httpUserContextAccessor.GetUserId();
+            var email = _httpUserContextAccessor.GetEmail();
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogError("ApplicationService: Không tìm thấy userId từ token");
+                throw new UserNotFoundByIdException(userId);
+            }
+            if (string.IsNullOrEmpty(email))
+            {
+                _logger.LogError("ApplicationService: Không tìm thấy email từ token");
+                throw new UserEmailNotFoundException(email); // Nếu bạn có custom exception cho email
+            }
+
+            // Tạo mã OTP
+            var otpCode = _otpDomainService.CreateOtp(userId, request.Type);
+            await _otpRepository.SaveAsync(otpCode, cancellationToken);
+
+            // Gửi email
+            var subject = _emailTemplateService.GetOtpSubject(request.Type);
+            var body = _emailTemplateService.GetOtpBody(otpCode.Code);
+            await _emailService.SendAsync(email, subject, body);
+
+            _logger.LogInformation("ApplicationService: đã gửi OTP qua email {Email}", email);
+            return ResultDTO.Success($"OTP change Email đã được gửi đến: {email}");
+
+        }
+
+        // Xác thực mã OTP và thay đổi email
+        public async Task<ResultDTO> VerifyOtpForChangeEmailAsync(VerifyChangeEmailRequestDTO request , CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: bắt đầu xác thực OTP và thay đổi email mới: {NewEmail}", request.NewEmail);
+
+            var userId = _httpUserContextAccessor.GetUserId();
+            if(string.IsNullOrEmpty(userId))
+            {
+                _logger.LogError("ApplicationService: Không tìm thấy userId từ token");
+                throw new UserNotFoundByIdException(userId);
+            }
+
+            var codeOtp = await _otpRepository.GetAsync(userId, request.Type);
+            var valid = _otpDomainService.VerifyOtp(codeOtp, request.Otp);
+
+            await _otpRepository.RemoveAsync(codeOtp.UserId, codeOtp.Type); // Xóa OTP sau khi xác thực thành công
+
+
+            var mapRequest = _userHttpMapper.ToChangEmailDTO(request, userId);
+            var result = await _authOrchestrator.ChangeEmailAsync(mapRequest, cancellationToken);
+
+            _logger.LogInformation("ApplicationService: thay đổi email thành công cho userId {UserId} với email mới {NewEmail}", userId, request.NewEmail);
+            return ResultDTO.Success(result.Msg);
         }
     }
 }

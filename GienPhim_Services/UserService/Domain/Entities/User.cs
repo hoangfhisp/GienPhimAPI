@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection.Metadata;
 
 namespace GienPhim_Services.UserService.Domain.Entities
 {
@@ -25,5 +26,16 @@ namespace GienPhim_Services.UserService.Domain.Entities
         public DateTime ThoiGianDoiEmail { get; set; }
         [NotMapped]
         public List<string> Roles { get; set; } = new List<string>();
+
+        //
+        public bool CanchangeEmail()
+        {
+            return (DateTime.UtcNow - ThoiGianDoiEmail).TotalDays >= 7;
+        }
+        
+        public bool IsDuplicateEmail(string newEmail)
+        {
+            return Email == newEmail;
+        }
     }
 }

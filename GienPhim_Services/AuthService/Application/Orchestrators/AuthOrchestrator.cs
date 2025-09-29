@@ -1,9 +1,11 @@
-﻿using GienPhim_Services.AuthService.Application.DTOs.Login;
+﻿using GienPhim_Services.AuthService.Application.DTOs.Common;
+using GienPhim_Services.AuthService.Application.DTOs.ForgotPassword;
+using GienPhim_Services.AuthService.Application.DTOs.Login;
+using GienPhim_Services.AuthService.Application.DTOs.User;
 using GienPhim_Services.AuthService.Application.Exceptions.Failed;
 using GienPhim_Services.AuthService.Application.Exceptions.NotFounds;
 using GienPhim_Services.AuthService.Application.Interfaces.Mappers;
 using GienPhim_Services.AuthService.Application.Interfaces.Orchestrators;
-using GienPhim_Services.AuthService.Domain.Interfaces.Services;
 using GienPhim_Services.AuthService.Domain.Models;
 using GienPhim_Services.AuthService.Infrastructure.Data.HttpClients.Interfaces;
 using System.Threading;
@@ -17,7 +19,7 @@ namespace GienPhim_Services.AuthService.Application.Orchestrators
         private readonly ILogger<AuthOrchestrator> _logger;
 
         public AuthOrchestrator(IUserServiceClient userServiceClient
-            , IUserClaimsMapper userClaimsMapper
+            , IUserClaimsMapper userClaimsMapper 
             , ILogger<AuthOrchestrator> logger)
         {
             _userServiceClient = userServiceClient;
@@ -86,5 +88,63 @@ namespace GienPhim_Services.AuthService.Application.Orchestrators
 
             return claims;
         }
+
+        // Lấy thông tin user từ dịch vụ UserService theo email
+        public async Task<UserResponseDTO> FetchUserByEmailAsync(string email, CancellationToken cancellationToken = default)
+        {
+            var userResponse = await _userServiceClient.FindUserByEmailAsync(email, cancellationToken);
+
+            if (userResponse == null)
+            {
+                _logger.LogError("ApplicationService: LoginUserGenerateTokenAsync không kết nối được UserService");
+                throw new ConnectServiceFailedException("UserSerivce");
+            }
+
+            if (!userResponse.Data.Status)
+            {
+                _logger.LogError("ApplicationService: không tìm thấy user với email {Email}", email);
+                throw new UserNotFoundException(userResponse.Data.Msg, userResponse.StatusCode);
+            }
+
+            return userResponse.Data.Data;
+        }
+
+        // Đổi email
+        public async Task<ResultDTO> ChangeEmailAsync(ChangeEmailHttpRequestDTO request , CancellationToken cancellationToken = default)
+        {
+            var response = await _userServiceClient.ChangeEmailAsync(request, cancellationToken);
+            if (response == null)
+            {
+                _logger.LogError("Orchestrator: ChangeEmail không thể kết nối đến UserService với: {NewEmail}", request.NewEmail);
+                throw new ConnectServiceFailedException("UserSerivce");
+            }
+            if (!response.Data.Status)
+            {
+                _logger.LogWarning("Orchestrator: ChangeEmail đổi email không thành công với: {NewEmail}, Lỗi: {Error}", request.NewEmail, response.Data.Msg);
+                throw new FailedException(response.Data.Msg, response.StatusCode);
+            }
+            return response.Data;
+        }
+
+        // Quên mật khẩu - Gửi email xác nhận
+        public async Task<ResultDTO> ResetPasswordAsync(ResetPasswordEmailHttpRequestDTO request , CancellationToken cancellationToken = default)
+        {
+            var result = await _userServiceClient.ResetPasswordAsync(request, cancellationToken);
+            if (result == null)
+            {
+                _logger.LogError("ApplicationService: VerifyForgotPasswordOtpAsync không kết nối được UserService");
+                throw new ConnectServiceFailedException("UserSerivce");
+            }
+
+            if (!result.Data.Status)
+            {
+                _logger.LogWarning("ApplicationService: ResetPasswordAsync thất bại cho user {userId} với lỗi {Error}", request.UserId, result.Data.Msg);
+                throw new ResetPasswordFailedException(result.Data.Msg, result.StatusCode);
+            }
+
+            return result.Data;
+        }
+
+            
     }
 }

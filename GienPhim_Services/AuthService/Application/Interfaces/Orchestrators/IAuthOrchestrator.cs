@@ -1,5 +1,8 @@
-﻿using GienPhim_Services.AuthService.Application.DTOs.Login;
+﻿using GienPhim_Services.AuthService.Application.DTOs.Common;
+using GienPhim_Services.AuthService.Application.DTOs.ForgotPassword;
+using GienPhim_Services.AuthService.Application.DTOs.Login;
 using GienPhim_Services.AuthService.Application.DTOs.Token;
+using GienPhim_Services.AuthService.Application.DTOs.User;
 using GienPhim_Services.AuthService.Domain.Entities;
 using GienPhim_Services.AuthService.Domain.Models;
 using GienPhim_Services.AuthService.Domain.ValueObjects;
@@ -11,5 +14,8 @@ namespace GienPhim_Services.AuthService.Application.Interfaces.Orchestrators
         Task<UserClaims> FetchUserClaimsForLoginAsync(LoginUserPasswordRequestDTO request, CancellationToken cancellationToken = default); // Lấy thông tin user từ dịch vụ UserService khi đăng nhập bằng tài khoản và mật khẩu
         Task<UserClaims> FetchUserClaimsByIdAsync(string userId, CancellationToken cancellationToken = default); // Lấy thông tin user từ dịch vụ UserService theo userId
         Task<UserClaims> FetchUserClaimsFromExternalAsync(ExternalAuthUserInfoDTO request, CancellationToken cancellationToken = default); // Lấy thông tin user từ dịch vụ UserService khi đăng nhập bằng bên thứ 3
+        Task<UserResponseDTO> FetchUserByEmailAsync(string email, CancellationToken cancellationToken = default); // Lấy thông tin user từ dịch vụ UserService theo email
+        Task<ResultDTO> ChangeEmailAsync(ChangeEmailHttpRequestDTO request, CancellationToken cancellationToken = default); // Đổi email
+        Task<ResultDTO> ResetPasswordAsync(ResetPasswordEmailHttpRequestDTO request, CancellationToken cancellationToken = default); // Đặt lại mật khẩu cho user
     }
 }

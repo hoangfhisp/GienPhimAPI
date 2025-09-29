@@ -112,7 +112,17 @@ namespace GienPhim_Services.UserService.Infrastructure.Repositories
             return await _userManager.ResetPasswordAsync(user, token, newPassword);
         }
 
+        // Tạo mã token để thay đổi email
+        public async Task<string> GenerateChangeEmailTokenAsync(User user , string newEmail)
+        {
+            return await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+        }
 
+        // Thay đổi email với token
+        public async Task<IdentityResult> ChangeEmailWithTokenAsync(User user, string newEmail, string token)
+        {
+            return await _userManager.ChangeEmailAsync(user, newEmail, token);
+        }
         // Xóa User 
         public async Task<IdentityResult> DeleteUserAsync(string userId)
         {

@@ -2,7 +2,7 @@
 {
     public interface IEmailTemplateService
     {
-        string GetOtpSubject();
+        string GetOtpSubject(string type);
         string GetOtpBody(string otpCode);
     }
 }
