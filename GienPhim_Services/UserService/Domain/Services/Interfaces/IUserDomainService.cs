@@ -15,5 +15,6 @@ namespace GienPhim_Services.UserService.Domain.Services.Interfaces
         void EnsureCanUserId(User user); // Kiểm tra điều kiện userId User
         void EnsureCanResetPassword(User user); // Kiểm tra điều kiện reset mật khẩu User
         void EnsureCanChangeEmail(User user, string newEmail); // Kiểm tra điều kiện thay đổi email
+        void EnsureCanGetListUser(int page, int limit); // Kiểm tra điều kiện lấy danh sách User
     }
 }

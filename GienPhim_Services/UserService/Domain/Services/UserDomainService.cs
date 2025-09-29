@@ -103,6 +103,7 @@ namespace GienPhim_Services.UserService.Domain.Services
 
         }
 
+        // Đổi email
         public void EnsureCanChangeEmail(User user , string newEmail)
         {
             // Kiểm tra user có null không
@@ -122,6 +123,12 @@ namespace GienPhim_Services.UserService.Domain.Services
             user.ThoiGianCapNhat = DateTime.UtcNow;
         }
 
+        // Lấy danh sách user phân trang
+        public void EnsureCanGetListUser(int page, int limit)
+        {
+            ValidatePagination(page, limit);
+        }
+
         // private methods
         private void ValidateEmail(string? email)
         {
@@ -132,10 +139,20 @@ namespace GienPhim_Services.UserService.Domain.Services
                 throw new InvalidUserEmailException(email);
         }
 
+        private void ValidatePagination(int page, int limit)
+        {
+            if (page <= 0)
+                throw new InvalidUserPageException(page);
+
+            if (limit <= 0 || limit > 100)
+                throw new InvalidUserPageLimitException(limit);
+        }
+
         private void InValidUser(User user)
         {
             if (user == null)
                 throw new InvalidUserException(user?.Email);
+
         }
     }
 }
