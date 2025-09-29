@@ -1,7 +1,7 @@
 ﻿using GienPhim_Services.UserService.Domain.Entities;
+using GienPhim_Services.UserService.Domain.Exceptions.Duplicate;
 using GienPhim_Services.UserService.Domain.Exceptions.Invalid;
 using GienPhim_Services.UserService.Domain.Services.Interfaces;
-using Microsoft.AspNetCore.Identity;
 
 namespace GienPhim_Services.UserService.Domain.Services
 {
@@ -12,17 +12,18 @@ namespace GienPhim_Services.UserService.Domain.Services
         // Đăng ký tài khoản Local
         public void EnsureCanRegister(User user)
         {
-            if (user == null)
-                throw new InvalidUserException(user?.Email);
+            // Kiểm tra user có null không
+            InValidUser(user);
 
+            // Kiểm tra email
             ValidateEmail(user.Email);
         }
 
         // Đăng ký tài khoản từ bên ngoài
         public void EnsureCanProviderRegister(User user)
         {
-            if (user == null)
-                throw new InvalidUserException(user?.Email);
+            // Kiểm tra user có null không
+            InValidUser(user);
 
             // Kiểm tra email
             ValidateEmail(user.Email);
@@ -37,9 +38,10 @@ namespace GienPhim_Services.UserService.Domain.Services
         // Đăng nhập tài khoản từ bên ngoài
         public void EnsureCanProviderLogin(User user)
         {
-            if (user == null)
-                throw new InvalidUserException(user?.Email);
+            // Kiểm tra user có null không
+            InValidUser(user);
 
+            // Kiểm tra email
             ValidateEmail(user.Email);
 
             if (string.IsNullOrWhiteSpace(user.AuthId))
@@ -52,8 +54,8 @@ namespace GienPhim_Services.UserService.Domain.Services
         // Update Info người dùng
         public void EnsureCanUpdateInfoUser(User user)
         {
-            if (user == null)
-                throw new InvalidUserException(user?.Email);
+            // Kiểm tra user có null không
+            InValidUser(user);
 
             if (string.IsNullOrWhiteSpace(user.UserName))
                 throw new InvalidUserNameException(user.UserName);
@@ -68,9 +70,10 @@ namespace GienPhim_Services.UserService.Domain.Services
         // Login Local
         public void EnsureCanLoginLocal(User user)
         {
-            if (user == null)
-                throw new InvalidUserException(user?.Email);
+            // Kiểm tra user có null không
+            InValidUser(user);
 
+            // Kiểm tra email
             ValidateEmail(user.Email);
         }
 
@@ -78,15 +81,13 @@ namespace GienPhim_Services.UserService.Domain.Services
         // Tìm User Dựa vào email
         public void EnsureCanUserEmail(User user)
         {
-            if (user == null)
-                throw new InvalidUserException(user?.Email);
-            
+            // Kiểm tra user có null không
+            InValidUser(user);
         }
 
         public void EnsureCanUserId(User user)
         {
-            if (user == null)
-                throw new InvalidUserException(user?.Id);
+            InValidUser(user);
 
             if (string.IsNullOrWhiteSpace(user.Id))
                 throw new InvalidUserIdException(user.Id);
@@ -95,12 +96,30 @@ namespace GienPhim_Services.UserService.Domain.Services
         // Tìm User Dựa vào userId
         public void EnsureCanResetPassword(User user)
         {
-            if (user == null)
-                throw new InvalidUserException(user?.Email);
+            InValidUser(user);
 
             if (string.IsNullOrWhiteSpace(user.Id))
                 throw new InvalidUserIdException(user.Id);
 
+        }
+
+        public void EnsureCanChangeEmail(User user , string newEmail)
+        {
+            // Kiểm tra user có null không
+            InValidUser(user);
+
+            // Kiểm tra email
+            ValidateEmail(newEmail);
+
+            if (!user.CanchangeEmail())
+                throw new InvalidChangeEmailException(user.Email);
+
+            if (user.IsDuplicateEmail(newEmail))
+                throw new DuplicateEmailException(newEmail);
+
+            user.Email = newEmail;
+            user.ThoiGianDoiEmail = DateTime.UtcNow;
+            user.ThoiGianCapNhat = DateTime.UtcNow;
         }
 
         // private methods
@@ -111,6 +130,12 @@ namespace GienPhim_Services.UserService.Domain.Services
 
             if (!email.Contains("@"))
                 throw new InvalidUserEmailException(email);
+        }
+
+        private void InValidUser(User user)
+        {
+            if (user == null)
+                throw new InvalidUserException(user?.Email);
         }
     }
 }

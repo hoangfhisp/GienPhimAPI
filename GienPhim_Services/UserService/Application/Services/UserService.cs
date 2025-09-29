@@ -12,11 +12,13 @@ using GienPhim_Services.UserService.Application.Exceptions.Invalid;
 using Shared.FileStorage;
 using GienPhim_Services.UserService.Application.Exceptions.NotFounds;
 using GienPhim_Services.UserService.Application.Exceptions.Duplicates;
+using GienPhim_Services.UserService.Domain.Services.Interfaces;
 
 namespace GienPhim_Services.UserService.Application.Services
 {
     public class UserService : IUserService
     {
+        private readonly IUserDomainService _userDomainService;
         private readonly IUserOrchestrator _userOrchestrator;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserResponseMapper _userResponseMapper;
@@ -24,12 +26,13 @@ namespace GienPhim_Services.UserService.Application.Services
         private readonly ILogger<UserService> _logger;
 
 
-        public UserService(IUnitOfWork unitOfWork
+        public UserService(IUnitOfWork unitOfWork , IUserDomainService userDomainService
             , IUserOrchestrator userOrchestrator, IOptions<UserSettings> userSettings
-            , IUserResponseMapper userResponseMapper
+            , IUserResponseMapper userResponseMapper 
             , ILogger<UserService> logger)
         {
             //tham số của phương thức bị null nhưng không được phép null.
+            _userDomainService = userDomainService ?? throw new ArgumentNullException(nameof(userDomainService));
             _userOrchestrator = userOrchestrator ?? throw new ArgumentNullException(nameof(userOrchestrator));
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _userResponseMapper = userResponseMapper ?? throw new ArgumentNullException(nameof(userResponseMapper));
@@ -42,7 +45,7 @@ namespace GienPhim_Services.UserService.Application.Services
         public async Task<ResultDTO> RegisterUserAsync(UserRegisterDTO registerUser, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationSerVice: Bắt đầu đăng ký user {Email}", registerUser.Email);
-            
+
             var user = await _userOrchestrator.RegisterUserAsync(registerUser, cancellationToken);
 
             // await using → gọi DisposeAsync() (async).
@@ -73,7 +76,7 @@ namespace GienPhim_Services.UserService.Application.Services
         }
 
         // Login tài khoản từ bên ngoài nếu email chưa có đăng ký
-        public async Task<ResultDTO<ExternalLoginUserResponseDTO>> ProviderLoginOrRegisterUserAsync(ExternalLoginUserInfoDTO request ,CancellationToken cancellationToken = default)
+        public async Task<ResultDTO<ExternalLoginUserResponseDTO>> ProviderLoginOrRegisterUserAsync(ExternalLoginUserInfoDTO request, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationSerVice: Bắt đầu đăng nhập hoặc đăng ký user {Email} bên thứ 3", request.Email);
 
@@ -102,7 +105,7 @@ namespace GienPhim_Services.UserService.Application.Services
         public async Task<ResultDTO> ProviderRegisterUserAsync(ExternalLoginUserInfoDTO request, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationSerVice: Bắt đầu đăng ký user {Email} bên thứ 3", request.Email);
-            
+
             var user = await _userOrchestrator.ProviderRegisterUserAsync(request, cancellationToken);
 
             // await using → gọi DisposeAsync() (async).
@@ -135,9 +138,9 @@ namespace GienPhim_Services.UserService.Application.Services
         public async Task<ResultDTO<ExternalLoginUserResponseDTO>> ProviderLoginUserAsync(ExternalLoginUserInfoDTO request, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationSerVice: Bắt đầu đăng nhập user {Email} bên thứ 3", request.Email);
-            
+
             // Đăng nhập User từ bên ngoài
-            var userLogin =  _userOrchestrator.ProviderLoginUser(request);
+            var userLogin = _userOrchestrator.ProviderLoginUser(request);
 
             // Tìm user trong database
             var user = await _unitOfWork.Users.FindByAuthIdAndTypeLoginAsync(userLogin.AuthId, userLogin.TypeLogin, cancellationToken);
@@ -157,7 +160,7 @@ namespace GienPhim_Services.UserService.Application.Services
 
 
         // Update Info người dùng
-        public async Task<ResultDTO<UpdateInfoUserResponseDTO>> UpdateInfoUserAsync(InfoUserUpdateDTO update,CancellationToken cancellationToken = default)
+        public async Task<ResultDTO<UpdateInfoUserResponseDTO>> UpdateInfoUserAsync(InfoUserUpdateDTO update, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation(": Bắt đầu cập nhật thông tin user {UserName}", update.UserName);
             var userUpdate = await _userOrchestrator.UpdateInfoUserAsync(update, cancellationToken);
@@ -208,14 +211,14 @@ namespace GienPhim_Services.UserService.Application.Services
 
             await transaction.CommitAsync(cancellationToken);
             _logger.LogInformation("ApplicationSerVice: Cập nhật thông tin người dùng {UserName} thành công!", user.UserName);
-            return ResultDTO<UpdateInfoUserResponseDTO>.Success(_userResponseMapper.ToUpdate(user),$"Cập nhật thông tin người dùng '{user.Email}' thành công.");
+            return ResultDTO<UpdateInfoUserResponseDTO>.Success(_userResponseMapper.ToUpdate(user), $"Cập nhật thông tin người dùng '{user.Email}' thành công.");
 
 
         }
 
 
         // Login và sinh ra token
-        public async Task<ResultDTO<LoginLocalUserResponseDTO>> LoginLocalUserAsync(LoginRequestDTO requestLogin,CancellationToken cancellationToken = default)
+        public async Task<ResultDTO<LoginLocalUserResponseDTO>> LoginLocalUserAsync(LoginRequestDTO requestLogin, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationSerVice: Bắt đầu đăng nhập user {Email}", requestLogin.Account);
 
@@ -239,7 +242,7 @@ namespace GienPhim_Services.UserService.Application.Services
             // Trả về kết quả login
             user.Roles = roles.ToList();
             _logger.LogInformation("ApplicationSerVice: Đăng nhập user {Account} thành công!", requestLogin.Account);
-            return ResultDTO<LoginLocalUserResponseDTO>.Success(_userResponseMapper.ToLocalLogin(user),"Đăng nhập thành công");
+            return ResultDTO<LoginLocalUserResponseDTO>.Success(_userResponseMapper.ToLocalLogin(user), "Đăng nhập thành công");
         }
 
         // Tìm User theo email
@@ -303,7 +306,7 @@ namespace GienPhim_Services.UserService.Application.Services
             _logger.LogInformation("ApplicationSerVice: Bắt đầu đặt lại mật khẩu cho userId {UserId}", dto.UserId);
             // Lấy thông tin từ dto
             var userReset = _userOrchestrator.ResetPasswordAsync(dto);
-            
+
             // Đặt lại mật khẩu
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
@@ -344,5 +347,62 @@ namespace GienPhim_Services.UserService.Application.Services
             _logger.LogInformation("ApplicationSerVice: Tìm thấy người dùng với UserName {UserName}", userResponse.Email);
             return ResultDTO.Success($"Reset mật khẩu cho Email '{userResponse.Email}' thành công.");
         }
+
+        // Đổi email
+        public async Task<ResultDTO> ChangeEmailAsync(ChangeEmailRequestDTO dto, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationSerVice: Bắt đầu thay đổi email cho userId {UserId}", dto.UserId);
+
+            // Đặt lại mật khẩu
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+            // Tìm người dùng theo userId
+            var userResponse = await _unitOfWork.Users.FindByUserIdAsync(dto.UserId, cancellationToken);
+            if (userResponse == null)
+            {
+                _logger.LogWarning("ApplicationSerVice: Người dùng không tồn tại");
+                throw new UserNotFoundException();
+            }
+
+            // Check email mới không được trùng với email của người dùng khác
+            var checkEmail = await _unitOfWork.Users.FindByEmailAsync(dto.NewEmail, cancellationToken);
+            if (checkEmail != null)
+            {
+                _logger.LogWarning("ApplicationSerVice: Email mới đã được sử dụng bởi người dùng khác {UserName}", checkEmail.UserName);
+                throw new DuplicateEmailException(dto.NewEmail);
+            }
+
+            // Lấy thông tin từ dto
+            var userChange = _userOrchestrator.ChangeEmail(userResponse, dto.NewEmail);
+
+            // Tạo token thay đổi email
+            var tokenChange = await _unitOfWork.Users.GenerateChangeEmailTokenAsync(userChange, dto.NewEmail);
+            if (string.IsNullOrEmpty(tokenChange))
+            {
+                _logger.LogError("ApplicationSerVice: Tạo token thay đổi email cho người dùng {UserName} thất bại!", userChange.UserName);
+                throw new GenerateChangeEmailTokenFailedException(userChange.Email, dto.NewEmail);
+            }
+
+            // Thay đổi email với token
+            var resultChange = await _unitOfWork.Users.ChangeEmailWithTokenAsync(userChange, dto.NewEmail, tokenChange);
+            if (!resultChange.Succeeded)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.LogError("ApplicationSerVice: Thay đổi email cho người dùng {UserName} thất bại!", userResponse.Email);
+                throw new ChangeEmailFailedException(userResponse.Email, dto.NewEmail);
+            }
+
+            var updateTimeChangeEmail = await _unitOfWork.Users.UpdateUserAsync(userChange);
+            if (updateTimeChangeEmail == null)
+            {
+               await transaction.RollbackAsync(cancellationToken);
+                _logger.LogError("ApplicationSerVice: Cập nhật thời gian thay đổi email cho người dùng {UserName} thất bại!", userResponse.Email);
+                throw new UpdateUserFailedException(userResponse.UserName);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation("ApplicationSerVice: Thay đổi email cho người dùng {UserName} thành công!", userResponse.Email);
+            return ResultDTO.Success($"Thay đổi email cho tài khoản '{userResponse.UserName}' thành công.");
+        }
     }
 }
+        

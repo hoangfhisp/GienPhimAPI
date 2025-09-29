@@ -104,5 +104,22 @@ namespace GienPhim_Services.AuthService.Infrastructure.Data.HttpClients
                 StatusCode = (int)response.StatusCode
             };
         }
+
+        // Đổi email cho user
+        public async Task<ApiResponse<ResultDTO>> ChangeEmailAsync(ChangeEmailHttpRequestDTO requestDTO , CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("UserServiceClient: Gọi API UserService để đổi email cho user với UserId: {UserId}", requestDTO.UserId);
+            var response = await _httpClient.PostAsJsonAsync("api/User/ChangeEmail", requestDTO, cancellationToken);
+
+            var body = await response.Content.ReadFromJsonAsync<ResultDTO>(
+                cancellationToken: cancellationToken);
+
+            _logger.LogInformation("UserServiceClient: API UserService trả về mã trạng thái: {StatusCode}", (int)response.StatusCode);
+            return new ApiResponse<ResultDTO>
+            {
+                Data = body,
+                StatusCode = (int)response.StatusCode
+            };
+        }
     }
 }

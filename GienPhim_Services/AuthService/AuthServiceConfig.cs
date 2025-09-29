@@ -101,6 +101,7 @@ namespace GienPhim_Services.AuthService
             services.AddMemoryCache();
             // Services
             services.AddScoped<IEmailService, SmtpEmailService>(); // Gửi email
+            services.AddScoped<IHttpUserContextAccessor, HttpUserContextAccessor>(); // Quản lý token bị thu hồi
 
             // HTTP Client
             services.AddHttpClient<IUserServiceClient, UserServiceClient>((sp, client) =>

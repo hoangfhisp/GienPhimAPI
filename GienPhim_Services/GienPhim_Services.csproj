@@ -65,7 +65,6 @@
     <Folder Include="PaymentService\Services\" />
     <Folder Include="UserService\Api\Filters\" />
     <Folder Include="UserService\Application\Exceptions\Unauthorized\" />
-    <Folder Include="UserService\Domain\Exceptions\Duplicate\" />
     <Folder Include="UserService\Domain\Exceptions\Failed\" />
     <Folder Include="UserService\Domain\Exceptions\NotFounds\" />
     <Folder Include="UserService\Domain\ValueObjects\" />

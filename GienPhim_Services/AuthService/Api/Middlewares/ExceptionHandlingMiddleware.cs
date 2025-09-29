@@ -58,8 +58,8 @@ namespace GienPhim_Services.AuthService.Api.Middlewares
                 context.Response.StatusCode = statusCode;
                 await context.Response.WriteAsJsonAsync(new
                 {
-                    success = false,
-                    message = ex.Message,
+                    Status = false,
+                    Msg = ex.Message,
                 });
             }
             catch (BusinessException ex) // lỗi nghiệp vụ

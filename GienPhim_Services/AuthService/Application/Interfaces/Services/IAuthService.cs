@@ -2,6 +2,7 @@
 using GienPhim_Services.AuthService.Application.DTOs.ForgotPassword;
 using GienPhim_Services.AuthService.Application.DTOs.Login;
 using GienPhim_Services.AuthService.Application.DTOs.Token;
+using GienPhim_Services.AuthService.Application.DTOs.User;
 
 namespace GienPhim_Services.AuthService.Application.Interfaces.Services
 {
@@ -15,5 +16,7 @@ namespace GienPhim_Services.AuthService.Application.Interfaces.Services
         Task<ResultDTO> GenerateAndSendOtpEmailAsync(ForgotPasswordEmailRequestDTO forgot, CancellationToken cancellationToken = default); // Gửi mã OTP đến email người dùng
         Task<ResultDTO> VerifyForgotPasswordOtpAsync(VerifyOtpEmailRequestDTO request, CancellationToken cancellationToken = default); // Xác thực mã OTP cho việc quên mật khẩu
         Task<ResultDTO> VerifyOtpForResetPasswordAsync(VerifyOtpEmailResetPasswordRequestDTO request, CancellationToken cancellationToken = default); // Xác thực mã OTP và đặt lại mật khẩu
+        Task<ResultDTO> GenerateAndSendOtpChangeEmailAsync(ChangeEmailOtpRequestDTO request, CancellationToken cancellationToken = default); // Gửi mã OTP đến email mới khi đổi email
+        Task<ResultDTO> VerifyOtpForChangeEmailAsync(VerifyChangeEmailRequestDTO request, CancellationToken cancellationToken = default); // Xác thực mã OTP và đổi email
     }
 }

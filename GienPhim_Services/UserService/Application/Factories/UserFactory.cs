@@ -78,5 +78,6 @@ namespace GienPhim_Services.UserService.Application.Factories
                 ThoiGianCapNhat = DateTime.UtcNow
             };
         }
+
     }
 }

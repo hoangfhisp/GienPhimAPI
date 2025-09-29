@@ -1,4 +1,5 @@
 ﻿using GienPhim_Services.AuthService.Application.DTOs.ForgotPassword;
+using GienPhim_Services.AuthService.Application.DTOs.User;
 using GienPhim_Services.AuthService.Application.Interfaces.Mappers;
 
 namespace GienPhim_Services.AuthService.Application.Mappers
@@ -12,6 +13,15 @@ namespace GienPhim_Services.AuthService.Application.Mappers
                 UserId = userId,
                 NewPassword = request.NewPassword,
                 ConfirmNewPassword = request.ConfirmNewPassword
+            };
+        }
+
+        public ChangeEmailHttpRequestDTO ToChangEmailDTO(VerifyChangeEmailRequestDTO request, string userId)
+        {
+            return new ChangeEmailHttpRequestDTO
+            {
+                UserId = userId,
+                NewEmail = request.NewEmail,
             };
         }
     }

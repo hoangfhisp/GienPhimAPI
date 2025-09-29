@@ -47,6 +47,8 @@ builder.Services.AddSwaggerGen(c =>
             new string[]{}
         }
     });
+
+    c.CustomSchemaIds(type => type.FullName); // dùng FullName thay vì Name
 });
 
 // FILLTER
@@ -82,9 +84,10 @@ builder.Services.AddDbContext<OrderDbContext>(options =>
 
 
 //ADD MICROSERVICE
-builder.Services.AddUserService(builder.Configuration);
-builder.Services.AddAuthService(builder.Configuration);
-builder.Services.AddFilmService(builder.Configuration);
+builder.Services.AddUserService(builder.Configuration); // UserService
+builder.Services.AddAuthService(builder.Configuration); // AuthService
+builder.Services.AddFilmService(builder.Configuration); // FilmService
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -96,9 +99,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowFrontend");
 
 
-app.AuthAuthService();
-app.UseUserService();
-app.FilmFilmService();
+app.AuthAuthService(); // AuthService
+app.UseUserService(); // UserService
+app.FilmFilmService(); // FilmService
 
 // Cho phép phục vụ file tĩnh từ wwwroot
 app.UseStaticFiles();

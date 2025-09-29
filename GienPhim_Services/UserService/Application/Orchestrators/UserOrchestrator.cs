@@ -154,6 +154,17 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
             return user;
         }
 
+        // Đổi email
+        public User ChangeEmail(User user , string newEmail)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu ChangeEmail với userId {UserId}", user.Id);
+
+            _userDomainService.EnsureCanChangeEmail(user,newEmail);
+
+            _logger.LogInformation("Orchestrator: Thay đổi email thành công cho userId {UserId}", user.Id);
+            return user;
+        }
+
         // Đặt lại mật khẩu
         public User ResetPasswordAsync(ResetPasswordRequestDTO dto )
         {
@@ -164,5 +175,7 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
             _logger.LogInformation("Orchestrator: Reset mật khẩu thành công cho email {Email}", user.Id);
             return user;
         }
+
+        
     }
 }

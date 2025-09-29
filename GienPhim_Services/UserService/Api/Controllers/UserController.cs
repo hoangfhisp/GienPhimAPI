@@ -92,5 +92,15 @@ namespace GienPhim_Services.UserService.Api.Controllers
             _logger.LogInformation("API Response: ResetPassword cho UserId {userId} với trạng thái {Status}", dto.UserId, result.Status);
             return Ok(result);
         }
+
+        // Đổi email
+        [HttpPost("ChangeEmail")]
+        public async Task<IActionResult> ChangeEmail(ChangeEmailRequestDTO dto, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("API Request: ChangeEmail cho UserId: {userId}", dto.UserId);
+            var result = await _userService.ChangeEmailAsync(dto, cancellationToken);
+            _logger.LogInformation("API Response: ChangeEmail cho UserId {userId} với trạng thái {Status}", dto.UserId, result.Status);
+            return Ok(result);
+        }
     }
 }
