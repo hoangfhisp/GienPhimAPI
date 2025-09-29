@@ -1,4 +1,5 @@
 ﻿using GienPhim_Services.AuthService.Application.DTOs.Common;
+using GienPhim_Services.AuthService.Application.DTOs.ForgotPassword;
 using GienPhim_Services.AuthService.Application.DTOs.Login;
 using GienPhim_Services.AuthService.Application.DTOs.User;
 using GienPhim_Services.AuthService.Application.Exceptions.Failed;
@@ -7,6 +8,7 @@ using GienPhim_Services.AuthService.Application.Interfaces.Mappers;
 using GienPhim_Services.AuthService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.AuthService.Domain.Models;
 using GienPhim_Services.AuthService.Infrastructure.Data.HttpClients.Interfaces;
+using System.Threading;
 
 namespace GienPhim_Services.AuthService.Application.Orchestrators
 {
@@ -107,20 +109,40 @@ namespace GienPhim_Services.AuthService.Application.Orchestrators
             return userResponse.Data.Data;
         }
 
-        public async Task<ResultDTO> FetchChangeEmail(ChangeEmailHttpRequestDTO request , CancellationToken cancellationToken = default)
+        // Đổi email
+        public async Task<ResultDTO> ChangeEmailAsync(ChangeEmailHttpRequestDTO request , CancellationToken cancellationToken = default)
         {
             var response = await _userServiceClient.ChangeEmailAsync(request, cancellationToken);
             if (response == null)
             {
-                _logger.LogError("Orchestrator: FetchChangeEmail không thể kết nối đến UserService với: {NewEmail}", request.NewEmail);
+                _logger.LogError("Orchestrator: ChangeEmail không thể kết nối đến UserService với: {NewEmail}", request.NewEmail);
                 throw new ConnectServiceFailedException("UserSerivce");
             }
             if (!response.Data.Status)
             {
-                _logger.LogWarning("Orchestrator: FetchChangeEmail đổi email không thành công với: {NewEmail}, Lỗi: {Error}", request.NewEmail, response.Data.Msg);
+                _logger.LogWarning("Orchestrator: ChangeEmail đổi email không thành công với: {NewEmail}, Lỗi: {Error}", request.NewEmail, response.Data.Msg);
                 throw new FailedException(response.Data.Msg, response.StatusCode);
             }
             return response.Data;
+        }
+
+        // Quên mật khẩu - Gửi email xác nhận
+        public async Task<ResultDTO> ResetPasswordAsync(ResetPasswordEmailHttpRequestDTO request , CancellationToken cancellationToken = default)
+        {
+            var result = await _userServiceClient.ResetPasswordAsync(request, cancellationToken);
+            if (result == null)
+            {
+                _logger.LogError("ApplicationService: VerifyForgotPasswordOtpAsync không kết nối được UserService");
+                throw new ConnectServiceFailedException("UserSerivce");
+            }
+
+            if (!result.Data.Status)
+            {
+                _logger.LogWarning("ApplicationService: ResetPasswordAsync thất bại cho user {userId} với lỗi {Error}", request.UserId, result.Data.Msg);
+                throw new ResetPasswordFailedException(result.Data.Msg, result.StatusCode);
+            }
+
+            return result.Data;
         }
 
             

@@ -274,21 +274,11 @@ namespace GienPhim_Services.AuthService.Application.Services
 
             var resetRequest = _userHttpMapper.ToResetPasswordDTO(request, userResponse.UserId);
 
-            var result = await _userServiceClient.ResetPasswordAsync(resetRequest, cancellationToken);
-            if (result == null)
-            {
-                _logger.LogError("ApplicationService: VerifyForgotPasswordOtpAsync không kết nối được UserService");
-                throw new ConnectServiceFailedException("UserSerivce");
-            }
-
-            if (!result.Data.Status)
-            {
-                _logger.LogWarning("ApplicationService: ResetPasswordAsync thất bại cho user {Email} với lỗi {Error}", request.Email, result.Data.Msg);
-                throw new ResetPasswordFailedException(result.Data.Msg, result.StatusCode);
-            }
+            // Đặt lại mật khẩu
+            var result = await _authOrchestrator.ResetPasswordAsync(resetRequest, cancellationToken);
 
             _logger.LogInformation("Orchestrator: OTP hợp lệ cho user {Email}", request.Email);
-            return ResultDTO.Success(result.Data.Msg);
+            return ResultDTO.Success(result.Msg);
         }
 
         // Gửi mã OTP đến email người dùng để thay đổi email
@@ -298,8 +288,7 @@ namespace GienPhim_Services.AuthService.Application.Services
 
             var userId = _httpUserContextAccessor.GetUserId();
             var email = _httpUserContextAccessor.GetEmail();
-            _logger.LogError(email);
-            _logger.LogError("Userid: {userid}",userId);
+
             if (string.IsNullOrEmpty(userId))
             {
                 _logger.LogError("ApplicationService: Không tìm thấy userId từ token");
@@ -344,7 +333,7 @@ namespace GienPhim_Services.AuthService.Application.Services
 
 
             var mapRequest = _userHttpMapper.ToChangEmailDTO(request, userId);
-            var result = await _authOrchestrator.FetchChangeEmail(mapRequest, cancellationToken);
+            var result = await _authOrchestrator.ChangeEmailAsync(mapRequest, cancellationToken);
 
             _logger.LogInformation("ApplicationService: thay đổi email thành công cho userId {UserId} với email mới {NewEmail}", userId, request.NewEmail);
             return ResultDTO.Success(result.Msg);
