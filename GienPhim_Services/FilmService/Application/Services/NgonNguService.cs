@@ -13,6 +13,7 @@ namespace GienPhim_Services.FilmService.Application.Services
     {
         private readonly INgonNguOrchestrator _ngonNguOrchestrator;
         private readonly INgonNguResponseMapper _ngonNguResponseMapper;
+        private readonly IPaginationMapper _paginationMapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<NgonNguService> _logger;
 
@@ -20,21 +21,21 @@ namespace GienPhim_Services.FilmService.Application.Services
             IUnitOfWork unitOfWork,
             INgonNguOrchestrator ngonNguOrchestrator,
             INgonNguResponseMapper ngonNguResponseMapper,
+            IPaginationMapper paginationMapper,
             ILogger<NgonNguService> logger)
         {
             _unitOfWork = unitOfWork;
             _ngonNguOrchestrator = ngonNguOrchestrator;
             _ngonNguResponseMapper = ngonNguResponseMapper;
+            _paginationMapper = paginationMapper;
             _logger = logger;
         }
 
         public async Task<ResultListDTO<List<NgonNguResponseDTO>>> GetAllNgonNgusAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("ApplicationService: Bắt đầu GetAllNgonNgusAsync với trang {Page} và giới hạn {Limit}", page, limit);
+            _logger.LogInformation("ApplicationService: Bắt đầu GetAllNgonNgusAsync với page={Page}, limit={Limit}", page, limit);
 
-            var ngonNgus = await _ngonNguOrchestrator.GetAllNgonNgusAsync(cancellationToken);
-
-            var total = ngonNgus.Count();
+            var (ngonNgus, total, last) = await _unitOfWork.NgonNgus.GetAllNgonNgusAsync(page, limit, cancellationToken);
 
             if (total == 0)
             {
@@ -42,27 +43,13 @@ namespace GienPhim_Services.FilmService.Application.Services
                 throw new NgonNguNotFoundException();
             }
 
-            var last = (int)Math.Ceiling(total / (double)limit);
+            var resultDtos = _ngonNguResponseMapper.ToDtoList(ngonNgus);
 
-            var paged = ngonNgus.Skip((page - 1) * limit).Take(limit).ToList();
-
-            var resultNgonNgu = _ngonNguResponseMapper.ToDtoList(paged);
-
-            var pagination = new PaginationDTO
-            {
-                Page = page,
-                Limit = limit,
-                Total = total,
-                Last = last
-            };
+            var pagination = _paginationMapper.ToDto(page, limit, total, last);
 
             _logger.LogInformation("ApplicationService: Lấy danh sách NgonNgu thành công, tổng={Total}", total);
 
-            return ResultListDTO<List<NgonNguResponseDTO>>.Success(
-                resultNgonNgu,
-                "Lấy danh sách ngôn ngữ thành công",
-                pagination
-            );
+            return ResultListDTO<List<NgonNguResponseDTO>>.Success(resultDtos, "Lấy danh sách ngôn ngữ thành công", pagination);
         }
 
         public async Task<ResultDTO> CreateNgonNguAsync(NgonNguCreateDTO createDto, CancellationToken cancellationToken = default)

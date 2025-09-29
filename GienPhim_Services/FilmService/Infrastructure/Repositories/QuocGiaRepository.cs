@@ -14,34 +14,45 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             _filmContext = filmContext;
         }
 
-        public async Task<List<QuocGia>> GetAllQuocGiasAsync(CancellationToken cancellationToken = default)
+        public async Task<(List<QuocGia> quocGias, int total, int last)> GetAllQuocGiasAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
-            return await _filmContext.QuocGia.ToListAsync(cancellationToken);
+            var query = _filmContext.QuocGia.AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var last = (int)Math.Ceiling((double)total / limit);
+
+            var quocGias = await query
+                .OrderBy(qg => qg.QuocGiaId)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            return (quocGias, total, last);
         }
 
-        public async Task<QuocGia?> GetByIdAsync(int id, CancellationToken ct = default)
+        public async Task<QuocGia?> GetByIdAsync(int quocGiaId, CancellationToken ct = default)
         {
             return await _filmContext.QuocGia
-                .FirstOrDefaultAsync(x => x.QuocGiaId == id, ct);
+                .FirstOrDefaultAsync(qg => qg.QuocGiaId == quocGiaId, ct);
         }
 
-        public async Task<QuocGia> CreateAsync(QuocGia e, CancellationToken ct = default)
+        public async Task<QuocGia> CreateAsync(QuocGia quocGia, CancellationToken ct = default)
         {
-            _filmContext.QuocGia.Add(e);
+            _filmContext.QuocGia.Add(quocGia);
             await _filmContext.SaveChangesAsync(ct);
-            return e;
+            return quocGia;
         }
 
-        public async Task<QuocGia> UpdateAsync(QuocGia e, CancellationToken ct = default)
+        public async Task<QuocGia> UpdateAsync(QuocGia quocGia, CancellationToken ct = default)
         {
-            _filmContext.QuocGia.Update(e);
+            _filmContext.QuocGia.Update(quocGia);
             await _filmContext.SaveChangesAsync(ct);
-            return e;
+            return quocGia;
         }
 
-        public async Task DeleteAsync(QuocGia e, CancellationToken ct = default)
+        public async Task DeleteAsync(QuocGia quocGia, CancellationToken ct = default)
         {
-            _filmContext.QuocGia.Remove(e);
+            _filmContext.QuocGia.Remove(quocGia);
             await _filmContext.SaveChangesAsync(ct);
         }
     }

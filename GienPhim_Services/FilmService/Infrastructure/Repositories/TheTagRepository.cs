@@ -14,34 +14,45 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             _filmContext = filmContext;
         }
 
-        public async Task<List<TheTag>> GetAllTheTagsAsync(CancellationToken cancellationToken = default)
+        public async Task<(List<TheTag> theTags, int total, int last)> GetAllTheTagsAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
-            return await _filmContext.TheTag.ToListAsync(cancellationToken);
+            var query = _filmContext.TheTag.AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var last = (int)Math.Ceiling((double)total / limit);
+
+            var theTags = await query
+                .OrderBy(t => t.TheTagId) // sắp xếp ổn định
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            return (theTags, total, last);
         }
 
-        public async Task<TheTag?> GetByIdAsync(int id, CancellationToken ct = default)
+        public async Task<TheTag?> GetByIdAsync(int theTagId, CancellationToken ct = default)
         {
             return await _filmContext.TheTag
-                .FirstOrDefaultAsync(x => x.TheTagId == id, ct);
+                .FirstOrDefaultAsync(tt => tt.TheTagId == theTagId, ct);
         }
 
-        public async Task<TheTag> CreateAsync(TheTag e, CancellationToken ct = default)
+        public async Task<TheTag> CreateAsync(TheTag theTag, CancellationToken ct = default)
         {
-            _filmContext.TheTag.Add(e);
+            _filmContext.TheTag.Add(theTag);
             await _filmContext.SaveChangesAsync(ct);
-            return e;
+            return theTag;
         }
 
-        public async Task<TheTag> UpdateAsync(TheTag e, CancellationToken ct = default)
+        public async Task<TheTag> UpdateAsync(TheTag theTag, CancellationToken ct = default)
         {
-            _filmContext.TheTag.Update(e);
+            _filmContext.TheTag.Update(theTag);
             await _filmContext.SaveChangesAsync(ct);
-            return e;
+            return theTag;
         }
 
-        public async Task DeleteAsync(TheTag e, CancellationToken ct = default)
+        public async Task DeleteAsync(TheTag theTag, CancellationToken ct = default)
         {
-            _filmContext.TheTag.Remove(e);
+            _filmContext.TheTag.Remove(theTag);
             await _filmContext.SaveChangesAsync(ct);
         }
     }

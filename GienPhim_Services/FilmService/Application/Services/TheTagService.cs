@@ -12,49 +12,48 @@ namespace GienPhim_Services.FilmService.Application.Services
     public class TheTagService : ITheTagService
     {
         private readonly ITheTagOrchestrator _orchestrator;
-        private readonly ITheTagResponseMapper _mapper;
+        private readonly ITheTagResponseMapper _theTagResponseMapper;
+        private readonly IPaginationMapper _paginationMapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<TheTagService> _logger;
 
         public TheTagService(
             IUnitOfWork unitOfWork,
             ITheTagOrchestrator orchestrator,
-            ITheTagResponseMapper mapper,
+            ITheTagResponseMapper theTagResponemapper,
+            IPaginationMapper paginationMapper,
             ILogger<TheTagService> logger)
         {
             _unitOfWork = unitOfWork;
             _orchestrator = orchestrator;
-            _mapper = mapper;
+            _theTagResponseMapper = theTagResponemapper;
+            _paginationMapper = paginationMapper;
             _logger = logger;
         }
 
         public async Task<ResultListDTO<List<TheTagResponseDTO>>> GetAllTheTagsAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("Service: Bắt đầu GetAllTheTagsAsync với page={Page}, limit={Limit}", page, limit);
+            _logger.LogInformation("ApplicationService: Bắt đầu GetAllTheTagsAsync với page={Page}, limit={Limit}", page, limit);
 
-            var tags = await _orchestrator.GetAllTheTagsAsync(cancellationToken);
+            var (theTags, total, last) = await _unitOfWork.TheTags.GetAllTheTagsAsync(page, limit, cancellationToken);
 
-            var total = tags.Count();
             if (total == 0)
             {
-                _logger.LogWarning("Service: Không tìm thấy TheTag nào");
+                _logger.LogWarning("ApplicationService: Không tìm thấy TheTag nào");
                 throw new TheTagNotFoundException();
             }
 
-            var last = (int)Math.Ceiling(total / (double)limit);
+            var dtoList = _theTagResponseMapper.toDtoList(theTags);
 
-            var paged = tags.Skip((page - 1) * limit).Take(limit).ToList();
-            var dtoList = _mapper.toDtoList(paged);
+            var pagination = _paginationMapper.ToDto(page, limit, total, last);
 
-            var pagination = new PaginationDTO
-            {
-                Page = page,
-                Limit = limit,
-                Total = total,
-                Last = last
-            };
+            _logger.LogInformation("ApplicationService: Lấy danh sách TheTag thành công, tổng={Total}", total);
 
-            return ResultListDTO<List<TheTagResponseDTO>>.Success(dtoList, "Lấy danh sách TheTag thành công", pagination);
+            return ResultListDTO<List<TheTagResponseDTO>>.Success(
+                dtoList,
+                "Lấy danh sách TheTag thành công",
+                pagination
+            );
         }
 
         public async Task<ResultDTO> CreateTheTagAsync(TheTagCreateDTO createDto, CancellationToken cancellationToken = default)
@@ -98,7 +97,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             await transaction.CommitAsync(cancellationToken);
             _logger.LogInformation("Service: Cập nhật TheTag {TheTagId} thành công", tag.TheTagId);
 
-            var response = _mapper.ToUpdateDto(tag);
+            var response = _theTagResponseMapper.ToUpdateDto(tag);
 
             return ResultDTO<UpdateTheTagResponseDTO>.Success(response, $"Cập nhật thẻ tag {tag.TenT} thành công");
         }

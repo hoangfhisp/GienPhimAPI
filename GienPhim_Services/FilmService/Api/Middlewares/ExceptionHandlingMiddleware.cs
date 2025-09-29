@@ -59,6 +59,12 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
             { typeof(QuocGiaFailedException), StatusCodes.Status500InternalServerError },
             { typeof(InvalidQuocGiaException), StatusCodes.Status500InternalServerError },
             { typeof(QuocGiaNotFoundException), StatusCodes.Status500InternalServerError },
+
+            // Phim
+            { typeof(DuplicatePhimException), StatusCodes.Status500InternalServerError },
+            { typeof(PhimFailedException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidPhimException), StatusCodes.Status500InternalServerError },
+            { typeof(PhimNotFoundException), StatusCodes.Status500InternalServerError },
         };
 
         public async Task InvokeAsync(HttpContext context)
@@ -68,7 +74,8 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
                 !context.Request.Path.StartsWithSegments("/api/TheLoai") &&
                 !context.Request.Path.StartsWithSegments("/api/TheTag") &&
                 !context.Request.Path.StartsWithSegments("/api/NgonNgu") &&
-                !context.Request.Path.StartsWithSegments("/api/QuocGia"))
+                !context.Request.Path.StartsWithSegments("/api/QuocGia") &&
+                !context.Request.Path.StartsWithSegments("/api/Phim"))
             {
                 await _next(context);
                 return;

@@ -5,7 +5,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Orchestrators
 {
     public interface ITheLoaiOrchestrator
     {
-        Task<IEnumerable<TheLoai>> GetAllTheLoaisAsync(CancellationToken cancellationToken = default);
         Task<TheLoai> CreateTheLoaiAsync(TheLoaiCreateDTO createDto, CancellationToken cancellationToken = default);
         Task<TheLoai> UpdateTheLoaiAsync(TheLoaiUpdateDTO updateDto, CancellationToken cancellationToken = default);
         Task DeleteTheLoaiAsync(TheLoaiDeleteDTO deleteDto, CancellationToken cancellationToken = default);

@@ -14,35 +14,45 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             _filmContext = filmContext;
         }
 
-        // Lấy tất cả thể loại
-        public async Task<List<TheLoai>> GetAllTheLoaisAsync(CancellationToken cancellationToken = default)
+        public async Task<(List<TheLoai> theLoais, int total, int last)> GetAllTheLoaisAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
-            return await _filmContext.TheLoai.ToListAsync(cancellationToken);
+            var query = _filmContext.TheLoai.AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var last = (int)Math.Ceiling((double)total / limit);
+
+            var theLoais = await query
+                .OrderBy(tl => tl.TheLoaiId)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            return (theLoais, total, last);
         }
 
-        public async Task<TheLoai?> GetByIdAsync(int id, CancellationToken ct = default)
+        public async Task<TheLoai?> GetByIdAsync(int theLoaiId, CancellationToken ct = default)
         {
             return await _filmContext.TheLoai
-                .FirstOrDefaultAsync(x => x.TheLoaiId == id, ct);
+                .FirstOrDefaultAsync(tl => tl.TheLoaiId == theLoaiId, ct);
         }
 
-        public async Task<TheLoai> CreateAsync(TheLoai e, CancellationToken ct = default)
+        public async Task<TheLoai> CreateAsync(TheLoai theLoai, CancellationToken ct = default)
         {
-            _filmContext.TheLoai.Add(e);
+            _filmContext.TheLoai.Add(theLoai);
             await _filmContext.SaveChangesAsync(ct);
-            return e;
+            return theLoai;
         }
 
-        public async Task<TheLoai> UpdateAsync(TheLoai e, CancellationToken ct = default)
+        public async Task<TheLoai> UpdateAsync(TheLoai theLoai, CancellationToken ct = default)
         {
-            _filmContext.TheLoai.Update(e);
+            _filmContext.TheLoai.Update(theLoai);
             await _filmContext.SaveChangesAsync(ct);
-            return e;
+            return theLoai;
         }
 
-        public async Task DeleteAsync(TheLoai e, CancellationToken ct = default)
+        public async Task DeleteAsync(TheLoai theLoai, CancellationToken ct = default)
         {
-            _filmContext.TheLoai.Remove(e);
+            _filmContext.TheLoai.Remove(theLoai);
             await _filmContext.SaveChangesAsync(ct);
         }
     }

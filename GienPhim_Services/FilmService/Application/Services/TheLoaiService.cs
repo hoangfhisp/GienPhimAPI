@@ -13,6 +13,7 @@ namespace GienPhim_Services.FilmService.Application.Services
     {
         private readonly ITheLoaiOrchestrator _theLoaiOrchestrator;
         private readonly ITheLoaiResponseMapper _theLoaiResponseMapper;
+        private readonly IPaginationMapper _paginationMapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<TheLoaiService> _logger;
 
@@ -20,11 +21,13 @@ namespace GienPhim_Services.FilmService.Application.Services
             IUnitOfWork unitOfWork,
             ITheLoaiOrchestrator theLoaiOrchestrator,
             ITheLoaiResponseMapper theLoaiResponseMapper,
+            IPaginationMapper paginationMapper,
             ILogger<TheLoaiService> logger)
         {
             _unitOfWork = unitOfWork;
             _theLoaiOrchestrator = theLoaiOrchestrator;
             _theLoaiResponseMapper = theLoaiResponseMapper;
+            _paginationMapper = paginationMapper;
             _logger = logger;
         }
 
@@ -32,34 +35,19 @@ namespace GienPhim_Services.FilmService.Application.Services
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetAllTheLoaisAsync với page={Page}, limit={Limit}", page, limit);
 
-            var theLoais = await _theLoaiOrchestrator.GetAllTheLoaisAsync(cancellationToken);
-
-            var total = theLoais.Count();
+            var (theLoais, total, last) = await _unitOfWork.TheLoais.GetAllTheLoaisAsync(page, limit, cancellationToken);
 
             if (total == 0)
             {
                 _logger.LogWarning("ApplicationService: Không tìm thấy thể loại nào");
-                throw new TheLoaiNotFoundException(); // exception Application Layer
+                throw new TheLoaiNotFoundException();
             }
 
-            var last = (int)Math.Ceiling(total / (double)limit);
+            var resultDtos = _theLoaiResponseMapper.toDtoList(theLoais);
 
-            var paged = theLoais
-                .Skip((page - 1) * limit)
-                .Take(limit)
-                .ToList();
+            var pagination = _paginationMapper.ToDto(page, limit, total, last);
 
-            var resultDtos = _theLoaiResponseMapper.toDtoList(paged);
-
-            var pagination = new PaginationDTO
-            {
-                Page = page,
-                Limit = limit,
-                Total = total,
-                Last = last
-            };
-
-            _logger.LogInformation("ApplicationService: Lấy danh sách TheLoai thành công, tổng={Total}", total);
+            _logger.LogInformation("ApplicationService: Lấy danh sách Thể Loại thành công, tổng={Total}", total);
 
             return ResultListDTO<List<TheLoaiResponseDTO>>.Success(
                 resultDtos,
@@ -67,7 +55,6 @@ namespace GienPhim_Services.FilmService.Application.Services
                 pagination
             );
         }
-
         public async Task<ResultDTO> CreateTheLoaiAsync(TheLoaiCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreateTheLoaiAsync với tên thể loại {TenTL}", createDto.TenTL);

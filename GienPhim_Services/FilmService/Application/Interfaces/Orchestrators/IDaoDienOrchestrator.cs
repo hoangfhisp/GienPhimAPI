@@ -6,7 +6,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Orchestrators
 {
     public interface IDaoDienOrchestrator
     {
-        Task<IEnumerable<DaoDien>> GetAllDaoDiensAsync(CancellationToken cancellationToken = default);
         Task<DaoDien> CreateDaoDienAsync(DaoDienCreateDTO createDto, CancellationToken cancellationToken = default);
         Task<DaoDien> UpdateDaoDienAsync(DaoDienUpdateDTO updateDto, CancellationToken cancellationToken = default);
         Task DeleteDaoDienAsync(DaoDienDeleteDTO deleteDto, CancellationToken cancellationToken = default);

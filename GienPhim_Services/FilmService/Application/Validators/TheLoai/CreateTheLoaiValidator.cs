@@ -24,12 +24,6 @@ namespace GienPhim_Services.FilmService.Application.Validators.TheLoai
             if (dto.TenTL.Length > 200)
                 throw new InvalidTheLoaiException("Tên thể loại quá dài (tối đa 200 ký tự).");
 
-            // Nếu cần có thể check trùng tên bằng repository
-            var existing = await _theLoaiRepository
-                .GetAllTheLoaisAsync(cancellationToken);
-
-            if (existing.Any(x => x.TenTL.ToLower() == dto.TenTL.ToLower().Trim()))
-                throw new InvalidTheLoaiException($"Thể loại '{dto.TenTL}' đã tồn tại.");
         }
     }
 }

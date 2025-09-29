@@ -8,6 +8,7 @@
         ITheTagRepository TheTags { get; } // Repository
         INgonNguRepository NgonNgus { get; } // Repository
         IQuocGiaRepository QuocGias { get; } // Repository
+        IPhimRepository Phims { get; } // Repository 
         Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default); // Transaction
     }
 }

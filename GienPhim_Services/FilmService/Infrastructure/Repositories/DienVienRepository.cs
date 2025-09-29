@@ -14,34 +14,45 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             _filmContext = filmContext;
         }
 
-        public async Task<List<DienVien>> GetAllDienViensAsync(CancellationToken cancellationToken = default)
+        public async Task<(List<DienVien> dienViens, int total, int last)> GetAllDienViensAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
-            return await _filmContext.DienVien.ToListAsync(cancellationToken);
+            var query = _filmContext.DienVien.AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var last = (int)Math.Ceiling((double)total / limit);
+
+            var dienViens = await query
+                .OrderBy(dv => dv.DienVienId) // nên có order để phân trang ổn định
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            return (dienViens, total, last);
         }
 
-        public async Task<DienVien?> GetByIdAsync(int id, CancellationToken ct = default)
+        public async Task<DienVien?> GetByIdAsync(int dienVienId, CancellationToken ct = default)
         {
             return await _filmContext.DienVien
-                .FirstOrDefaultAsync(x => x.DienVienId == id, ct);
+                .FirstOrDefaultAsync(dv => dv.DienVienId == dienVienId, ct);
         }
 
-        public async Task<DienVien> CreateAsync(DienVien e, CancellationToken ct = default)
+        public async Task<DienVien> CreateAsync(DienVien dienVien, CancellationToken ct = default)
         {
-            _filmContext.DienVien.Add(e);
+            _filmContext.DienVien.Add(dienVien);
             await _filmContext.SaveChangesAsync(ct);
-            return e;
+            return dienVien;
         }
 
-        public async Task<DienVien> UpdateAsync(DienVien e, CancellationToken ct = default)
+        public async Task<DienVien> UpdateAsync(DienVien dienVien, CancellationToken ct = default)
         {
-            _filmContext.DienVien.Update(e);
+            _filmContext.DienVien.Update(dienVien);
             await _filmContext.SaveChangesAsync(ct);
-            return e;
+            return dienVien;
         }
 
-        public async Task DeleteAsync(DienVien e, CancellationToken ct = default)
+        public async Task DeleteAsync(DienVien dienVien, CancellationToken ct = default)
         {
-            _filmContext.DienVien.Remove(e);
+            _filmContext.DienVien.Remove(dienVien);
             await _filmContext.SaveChangesAsync(ct);
         }
     }

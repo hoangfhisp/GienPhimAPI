@@ -13,6 +13,7 @@ namespace GienPhim_Services.FilmService.Application.Services
     {
         private readonly IDienVienOrchestrator _orchestrator;
         private readonly IDienVienResponseMapper _mapper;
+        private readonly IPaginationMapper _paginationMapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<DienVienService> _logger;
 
@@ -20,10 +21,12 @@ namespace GienPhim_Services.FilmService.Application.Services
             IUnitOfWork unitOfWork,
             IDienVienOrchestrator orchestrator,
             IDienVienResponseMapper mapper,
+            IPaginationMapper paginationMapper,
             ILogger<DienVienService> logger)
         {
             _unitOfWork = unitOfWork;
             _orchestrator = orchestrator;
+            _paginationMapper = paginationMapper;
             _mapper = mapper;
             _logger = logger;
         }
@@ -32,26 +35,18 @@ namespace GienPhim_Services.FilmService.Application.Services
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetAllDienViensAsync với page={Page}, limit={Limit}", page, limit);
 
-            var dienViens = await _orchestrator.GetAllDienViensAsync(cancellationToken);
+            var (dienViens, total, last) = await _unitOfWork.DienViens.GetAllDienViensAsync(page, limit, cancellationToken);
 
-            var total = dienViens.Count();
             if (total == 0)
             {
                 _logger.LogWarning("ApplicationService: Không tìm thấy diễn viên nào");
                 throw new DienVienNotFoundException();
             }
+            var resultDtos = _mapper.toDtoList(dienViens);
 
-            var last = (int)Math.Ceiling(total / (double)limit);
-            var paged = dienViens.Skip((page - 1) * limit).Take(limit).ToList();
-            var resultDtos = _mapper.toDtoList(paged);
+            var pagination = _paginationMapper.ToDto(page, limit, total, last);
 
-            var pagination = new PaginationDTO
-            {
-                Page = page,
-                Limit = limit,
-                Total = total,
-                Last = last
-            };
+            _logger.LogInformation("ApplicationService: Lấy danh sách diễn viên thành công, tổng={Total}", total);
 
             return ResultListDTO<List<DienVienResponseDTO>>.Success(
                 resultDtos,

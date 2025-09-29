@@ -22,12 +22,6 @@ namespace GienPhim_Services.FilmService.Application.Validators.DienVien
             if (dto.TenDV.Length > 100)
                 throw new InvalidDienVienException("Tên diễn viên quá dài.");
 
-            // Ví dụ: kiểm tra trùng tên
-            var exists = await _dienVienRepository
-                .GetAllDienViensAsync(cancellationToken);
-
-            if (exists.Any(x => x.TenDV.Trim().ToLower() == dto.TenDV.Trim().ToLower()))
-                throw new InvalidDienVienException("Tên diễn viên đã tồn tại.");
         }
     }
 }

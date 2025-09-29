@@ -7,13 +7,13 @@ using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.FilmService.Application.Interfaces.Services;
 
-
 namespace GienPhim_Services.FilmService.Application.Services
 {
     public class DaoDienService : IDaoDienService
     {
         private readonly IDaoDienOrchestrator _daoDienOrchestrator;
         private readonly IDaoDienResponseMapper _daoDienResponseMapper;
+        private readonly IPaginationMapper _paginationMapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<DaoDienService> _logger;
 
@@ -21,11 +21,13 @@ namespace GienPhim_Services.FilmService.Application.Services
             IUnitOfWork unitOfWork,
             IDaoDienOrchestrator daoDienOrchestrator,
             IDaoDienResponseMapper daoDienResponseMapper,
+            IPaginationMapper paginationMapper,
             ILogger<DaoDienService> logger)
         {
             _unitOfWork = unitOfWork;
             _daoDienOrchestrator = daoDienOrchestrator;
             _daoDienResponseMapper = daoDienResponseMapper;
+            _paginationMapper = paginationMapper;
             _logger = logger;
         }
 
@@ -33,35 +35,19 @@ namespace GienPhim_Services.FilmService.Application.Services
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetAllDaoDiensAsync với trang {Page} và giới hạn {Limit}", page, limit);
 
-            // Gọi Orchestrator để lấy toàn bộ DaoDiens
-            var daoDiens = await _daoDienOrchestrator.GetAllDaoDiensAsync(cancellationToken);
-
-            var total = daoDiens.Count(); // đếm tổng ngay từ danh sách lấy ra
+            // Repo đã xử lý phân trang + count luôn
+            var (daoDiens, total, last) = await _unitOfWork.DaoDiens.GetAllDaoDiensAsync(page, limit, cancellationToken);
 
             if (total == 0)
             {
                 _logger.LogWarning("ApplicationService: Không tìm thấy đạo diễn nào");
-                throw new DaoDienNotFoundException(); // ❌ Trả exception Application Layer
+                throw new DaoDienNotFoundException();
             }
 
-            var last = (int)Math.Ceiling(total / (double)limit);
-
-            // Phân trang tại Service
-            var paged = daoDiens
-                .Skip((page - 1) * limit)
-                .Take(limit)
-                .ToList();
-
             // Map sang DTO
-            var resultDaoDien = _daoDienResponseMapper.toDtoList(paged);
+            var resultDaoDien = _daoDienResponseMapper.toDtoList(daoDiens);
 
-            var pagination = new PaginationDTO
-            {
-                Page = page,
-                Limit = limit,
-                Total = total,
-                Last = last
-            };
+            var pagination = _paginationMapper.ToDto(page, limit, total, last);
 
             _logger.LogInformation("ApplicationService: Lấy danh sách DaoDien thành công, tổng={Total}", total);
 

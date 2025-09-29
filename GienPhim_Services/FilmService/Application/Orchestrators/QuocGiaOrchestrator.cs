@@ -1,7 +1,6 @@
 ﻿using GienPhim_Services.FilmService.Application.DTOs.Client.QuocGia;
 using GienPhim_Services.FilmService.Application.Interfaces.Factories;
 using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
-using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.FilmService.Application.Interfaces.Validators;
 using GienPhim_Services.FilmService.Domain.Entities;
 using GienPhim_Services.FilmService.Domain.Services.Interfaces;
@@ -13,32 +12,18 @@ namespace GienPhim_Services.FilmService.Application.Orchestrators
         private readonly IQuocGiaFactory _quocGiaFactory;
         private readonly IValidationService _validationService;
         private readonly IQuocGiaDomainService _quocGiaDomainService;
-        private readonly IQuocGiaRepository _quocGiaRepository;
         private readonly ILogger<QuocGiaOrchestrator> _logger;
 
         public QuocGiaOrchestrator(
             IQuocGiaFactory quocGiaFactory,
             IValidationService validationService,
             IQuocGiaDomainService quocGiaDomainService,
-            IQuocGiaRepository quocGiaRepository,
             ILogger<QuocGiaOrchestrator> logger)
         {
             _quocGiaFactory = quocGiaFactory;
             _validationService = validationService;
-            _quocGiaRepository = quocGiaRepository;
             _quocGiaDomainService = quocGiaDomainService;
             _logger = logger;
-        }
-
-        public async Task<IEnumerable<QuocGia>> GetAllQuocGiasAsync(CancellationToken cancellationToken = default)
-        {
-            _logger.LogInformation("Orchestrator: Bắt đầu GetAllQuocGiasAsync");
-
-            var quocGias = await _quocGiaRepository.GetAllQuocGiasAsync(cancellationToken);
-
-            _logger.LogInformation("Orchestrator: Lấy danh sách quốc gia thành công, tổng={Count}", quocGias.Count);
-
-            return quocGias;
         }
 
         public async Task<QuocGia> CreateQuocGiaAsync(QuocGiaCreateDTO createDto, CancellationToken cancellationToken = default)

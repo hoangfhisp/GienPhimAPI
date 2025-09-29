@@ -13,6 +13,7 @@ namespace GienPhim_Services.FilmService.Application.Services
     {
         private readonly IQuocGiaOrchestrator _quocGiaOrchestrator;
         private readonly IQuocGiaResponseMapper _quocGiaResponseMapper;
+        private readonly IPaginationMapper _paginationMapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<QuocGiaService> _logger;
 
@@ -20,20 +21,21 @@ namespace GienPhim_Services.FilmService.Application.Services
             IUnitOfWork unitOfWork,
             IQuocGiaOrchestrator quocGiaOrchestrator,
             IQuocGiaResponseMapper quocGiaResponseMapper,
+            IPaginationMapper paginationMapper,
             ILogger<QuocGiaService> logger)
         {
             _unitOfWork = unitOfWork;
             _quocGiaOrchestrator = quocGiaOrchestrator;
             _quocGiaResponseMapper = quocGiaResponseMapper;
+            _paginationMapper = paginationMapper;
             _logger = logger;
         }
 
         public async Task<ResultListDTO<List<QuocGiaResponseDTO>>> GetAllQuocGiasAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("ApplicationService: Bắt đầu GetAllQuocGiasAsync với Page={Page}, Limit={Limit}", page, limit);
+            _logger.LogInformation("ApplicationService: Bắt đầu GetAllQuocGiasAsync với page={Page}, limit={Limit}", page, limit);
 
-            var quocGias = await _quocGiaOrchestrator.GetAllQuocGiasAsync(cancellationToken);
-            var total = quocGias.Count();
+            var (quocGias, total, last) = await _unitOfWork.QuocGias.GetAllQuocGiasAsync(page, limit, cancellationToken);
 
             if (total == 0)
             {
@@ -41,30 +43,13 @@ namespace GienPhim_Services.FilmService.Application.Services
                 throw new QuocGiaNotFoundException();
             }
 
-            var last = (int)Math.Ceiling(total / (double)limit);
+            var resultDtos = _quocGiaResponseMapper.ToDtoList(quocGias);
 
-            var paged = quocGias
-                .Skip((page - 1) * limit)
-                .Take(limit)
-                .ToList();
+            var pagination = _paginationMapper.ToDto(page, limit, total, last);
 
-            var resultQuocGia = _quocGiaResponseMapper.ToDtoList(paged);
+            _logger.LogInformation("ApplicationService: Lấy danh sách QuốcGia thành công, tổng={Total}", total);
 
-            var pagination = new PaginationDTO
-            {
-                Page = page,
-                Limit = limit,
-                Total = total,
-                Last = last
-            };
-
-            _logger.LogInformation("ApplicationService: Lấy danh sách quốc gia thành công, tổng={Total}", total);
-
-            return ResultListDTO<List<QuocGiaResponseDTO>>.Success(
-                resultQuocGia,
-                "Lấy danh sách quốc gia thành công",
-                pagination
-            );
+            return ResultListDTO<List<QuocGiaResponseDTO>>.Success(resultDtos, "Lấy danh sách quốc gia thành công", pagination);
         }
 
         public async Task<ResultDTO> CreateQuocGiaAsync(QuocGiaCreateDTO createDto, CancellationToken cancellationToken = default)

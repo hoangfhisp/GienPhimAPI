@@ -1,12 +1,6 @@
 ﻿using GienPhim_Services.FilmService.Application.DTOs.Client.DaoDien;
-using GienPhim_Services.FilmService.Application.DTOs.Common;
-using GienPhim_Services.FilmService.Application.Exceptions.NotFounds;
 using GienPhim_Services.FilmService.Application.Interfaces.Factories;
 using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
-using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
-using GienPhim_Services.FilmService.Application.Interfaces.Services;
-using GienPhim_Services.FilmService.Application.Interfaces.Validators;
-using GienPhim_Services.FilmService.Application.Services;
 using GienPhim_Services.FilmService.Domain.Entities;
 using GienPhim_Services.FilmService.Domain.Services.Interfaces;
 
@@ -15,43 +9,23 @@ namespace GienPhim_Services.FilmService.Application.Orchestrators
     public class DaoDienOrchestrator : IDaoDienOrchestrator
     {
         private readonly IDaoDienFactory _daoDienFactory;
-        private readonly IValidationService _validationService;
         private readonly IDaoDienDomainService _daoDienDomainService;
-        private readonly IDaoDienRepository _daoDienRepository;
         private readonly ILogger<DaoDienOrchestrator> _logger;
 
         public DaoDienOrchestrator(
             IDaoDienFactory daoDienFactory,
-            IValidationService validationService,
             IDaoDienDomainService daoDienDomainService,
-            IDaoDienRepository daoDienRepository,
             ILogger<DaoDienOrchestrator> logger)
         {
             _daoDienFactory = daoDienFactory;
-            _validationService = validationService;
-            _daoDienRepository = daoDienRepository;
             _daoDienDomainService = daoDienDomainService;
             _logger = logger;
-        }
-
-        public async Task<IEnumerable<DaoDien>> GetAllDaoDiensAsync(CancellationToken cancellationToken = default)
-        {
-            _logger.LogInformation("Orchestrator: Bắt đầu GetAllDaoDiensAsync");
-
-            var daoDiens = await _daoDienRepository.GetAllDaoDiensAsync(cancellationToken);
-
-            _logger.LogInformation("Orchestrator: Lấy danh sách đạo diễn thành công, tổng={Count}", daoDiens.Count);
-
-            return daoDiens;
         }
 
         // Tạo đạo diễn mới
         public async Task<DaoDien> CreateDaoDienAsync(DaoDienCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu CreateDaoDienAsync với tên đạo diễn {TenDD}", createDto.TenDD);
-
-            // Validate bối cảnh: kiểm tra các điều kiện như trùng tên hoặc các lỗi input
-            await _validationService.ValidateAsync(createDto, cancellationToken);
 
             // Tạo đối tượng DaoDien từ DTO
             var daoDien = _daoDienFactory.CreateDaoDien(createDto);
@@ -68,9 +42,6 @@ namespace GienPhim_Services.FilmService.Application.Orchestrators
         {
             _logger.LogInformation("Orchestrator: Bắt đầu UpdateDaoDienAsync với Id={DaoDienId}", updateDto.DaoDienId);
 
-            // Validate: kiểm tra tồn tại và các điều kiện cập nhật
-            await _validationService.ValidateAsync(updateDto, cancellationToken);
-
             var daoDien = _daoDienFactory.UpdateDaoDien(updateDto);
 
             // Kiểm tra điều kiện nghiệp vụ
@@ -84,9 +55,6 @@ namespace GienPhim_Services.FilmService.Application.Orchestrators
         public async Task DeleteDaoDienAsync(DaoDienDeleteDTO deleteDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu DeleteDaoDienAsync với Id={DaoDienId}", deleteDto.DaoDienId);
-
-            // Validate: kiểm tra xem đạo diễn có tồn tại và có thể xoá hay không
-            await _validationService.ValidateAsync(deleteDto, cancellationToken);
 
             // Kiểm tra điều kiện nghiệp vụ trước khi xóa
             var daoDien = _daoDienFactory.DeleteDaoDien(deleteDto);

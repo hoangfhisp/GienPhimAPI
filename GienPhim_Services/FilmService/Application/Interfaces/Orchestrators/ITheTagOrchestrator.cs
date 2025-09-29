@@ -5,7 +5,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Orchestrators
 {
     public interface ITheTagOrchestrator
     {
-        Task<IEnumerable<TheTag>> GetAllTheTagsAsync(CancellationToken cancellationToken = default);
         Task<TheTag> CreateTheTagAsync(TheTagCreateDTO createDto, CancellationToken cancellationToken = default);
         Task<TheTag> UpdateTheTagAsync(TheTagUpdateDTO updateDto, CancellationToken cancellationToken = default);
         Task DeleteTheTagAsync(TheTagDeleteDTO deleteDto, CancellationToken cancellationToken = default);

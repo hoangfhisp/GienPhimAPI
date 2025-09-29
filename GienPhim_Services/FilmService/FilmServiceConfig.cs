@@ -32,13 +32,13 @@ namespace GienPhim_Services.FilmService
             /*-----------------------------------------APPLICATION--------------------------------------------*/
             // SERVICES
             // SERVICE
-            services.AddScoped<IFilmService, FilmService.Application.Services.FilmService>(); // Film Service
             services.AddScoped<IDaoDienService, DaoDienService>(); // Đạo diễn Service                                                                            
             services.AddScoped<IDienVienService, DienVienService>(); // Diễn viên Service
             services.AddScoped<ITheLoaiService, TheLoaiService>(); // Thể loại Service
             services.AddScoped<ITheTagService, TheTagService>(); // Thẻ Tag Service
             services.AddScoped<INgonNguService, NgonNguService>(); // Ngôn ngữ Service
             services.AddScoped<IQuocGiaService, QuocGiaService>(); // Quốc gia Service
+            services.AddScoped<IPhimService, PhimService>(); // Phim Service
 
             // Đạo diễn
             services.AddScoped<IValidator<DaoDienCreateDTO>, CreateDaoDienValidator>(); // Validator tạo đạo diễn
@@ -53,6 +53,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<ITheTagFactory, TheTagFactory>(); // Thẻ Tag Factory
             services.AddScoped<INgonNguFactory, NgonNguFactory>(); // Ngôn ngữ Factory
             services.AddScoped<IQuocGiaFactory, QuocGiaFactory>(); // Quốc gia Factory
+            services.AddScoped<IPhimFactory, PhimFactory>(); // Phim Factory
 
             // MAPPERS
             services.AddScoped<IDaoDienResponseMapper, DaoDienResponseMapper>(); // Đạo diễn Mapper
@@ -61,15 +62,16 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<ITheTagResponseMapper, TheTagResponseMapper>(); // Thẻ Tag Mapper
             services.AddScoped<INgonNguResponseMapper, NgonNguResponseMapper>(); // Ngôn ngữ Mapper
             services.AddScoped<IQuocGiaResponseMapper, QuocGiaResponseMapper>(); // Quốc gia Mapper
+            services.AddScoped<IPhimResponseMapper, PhimResponseMapper>(); // Phim Mapper
 
             // ORCHESTRATORS
-            services.AddScoped<IFilmOrchestrator,FilmOrchestrator>(); // Film Orchestrator
             services.AddScoped<IDaoDienOrchestrator, DaoDienOrchestrator>(); // Đạo diễn Orchestrator
             services.AddScoped<IDienVienOrchestrator, DienVienOrchestrator>(); // Diễn viên Orchestrator
             services.AddScoped<ITheLoaiOrchestrator, TheLoaiOrchestrator>(); // Thể loại Orchestrator
             services.AddScoped<ITheTagOrchestrator, TheTagOrchestrator>(); // Thẻ Tag Orchestrator
             services.AddScoped<INgonNguOrchestrator, NgonNguOrchestrator>(); // Ngôn ngữ Orchestrator
             services.AddScoped<IQuocGiaOrchestrator, QuocGiaOrchestrator>(); // Quốc gia Orchestrator
+            services.AddScoped<IPhimOrchestrator, PhimOrchestrator>(); // Phim Orchestrator
 
             // VALIRATORS
             // Dịch vụ validation chung
@@ -84,13 +86,13 @@ namespace GienPhim_Services.FilmService
 
             /*-----------------------------------------DOMAIN--------------------------------------------*/
             // DOMAIN SERVICES
-            services.AddScoped<IFilmDomainService, FilmDomainService>();
             services.AddScoped<IDaoDienDomainService, DaoDienDomainService>();
             services.AddScoped<IDienVienDomainService, DienVienDomainService>();
             services.AddScoped<ITheLoaiDomainService, TheLoaiDomainService>();
             services.AddScoped<ITheTagDomainService, TheTagDomainService>();
             services.AddScoped<INgonNguDomainService, NgonNguDomainService>();
             services.AddScoped<IQuocGiaDomainService, QuocGiaDomainService>();
+            services.AddScoped<IPhimDomainService, PhimDomainService>();
 
             //MAPPERS
             services.AddScoped<IPaginationMapper,PaginationMapper>();
@@ -109,6 +111,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<ITheTagRepository, TheTagRepository>(); // Thẻ Tag
             services.AddScoped<INgonNguRepository, NgonNguRepository>(); // Ngôn Ngữ
             services.AddScoped<IQuocGiaRepository, QuocGiaRepository>(); // Quốc Gia
+            services.AddScoped<IPhimRepository, PhimRepository>(); // Phim
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Unit of Work
             return services;
         }
