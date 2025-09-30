@@ -9,6 +9,8 @@
         INgonNguRepository NgonNgus { get; } // Repository
         IQuocGiaRepository QuocGias { get; } // Repository
         IPhimRepository Phims { get; } // Repository 
+        IDaoDienCuaPhimRepository DaoDienCuaPhims { get; } // Repository
+        IDienVienCuaPhimRepository DienVienCuaPhims { get; } // Repository
         Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default); // Transaction
     }
 }

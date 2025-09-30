@@ -65,6 +65,18 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
             { typeof(PhimFailedException), StatusCodes.Status500InternalServerError },
             { typeof(InvalidPhimException), StatusCodes.Status500InternalServerError },
             { typeof(PhimNotFoundException), StatusCodes.Status500InternalServerError },
+
+            // Đạo diễn của phim
+            { typeof(DuplicateDaoDienCuaPhimException), StatusCodes.Status500InternalServerError },
+            { typeof(DaoDienCuaPhimFailedException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidDaoDienCuaPhimException), StatusCodes.Status500InternalServerError },
+            { typeof(DaoDienCuaPhimNotFoundException), StatusCodes.Status500InternalServerError },
+
+            // Diễn viên của phim
+            { typeof(DuplicateDienVienCuaPhimException), StatusCodes.Status500InternalServerError },
+            { typeof(DienVienCuaPhimFailedException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidDienVienCuaPhimException), StatusCodes.Status500InternalServerError },
+            { typeof(DienVienCuaPhimNotFoundException), StatusCodes.Status500InternalServerError },
         };
 
 
@@ -76,7 +88,9 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
                 !context.Request.Path.StartsWithSegments("/api/TheTag") &&
                 !context.Request.Path.StartsWithSegments("/api/NgonNgu") &&
                 !context.Request.Path.StartsWithSegments("/api/QuocGia") &&
-                !context.Request.Path.StartsWithSegments("/api/Phim"))
+                !context.Request.Path.StartsWithSegments("/api/Phim") &&
+                !context.Request.Path.StartsWithSegments("/api/DaoDienCuaPhim") &&
+                !context.Request.Path.StartsWithSegments("/api/DienVienCuaPhim"))
             {
                 await _next(context);
                 return;
