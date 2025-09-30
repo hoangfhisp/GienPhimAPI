@@ -42,10 +42,7 @@
     <Folder Include="AuthService\Api\Filters\" />
     <Folder Include="AuthService\Application\Exceptions\Duplicates\" />
     <Folder Include="AuthService\Infrastructure\Migrations\" />
-    <Folder Include="FilmService\Application\Factories\" />
-    <Folder Include="FilmService\Application\Validators\" />
     <Folder Include="FilmService\Application\DTOs\Admin\" />
-    <Folder Include="FilmService\Domain\Exceptions\" />
     <Folder Include="FilmService\Domain\Mappers\" />
     <Folder Include="InteractionService\Data\Migrations\" />
     <Folder Include="InteractionService\Data\Repositories\Interfaces\" />
