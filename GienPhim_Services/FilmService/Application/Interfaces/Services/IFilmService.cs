@@ -5,6 +5,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Services
 {
     public interface IFilmService
     {
-        Task<ResultListDTO<List<DaoDienResponseDTO>>> GetAllDaoDiensAsync(int page, int limit, CancellationToken cancellationToken = default); // Lấy danh sách tất cả đạo diễn
+        
     }
 }

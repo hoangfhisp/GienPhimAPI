@@ -22,5 +22,22 @@ namespace GienPhim_Services.FilmService.Application.Mappers
         {
             return daoDiens.Select(dd => toDto(dd)).ToList();
         }
+
+        public UpdateDaoDienResponseDTO ToUpdateDto(DaoDien daoDien)
+        {
+            return new UpdateDaoDienResponseDTO
+            {
+                DaoDienId = daoDien.DaoDienId,
+                TenDD = daoDien.TenDD,
+                MoTaDD = daoDien.MoTaDD,
+                ThoiGianTao = daoDien.ThoiGianTao,
+                ThoiGianCapNhat = daoDien.ThoiGianCapNhat
+            };
+        }
+
+        public List<UpdateDaoDienResponseDTO> ToUpdateDtoList(List<DaoDien> daoDiens)
+        {
+            return daoDiens.Select(dd => ToUpdateDto(dd)).ToList();
+        }
     }
 }
