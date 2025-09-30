@@ -85,6 +85,7 @@ namespace GienPhim_Services.UserService.Api.Controllers
 
         // Reset mật khẩu
         [HttpPost("ResetPassword")]
+
         public async Task<IActionResult> ResetPassword(ResetPasswordRequestDTO dto, CancellationToken cancellationToken)
         {
             _logger.LogInformation("API Request: ResetPassword cho UserId: {userId}",dto.UserId);
@@ -100,6 +101,16 @@ namespace GienPhim_Services.UserService.Api.Controllers
             _logger.LogInformation("API Request: ChangeEmail cho UserId: {userId}", dto.UserId);
             var result = await _userService.ChangeEmailAsync(dto, cancellationToken);
             _logger.LogInformation("API Response: ChangeEmail cho UserId {userId} với trạng thái {Status}", dto.UserId, result.Status);
+            return Ok(result);
+        }
+
+        [HttpGet("GetListUser")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetListUser([FromQuery]ListUserRequestDTO dto, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("API Request: GetListUser trang {PageNumber} với kích thước {PageSize}", dto.page, dto.limit);
+            var result = await _userService.GetAllUsersAsync(dto, cancellationToken);
+            _logger.LogInformation("API Response: GetListUser trả về {Count} user với trạng thái {Status}", result.Data.Count, result.Status);
             return Ok(result);
         }
     }

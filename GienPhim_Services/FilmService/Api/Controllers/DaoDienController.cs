@@ -13,12 +13,10 @@ namespace GienPhim_Services.FilmService.Api.Controllers
     [ApiController]
     public class DaoDienController : ControllerBase
     {
-        private readonly IFilmService _filmService;
         private readonly IDaoDienService _daoDienService;
         private readonly ILogger<DaoDienController> _logger;
-        public DaoDienController(IFilmService filmService, ILogger<DaoDienController> logger, IDaoDienService daoDienService)
+        public DaoDienController( ILogger<DaoDienController> logger, IDaoDienService daoDienService)
         {
-            _filmService = filmService;
             _daoDienService = daoDienService;
             _logger = logger;
         }

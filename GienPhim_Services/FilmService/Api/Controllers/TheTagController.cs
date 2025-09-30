@@ -9,16 +9,13 @@ namespace GienPhim_Services.FilmService.Api.Controllers
     [ApiController]
     public class TheTagController : ControllerBase
     {
-        private readonly IFilmService _filmService;
         private readonly ITheTagService _theTagService;
         private readonly ILogger<TheTagController> _logger;
 
         public TheTagController(
-            IFilmService filmService,
             ILogger<TheTagController> logger,
             ITheTagService theTagService)
         {
-            _filmService = filmService;
             _theTagService = theTagService;
             _logger = logger;
         }

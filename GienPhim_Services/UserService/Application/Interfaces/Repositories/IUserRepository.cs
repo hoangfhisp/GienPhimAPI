@@ -5,6 +5,7 @@ namespace GienPhim_Services.UserService.Application.Interfaces.Repositories
 {
     public interface IUserRepository
     {
+        Task<(List<User> user, int total, int last)> GetAllUsersAsync(int page, int limit, CancellationToken cancellationToken = default); // Lấy tất cả user
         Task<IdentityResult> RegisterUserAsync(User user,string password); // Đăng ký user
         Task<IdentityResult> RegisterUserNotPasswordAsync(User user);
         Task<IdentityResult> UpdateUserAsync(User user); // Update User

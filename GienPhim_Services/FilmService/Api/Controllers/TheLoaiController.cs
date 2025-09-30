@@ -9,13 +9,11 @@ namespace GienPhim_Services.FilmService.Api.Controllers
     [ApiController]
     public class TheLoaiController : ControllerBase
     {
-        private readonly IFilmService _filmService;
         private readonly ITheLoaiService _theLoaiService;
         private readonly ILogger<TheLoaiController> _logger;
 
-        public TheLoaiController(IFilmService filmService, ILogger<TheLoaiController> logger, ITheLoaiService theLoaiService)
+        public TheLoaiController( ILogger<TheLoaiController> logger, ITheLoaiService theLoaiService)
         {
-            _filmService = filmService;
             _theLoaiService = theLoaiService;
             _logger = logger;
         }

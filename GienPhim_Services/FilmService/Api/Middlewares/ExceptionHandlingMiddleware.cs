@@ -119,7 +119,7 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
                 await context.Response.WriteAsJsonAsync(new
                 {
                     Status = false,
-                    Msg = $"Đã xảy ra lỗi hệ thống, vui lòng thử lại sau."
+                    Msg = $"Đã xảy ra lỗi hệ thống, vui lòng thử lại sau. {ex}"
                 });
             }
         }

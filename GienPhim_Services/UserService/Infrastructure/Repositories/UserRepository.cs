@@ -15,6 +15,23 @@ namespace GienPhim_Services.UserService.Infrastructure.Repositories
             _userManager = userManager;
         }
 
+        // Lấy tất cả User
+        public async Task<(List<User> user, int total, int last)> GetAllUsersAsync(int page, int limit, CancellationToken cancellationToken = default)
+        {
+            var query =  _userManager.Users.AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var last = (int)Math.Ceiling((double)total / limit);
+
+            var users = await query
+                .OrderBy(u => u.Id) // thứ tự ổn định
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            return (users, total, last);
+        }
+
         // Đăng Ký User
         public async Task<IdentityResult> RegisterUserAsync(User user, string password)
         {

@@ -9,16 +9,13 @@ namespace GienPhim_Services.FilmService.Api.Controllers
     [ApiController]
     public class NgonNguController : ControllerBase
     {
-        private readonly IFilmService _filmService;
         private readonly INgonNguService _ngonNguService;
         private readonly ILogger<NgonNguController> _logger;
 
         public NgonNguController(
-            IFilmService filmService,
             ILogger<NgonNguController> logger,
             INgonNguService ngonNguService)
         {
-            _filmService = filmService;
             _ngonNguService = ngonNguService;
             _logger = logger;
         }

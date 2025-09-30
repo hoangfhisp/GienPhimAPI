@@ -8,7 +8,6 @@ using GienPhim_Services.AuthService.Application.Interfaces.Mappers;
 using GienPhim_Services.AuthService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.AuthService.Domain.Models;
 using GienPhim_Services.AuthService.Infrastructure.Data.HttpClients.Interfaces;
-using System.Threading;
 
 namespace GienPhim_Services.AuthService.Application.Orchestrators
 {

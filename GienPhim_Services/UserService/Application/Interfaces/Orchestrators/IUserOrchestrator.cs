@@ -15,5 +15,6 @@ namespace GienPhim_Services.UserService.Application.Interfaces.Orchestrators
         User RepareUserByUserId(FindUserByIdDTO dto); // Tìm User theo userId
         User ResetPasswordAsync(ResetPasswordRequestDTO dto); // Reset mật khẩu User
         User ChangeEmail(User user, string newEmail); // Đổi email User
+        Task GetListUserAsync(ListUserRequestDTO request, CancellationToken cancellationToken = default); // Lấy danh sách User với phân trang và lọc
     }
 } 

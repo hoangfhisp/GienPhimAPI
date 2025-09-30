@@ -22,13 +22,14 @@ namespace GienPhim_Services.UserService.Application.Services
         private readonly IUserOrchestrator _userOrchestrator;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserResponseMapper _userResponseMapper;
+        private readonly IPaginationMapper _paginationMapper;
         private readonly string _defaultRole; // Vai trò mặc định khi tạo tài khoản
         private readonly ILogger<UserService> _logger;
 
 
         public UserService(IUnitOfWork unitOfWork , IUserDomainService userDomainService
             , IUserOrchestrator userOrchestrator, IOptions<UserSettings> userSettings
-            , IUserResponseMapper userResponseMapper 
+            , IUserResponseMapper userResponseMapper  , IPaginationMapper paginationMapper
             , ILogger<UserService> logger)
         {
             //tham số của phương thức bị null nhưng không được phép null.
@@ -36,6 +37,7 @@ namespace GienPhim_Services.UserService.Application.Services
             _userOrchestrator = userOrchestrator ?? throw new ArgumentNullException(nameof(userOrchestrator));
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _userResponseMapper = userResponseMapper ?? throw new ArgumentNullException(nameof(userResponseMapper));
+            _paginationMapper = paginationMapper ?? throw new ArgumentNullException(nameof(paginationMapper));
             _defaultRole = userSettings.Value.DefaultRole ?? "User";
             _logger = logger;
         }
@@ -402,6 +404,38 @@ namespace GienPhim_Services.UserService.Application.Services
             await transaction.CommitAsync(cancellationToken);
             _logger.LogInformation("ApplicationSerVice: Thay đổi email cho người dùng {UserName} thành công!", userResponse.Email);
             return ResultDTO.Success($"Thay đổi email cho tài khoản '{userResponse.UserName}' thành công.");
+        }
+
+        // QUAN TRI VIEN
+        // Lấy danh sách tất cả người dùng
+        public async Task<ResultListDTO<UserResponseDTO>> GetAllUsersAsync(ListUserRequestDTO request ,CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationSerVice: Bắt đầu lấy danh sách tất cả người dùng");
+            
+            await _userOrchestrator.GetListUserAsync(request, cancellationToken);
+
+            // Lấy tất cả người dùng
+            var users = await _unitOfWork.Users.GetAllUsersAsync(request.page, request.limit,cancellationToken);
+
+            foreach (var user in users.user)
+            {
+                // Lấy vai trò của người dùng
+                var roles = await _unitOfWork.Users.GetRolesUserAsync(user);
+                if (roles == null || !roles.Any())
+                {
+                    _logger.LogError("ApplicationSerVice: User {Account} không có vai trò!", user.Email);
+                    throw new InvalidUserHasNoRoleException(user.Email);
+                }
+                user.Roles = roles.ToList();
+            }
+
+            // Map sang DTO trả về
+            var userDtos = users.user.Select(user => _userResponseMapper.ToDto(user)).ToList();
+            // Phân trang
+            var pagination = _paginationMapper.ToDto(request.page, request.limit, users.total, users.last);
+
+            _logger.LogInformation("ApplicationSerVice: Lấy danh sách tất cả người dùng thành công với {Count} người dùng", users.total);
+            return ResultListDTO<UserResponseDTO>.Success(userDtos, "Lấy danh sách tất cả người dùng thành công",pagination);
         }
     }
 }

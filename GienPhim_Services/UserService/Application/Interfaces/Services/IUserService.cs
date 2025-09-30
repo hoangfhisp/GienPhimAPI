@@ -15,5 +15,6 @@ namespace GienPhim_Services.UserService.Application.Interfaces.Services
         Task<ResultDTO<UserResponseDTO>> FindUserByUserIdAsync(FindUserByIdDTO dto, CancellationToken cancellationToken = default); // Tìm User theo userID
         Task<ResultDTO> ResetPasswordAsync(ResetPasswordRequestDTO dto, CancellationToken cancellationToken = default); // Reset mật khẩu
         Task<ResultDTO> ChangeEmailAsync(ChangeEmailRequestDTO dto, CancellationToken cancellationToken = default); // Đổi email
+        Task<ResultListDTO<UserResponseDTO>> GetAllUsersAsync(ListUserRequestDTO request, CancellationToken cancellationToken = default); // Lấy danh sách tất cả người dùng
     }
 }

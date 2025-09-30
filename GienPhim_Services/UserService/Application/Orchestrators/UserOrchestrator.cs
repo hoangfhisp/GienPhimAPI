@@ -8,6 +8,7 @@ using GienPhim_Services.UserService.Application.Interfaces.Validators;
 using GienPhim_Services.UserService.Domain.Entities;
 using GienPhim_Services.UserService.Domain.Services.Interfaces;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace GienPhim_Services.UserService.Application.Orchestrators
 {
@@ -176,6 +177,12 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
             return user;
         }
 
-        
+        // 
+        public async Task GetListUserAsync(ListUserRequestDTO request, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu GetListUserAsync với PageIndex {PageIndex} và PageSize {PageSize}", request.page, request.limit);
+            _userDomainService.EnsureCanGetListUser(request.page, request.limit);
+            await _validationService.ValidateAsync(request, cancellationToken);
+        }
     }
 }
