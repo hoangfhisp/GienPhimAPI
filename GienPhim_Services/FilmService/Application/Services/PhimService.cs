@@ -67,12 +67,12 @@ namespace GienPhim_Services.FilmService.Application.Services
 
             if (createDto.AvatarP != null)
             {
-                avatarFileName = await FileHelper.SaveImageAsync(createDto.AvatarP, Path.Combine("wwwroot", "images", "phim", "avatar"));
+                avatarFileName = await FileHelper.SaveImageAsync(createDto.AvatarP, Path.Combine("wwwroot", "images", "films"));
             }
 
             if (createDto.AvatarPoster != null)
             {
-                posterFileName = await FileHelper.SaveImageAsync(createDto.AvatarPoster, Path.Combine("wwwroot", "images", "phim", "poster"));
+                posterFileName = await FileHelper.SaveImageAsync(createDto.AvatarPoster, Path.Combine("wwwroot", "images", "banners"));
             }
 
             // 2. Gọi orchestrator để build entity + validate
@@ -117,14 +117,14 @@ namespace GienPhim_Services.FilmService.Application.Services
             if (updateDto.AvatarP != null)
             {
                 // Xoá ảnh cũ
-                FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "phim", "avatar", existingPhim.AvatarP));
-                avatarFileName = await FileHelper.SaveImageAsync(updateDto.AvatarP, Path.Combine("wwwroot", "images", "phim", "avatar"));
+                FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "films", existingPhim.AvatarP));
+                avatarFileName = await FileHelper.SaveImageAsync(updateDto.AvatarP, Path.Combine("wwwroot", "images", "films"));
             }
 
             if (updateDto.AvatarPoster != null)
             {
-                FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "phim", "poster", existingPhim.AvatarPoster));
-                posterFileName = await FileHelper.SaveImageAsync(updateDto.AvatarPoster, Path.Combine("wwwroot", "images", "phim", "poster"));
+                FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "banners", existingPhim.AvatarPoster));
+                posterFileName = await FileHelper.SaveImageAsync(updateDto.AvatarPoster, Path.Combine("wwwroot", "images", "banners"));
             }
 
             // 3. Factory dựng lại entity mới
@@ -166,8 +166,8 @@ namespace GienPhim_Services.FilmService.Application.Services
             }
 
             // Xóa file ảnh vật lý
-            FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "phim", "avatar", phim.AvatarP));
-            FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "phim", "poster", phim.AvatarPoster));
+            FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "films", phim.AvatarP));
+            FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "banners", phim.AvatarPoster));
 
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
