@@ -5,8 +5,8 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Orchestrators
 {
     public interface IDaoDienCuaPhimOrchestrator
     {
-        Task<DaoDienCuaPhim> CreateAsync(DaoDienCuaPhimCreateDTO createDto, IEnumerable<DaoDienCuaPhim> existingRelations, CancellationToken cancellationToken = default);
-        Task<DaoDienCuaPhim> UpdateAsync(DaoDienCuaPhimUpdateDTO updateDto, DaoDienCuaPhim? existingRelation, CancellationToken cancellationToken = default);
-        Task DeleteAsync(DaoDienCuaPhimDeleteDTO deleteDto, DaoDienCuaPhim? existingRelation, CancellationToken cancellationToken = default);
+        Task<DaoDienCuaPhim> CreateAsync(DaoDienCuaPhimCreateDTO createDto, IEnumerable<DaoDienCuaPhim> existing, CancellationToken cancellationToken = default);
+        Task<DaoDienCuaPhim> UpdateAsync(DaoDienCuaPhimUpdateDTO updateDto, DaoDienCuaPhim? existing, CancellationToken cancellationToken = default);
+        Task DeleteAsync(DaoDienCuaPhimDeleteDTO deleteDto, DaoDienCuaPhim? existing, CancellationToken cancellationToken = default);
     }
 }

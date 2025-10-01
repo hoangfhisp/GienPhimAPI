@@ -6,42 +6,42 @@ namespace GienPhim_Services.FilmService.Application.Mappers
 {
     public class DaoDienCuaPhimResponseMapper : IDaoDienCuaPhimResponseMapper
     {
-        public DaoDienCuaPhimResponseDTO ToDto(DaoDienCuaPhim entity)
+        public DaoDienCuaPhimResponseDTO ToDto(DaoDienCuaPhim daoDienCuaPhim)
         {
             return new DaoDienCuaPhimResponseDTO
             {
-                PhimId = entity.PhimId,
-                TenPhim = entity.Phim != null ? entity.Phim.TenP : string.Empty,
-                DaoDienId = entity.DaoDienId,
-                TenDaoDien = entity.DaoDien != null ? entity.DaoDien.TenDD : string.Empty,
-                VaiTroDG = entity.VaiTroDG,
-                ThoiGianTao = entity.ThoiGianTao,
-                ThoiGianCapNhat = entity.ThoiGianCapNhat
+                PhimId = daoDienCuaPhim.PhimId,
+                TenPhim = daoDienCuaPhim.Phim != null ? daoDienCuaPhim.Phim.TenP : string.Empty,
+                DaoDienId = daoDienCuaPhim.DaoDienId,
+                TenDaoDien = daoDienCuaPhim.DaoDien != null ? daoDienCuaPhim.DaoDien.TenDD : string.Empty,
+                VaiTroDG = daoDienCuaPhim.VaiTroDG,
+                ThoiGianTao = daoDienCuaPhim.ThoiGianTao,
+                ThoiGianCapNhat = daoDienCuaPhim.ThoiGianCapNhat
             };
         }
 
-        public List<DaoDienCuaPhimResponseDTO> ToDtoList(List<DaoDienCuaPhim> entities)
+        public List<DaoDienCuaPhimResponseDTO> ToDtoList(List<DaoDienCuaPhim> daoDienCuaPhims)
         {
-            return entities.Select(e => ToDto(e)).ToList();
+            return daoDienCuaPhims.Select(e => ToDto(e)).ToList();
         }
 
-        public UpdateDaoDienCuaPhimResponseDTO ToUpdateDto(DaoDienCuaPhim entity)
+        public UpdateDaoDienCuaPhimResponseDTO ToUpdateDto(DaoDienCuaPhim daoDienCuaPhim)
         {
             return new UpdateDaoDienCuaPhimResponseDTO
             {
-                PhimId = entity.PhimId,
-                TenPhim = entity.Phim != null ? entity.Phim.TenP : string.Empty,
-                DaoDienId = entity.DaoDienId,
-                TenDaoDien = entity.DaoDien != null ? entity.DaoDien.TenDD : string.Empty,
-                VaiTroDG = entity.VaiTroDG,
-                ThoiGianTao = entity.ThoiGianTao,
-                ThoiGianCapNhat = entity.ThoiGianCapNhat
+                PhimId = daoDienCuaPhim.PhimId,
+                TenPhim = daoDienCuaPhim.Phim != null ? daoDienCuaPhim.Phim.TenP : string.Empty,
+                DaoDienId = daoDienCuaPhim.DaoDienId,
+                TenDaoDien = daoDienCuaPhim.DaoDien != null ? daoDienCuaPhim.DaoDien.TenDD : string.Empty,
+                VaiTroDG = daoDienCuaPhim.VaiTroDG,
+                ThoiGianTao = daoDienCuaPhim.ThoiGianTao,
+                ThoiGianCapNhat = daoDienCuaPhim.ThoiGianCapNhat
             };
         }
 
-        public List<UpdateDaoDienCuaPhimResponseDTO> ToUpdateDtoList(List<DaoDienCuaPhim> entities)
+        public List<UpdateDaoDienCuaPhimResponseDTO> ToUpdateDtoList(List<DaoDienCuaPhim> daoDienCuaPhims)
         {
-            return entities.Select(e => ToUpdateDto(e)).ToList();
+            return daoDienCuaPhims.Select(e => ToUpdateDto(e)).ToList();
         }
     }
 }

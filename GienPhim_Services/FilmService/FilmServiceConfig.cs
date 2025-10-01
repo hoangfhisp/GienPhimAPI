@@ -41,6 +41,8 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhimService, PhimService>(); // Phim Service
             services.AddScoped<IDaoDienCuaPhimService, DaoDienCuaPhimService>(); // Đạo diễn của phim Service
             services.AddScoped<IDienVienCuaPhimService, DienVienCuaPhimService>(); // Diễn viên của phim Service
+            services.AddScoped<IPhanLoaiTheLoaiService, PhanLoaiTheLoaiService>(); // Phân loại thể loại Service
+            services.AddScoped<IPhanLoaiTheTagService, PhanLoaiTheTagService>(); // Phân loại thẻ tag Service
 
             // Đạo diễn
             services.AddScoped<IValidator<DaoDienCreateDTO>, CreateDaoDienValidator>(); // Validator tạo đạo diễn
@@ -58,6 +60,8 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhimFactory, PhimFactory>(); // Phim Factory
             services.AddScoped<IDaoDienCuaPhimFactory, DaoDienCuaPhimFactory>(); // Đạo diễn Factory
             services.AddScoped<IDienVienCuaPhimFactory, DienVienCuaPhimFactory>(); // Diễn viên Factory
+            services.AddScoped<IPhanLoaiTheLoaiFactory, PhanLoaiTheLoaiFactory>(); // Phân loại thể loại Factory
+            services.AddScoped<IPhanLoaiTheTagFactory, PhanLoaiTheTagFactory>(); // Phân loại thẻ tag Factory
 
             // MAPPERS
             services.AddScoped<IDaoDienResponseMapper, DaoDienResponseMapper>(); // Đạo diễn Mapper
@@ -69,6 +73,8 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhimResponseMapper, PhimResponseMapper>(); // Phim Mapper
             services.AddScoped<IDaoDienCuaPhimResponseMapper, DaoDienCuaPhimResponseMapper>(); // Đạo diễn Mapper
             services.AddScoped<IDienVienCuaPhimResponseMapper, DienVienCuaPhimResponseMapper>(); // Diễn viên Mapper
+            services.AddScoped<IPhanLoaiTheLoaiResponseMapper, PhanLoaiTheLoaiResponseMapper>(); // Phân loại thể loại Mapper
+            services.AddScoped<IPhanLoaiTheTagResponseMapper, PhanLoaiTheTagResponseMapper>(); // Phân loại thẻ tag Mapper
 
             // ORCHESTRATORS
             services.AddScoped<IDaoDienOrchestrator, DaoDienOrchestrator>(); // Đạo diễn Orchestrator
@@ -80,6 +86,8 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhimOrchestrator, PhimOrchestrator>(); // Phim Orchestrator
             services.AddScoped<IDaoDienCuaPhimOrchestrator, DaoDienCuaPhimOrchestrator>(); // Đạo diễn Orchestrator
             services.AddScoped<IDienVienCuaPhimOrchestrator, DienVienCuaPhimOrchestrator>(); // Diễn viên Orchestrator
+            services.AddScoped<IPhanLoaiTheLoaiOrchestrator, PhanLoaiTheLoaiOrchestrator>(); // Phân loại thể loại Orchestrator
+            services.AddScoped<IPhanLoaiTheTagOrchestrator, PhanLoaiTheTagOrchestrator>(); // Phân loại thẻ tag Orchestrator
 
             // VALIRATORS
             // Dịch vụ validation chung
@@ -103,6 +111,8 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhimDomainService, PhimDomainService>();
             services.AddScoped<IDaoDienCuaPhimDomainService, DaoDienCuaPhimDomainService>();
             services.AddScoped<IDienVienCuaPhimDomainService, DienVienCuaPhimDomainService>();
+            services.AddScoped<IPhanLoaiTheLoaiDomainService, PhanLoaiTheLoaiDomainService>();
+            services.AddScoped<IPhanLoaiTheTagDomainService, PhanLoaiTheTagDomainService>();
 
             //MAPPERS
             services.AddScoped<IPaginationMapper,PaginationMapper>();
@@ -124,6 +134,8 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhimRepository, PhimRepository>(); // Phim
             services.AddScoped<IDaoDienCuaPhimRepository, DaoDienCuaPhimRepository>(); // Đạo Diễn Của Phim
             services.AddScoped<IDienVienCuaPhimRepository, DienVienCuaPhimRepository>(); // Diễn Viên Của Phim
+            services.AddScoped<IPhanLoaiTheLoaiRepository, PhanLoaiTheLoaiRepository>(); // Phân loại thể loại
+            services.AddScoped<IPhanLoaiTheTagRepository, PhanLoaiTheTagRepository>(); // Phân loại thẻ tag
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Unit of Work
             return services;
         }

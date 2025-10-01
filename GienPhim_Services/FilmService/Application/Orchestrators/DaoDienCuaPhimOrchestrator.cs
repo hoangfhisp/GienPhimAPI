@@ -22,56 +22,41 @@ namespace GienPhim_Services.FilmService.Application.Orchestrators
             _logger = logger;
         }
 
-        public async Task<DaoDienCuaPhim> CreateAsync(
-            DaoDienCuaPhimCreateDTO createDto,
-            IEnumerable<DaoDienCuaPhim> existingRelations,
-            CancellationToken cancellationToken = default)
+        public async Task<DaoDienCuaPhim> CreateAsync(DaoDienCuaPhimCreateDTO createDto, IEnumerable<DaoDienCuaPhim> existing, CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("Orchestrator: Bắt đầu CreateAsync cho PhimId={PhimId}, DaoDienId={DaoDienId}",
-                createDto.PhimId, createDto.DaoDienId);
+            _logger.LogInformation("Orchestrator: Bắt đầu CreateAsync cho PhimId={PhimId}, DaoDienId={DaoDienId}", createDto.PhimId, createDto.DaoDienId);
 
-            var entity = _factory.Create(createDto);
+            var daoDienCuaPhim = _factory.Create(createDto);
 
-            _domainService.EnsureCanCreate(entity, existingRelations);
+            _domainService.EnsureCanCreate(daoDienCuaPhim, existing);
 
-            _logger.LogInformation("Orchestrator: Quan hệ PhimId={PhimId}, DaoDienId={DaoDienId} đã validate OK",
-                createDto.PhimId, createDto.DaoDienId);
+            _logger.LogInformation("Orchestrator: Quan hệ PhimId={PhimId}, DaoDienId={DaoDienId} đã validate OK", createDto.PhimId, createDto.DaoDienId);
 
-            return entity;
+            return daoDienCuaPhim;
         }
 
-        public async Task<DaoDienCuaPhim> UpdateAsync(
-            DaoDienCuaPhimUpdateDTO updateDto,
-            DaoDienCuaPhim? existingRelation,
-            CancellationToken cancellationToken = default)
+        public async Task<DaoDienCuaPhim> UpdateAsync(DaoDienCuaPhimUpdateDTO updateDto, DaoDienCuaPhim? existing, CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("Orchestrator: Bắt đầu UpdateAsync cho PhimId={PhimId}, DaoDienId={DaoDienId}",
-                updateDto.PhimId, updateDto.DaoDienId);
+            _logger.LogInformation("Orchestrator: Bắt đầu UpdateAsync cho PhimId={PhimId}, DaoDienId={DaoDienId}", updateDto.PhimId, updateDto.DaoDienId);
 
-            var entity = _factory.Update(updateDto);
+            var daoDienCuaPhim = _factory.Update(updateDto);
 
-            _domainService.EnsureCanUpdate(entity, existingRelation);
+            _domainService.EnsureCanUpdate(daoDienCuaPhim, existing);
 
-            _logger.LogInformation("Orchestrator: Quan hệ PhimId={PhimId}, DaoDienId={DaoDienId} đã cập nhật OK",
-                updateDto.PhimId, updateDto.DaoDienId);
+            _logger.LogInformation("Orchestrator: Quan hệ PhimId={PhimId}, DaoDienId={DaoDienId} đã cập nhật OK", updateDto.PhimId, updateDto.DaoDienId);
 
-            return entity;
+            return daoDienCuaPhim;
         }
 
-        public async Task DeleteAsync(
-            DaoDienCuaPhimDeleteDTO deleteDto,
-            DaoDienCuaPhim? existingRelation,
-            CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(DaoDienCuaPhimDeleteDTO deleteDto, DaoDienCuaPhim? existing, CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("Orchestrator: Bắt đầu DeleteAsync cho PhimId={PhimId}, DaoDienId={DaoDienId}",
-                deleteDto.PhimId, deleteDto.DaoDienId);
+            _logger.LogInformation("Orchestrator: Bắt đầu DeleteAsync cho PhimId={PhimId}, DaoDienId={DaoDienId}", deleteDto.PhimId, deleteDto.DaoDienId);
 
-            var entity = _factory.Delete(deleteDto);
+            var daoDienCuaPhim = _factory.Delete(deleteDto);
 
-            _domainService.EnsureCanDelete(existingRelation);
+            _domainService.EnsureCanDelete(existing);
 
-            _logger.LogInformation("Orchestrator: Quan hệ PhimId={PhimId}, DaoDienId={DaoDienId} đã validate để xoá",
-                deleteDto.PhimId, deleteDto.DaoDienId);
+            _logger.LogInformation("Orchestrator: Quan hệ PhimId={PhimId}, DaoDienId={DaoDienId} đã validate để xoá", deleteDto.PhimId, deleteDto.DaoDienId);
         }
     }
 }

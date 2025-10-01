@@ -5,10 +5,10 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Mappers
 {
     public interface IDienVienCuaPhimResponseMapper
     {
-        DienVienCuaPhimResponseDTO ToDto(DienVienCuaPhim entity);
-        List<DienVienCuaPhimResponseDTO> ToDtoList(List<DienVienCuaPhim> entities);
+        DienVienCuaPhimResponseDTO ToDto(DienVienCuaPhim dienVienCuaPhim);
+        List<DienVienCuaPhimResponseDTO> ToDtoList(List<DienVienCuaPhim> dienVienCuaPhims);
 
-        UpdateDienVienCuaPhimResponseDTO ToUpdateDto(DienVienCuaPhim entity);
-        List<UpdateDienVienCuaPhimResponseDTO> ToUpdateDtoList(List<DienVienCuaPhim> entities);
+        UpdateDienVienCuaPhimResponseDTO ToUpdateDto(DienVienCuaPhim dienVienCuaPhim);
+        List<UpdateDienVienCuaPhimResponseDTO> ToUpdateDtoList(List<DienVienCuaPhim> dienVienCuaPhims);
     }
 }

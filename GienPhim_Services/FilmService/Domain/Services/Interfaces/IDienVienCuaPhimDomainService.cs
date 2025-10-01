@@ -4,8 +4,8 @@ namespace GienPhim_Services.FilmService.Domain.Services.Interfaces
 {
     public interface IDienVienCuaPhimDomainService
     {
-        void EnsureCanCreate(DienVienCuaPhim entity, IEnumerable<DienVienCuaPhim> existingRelations);
-        void EnsureCanUpdate(DienVienCuaPhim entity, DienVienCuaPhim? existingRelation);
-        void EnsureCanDelete(DienVienCuaPhim? existingRelation);
+        void EnsureCanCreate(DienVienCuaPhim dienVienCuaPhim, IEnumerable<DienVienCuaPhim> existing);
+        void EnsureCanUpdate(DienVienCuaPhim dienVienCuaPhim, DienVienCuaPhim? existing);
+        void EnsureCanDelete(DienVienCuaPhim? existing);
     }
 }

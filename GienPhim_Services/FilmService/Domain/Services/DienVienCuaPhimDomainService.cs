@@ -8,33 +8,33 @@ namespace GienPhim_Services.FilmService.Domain.Services
 {
     public class DienVienCuaPhimDomainService : IDienVienCuaPhimDomainService
     {
-        public void EnsureCanCreate(DienVienCuaPhim entity, IEnumerable<DienVienCuaPhim> existingRelations)
+        public void EnsureCanCreate(DienVienCuaPhim dienVienCuaPhim, IEnumerable<DienVienCuaPhim> existing)
         {
-            if (entity == null)
+            if (dienVienCuaPhim == null)
                 throw new InvalidDienVienCuaPhimException("Entity không được null.");
 
-            if (entity.PhimId <= 0)
+            if (dienVienCuaPhim.PhimId <= 0)
                 throw new InvalidDienVienCuaPhimException("PhimId phải lớn hơn 0.");
 
-            if (entity.DienVienId <= 0)
+            if (dienVienCuaPhim.DienVienId <= 0)
                 throw new InvalidDienVienCuaPhimException("DienVienId phải lớn hơn 0.");
 
-            if (existingRelations.Any(r => r.PhimId == entity.PhimId && r.DienVienId == entity.DienVienId))
-                throw new DuplicateDienVienCuaPhimException(entity.PhimId, entity.DienVienId);
+            if (existing.Any(r => r.PhimId == dienVienCuaPhim.PhimId && r.DienVienId == dienVienCuaPhim.DienVienId))
+                throw new DuplicateDienVienCuaPhimException(dienVienCuaPhim.PhimId, dienVienCuaPhim.DienVienId);
         }
 
-        public void EnsureCanUpdate(DienVienCuaPhim entity, DienVienCuaPhim? existingRelation)
+        public void EnsureCanUpdate(DienVienCuaPhim dienVienCuaPhim, DienVienCuaPhim? existing)
         {
-            if (entity == null)
+            if (dienVienCuaPhim == null)
                 throw new InvalidDienVienCuaPhimException("Entity không được null.");
 
-            if (existingRelation == null)
-                throw new DienVienCuaPhimNotFoundException(entity.PhimId, entity.DienVienId);
+            if (existing == null)
+                throw new DienVienCuaPhimNotFoundException(dienVienCuaPhim.PhimId, dienVienCuaPhim.DienVienId);
         }
 
-        public void EnsureCanDelete(DienVienCuaPhim? existingRelation)
+        public void EnsureCanDelete(DienVienCuaPhim? existing)
         {
-            if (existingRelation == null)
+            if (existing == null)
                 throw new DienVienCuaPhimNotFoundException(0, 0);
         }
     }

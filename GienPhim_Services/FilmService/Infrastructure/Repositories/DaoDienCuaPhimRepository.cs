@@ -14,7 +14,7 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<(List<DaoDienCuaPhim> relations, int total, int last)> GetAllAsync(int page, int limit, CancellationToken cancellationToken = default)
+        public async Task<(List<DaoDienCuaPhim> daoDienCuaPhims, int total, int last)> GetAllAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
             var query = _context.DaoDienCuaPhim
                 .Include(r => r.Phim)
@@ -42,23 +42,23 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(r => r.PhimId == phimId && r.DaoDienId == daoDienId, cancellationToken);
         }
 
-        public async Task<DaoDienCuaPhim> CreateAsync(DaoDienCuaPhim entity, CancellationToken cancellationToken = default)
+        public async Task<DaoDienCuaPhim> CreateAsync(DaoDienCuaPhim daoDienCuaPhim, CancellationToken cancellationToken = default)
         {
-            await _context.DaoDienCuaPhim.AddAsync(entity, cancellationToken);
+            await _context.DaoDienCuaPhim.AddAsync(daoDienCuaPhim, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
-            return entity;
+            return daoDienCuaPhim;
         }
 
-        public async Task<DaoDienCuaPhim> UpdateAsync(DaoDienCuaPhim entity, CancellationToken cancellationToken = default)
+        public async Task<DaoDienCuaPhim> UpdateAsync(DaoDienCuaPhim daoDienCuaPhim, CancellationToken cancellationToken = default)
         {
-            _context.DaoDienCuaPhim.Update(entity);
+            _context.DaoDienCuaPhim.Update(daoDienCuaPhim);
             await _context.SaveChangesAsync(cancellationToken);
-            return entity;
+            return daoDienCuaPhim;
         }
 
-        public async Task DeleteAsync(DaoDienCuaPhim entity, CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(DaoDienCuaPhim daoDienCuaPhim, CancellationToken cancellationToken = default)
         {
-            _context.DaoDienCuaPhim.Remove(entity);
+            _context.DaoDienCuaPhim.Remove(daoDienCuaPhim);
             await _context.SaveChangesAsync(cancellationToken);
         }
     }

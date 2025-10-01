@@ -18,7 +18,9 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             IQuocGiaRepository quocGia,
             IPhimRepository phim,
             IDaoDienCuaPhimRepository daoDienCuaPhim,
-            IDienVienCuaPhimRepository dienVienCuaPhim)
+            IDienVienCuaPhimRepository dienVienCuaPhim,
+            IPhanLoaiTheLoaiRepository phanLoaiTheLoai,
+            IPhanLoaiTheTagRepository phanLoaiTheTags)
         {
             _context = context;
             DaoDiens = daoDien;
@@ -30,6 +32,8 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             Phims = phim;
             DaoDienCuaPhims = daoDienCuaPhim;
             DienVienCuaPhims = dienVienCuaPhim;
+            PhanLoaiTheLoais = phanLoaiTheLoai;
+            PhanLoaiTheTags = phanLoaiTheTags;
         }
 
         public IDaoDienRepository DaoDiens { get; }
@@ -41,6 +45,8 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         public IPhimRepository Phims { get; }
         public IDaoDienCuaPhimRepository DaoDienCuaPhims { get; }
         public IDienVienCuaPhimRepository DienVienCuaPhims { get; }
+        public IPhanLoaiTheLoaiRepository PhanLoaiTheLoais { get; }
+        public IPhanLoaiTheTagRepository PhanLoaiTheTags { get; }
 
         public async Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
         {

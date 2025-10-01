@@ -34,7 +34,7 @@ namespace GienPhim_Services.FilmService.Application.Services
         {
             _logger.LogInformation("Service: Bắt đầu GetAllAsync cho DaoDienCuaPhim với page={Page}, limit={Limit}", page, limit);
 
-            var (relations, total, last) = await _unitOfWork.DaoDienCuaPhims.GetAllAsync(page, limit, cancellationToken);
+            var (daoDienCuaPhims, total, last) = await _unitOfWork.DaoDienCuaPhims.GetAllAsync(page, limit, cancellationToken);
 
             if (total == 0)
             {
@@ -42,7 +42,7 @@ namespace GienPhim_Services.FilmService.Application.Services
                 throw new DaoDienCuaPhimNotFoundException(0, 0);
             }
 
-            var dtoList = _mapper.ToDtoList(relations);
+            var dtoList = _mapper.ToDtoList(daoDienCuaPhims);
             var pagination = _paginationMapper.ToDto(page, limit, total, last);
 
             return ResultListDTO<List<DaoDienCuaPhimResponseDTO>>.Success(dtoList, "Lấy danh sách thành công", pagination);
@@ -52,13 +52,13 @@ namespace GienPhim_Services.FilmService.Application.Services
         {
             _logger.LogInformation("Service: Bắt đầu CreateAsync DaoDienCuaPhim với PhimId={PhimId}, DaoDienId={DaoDienId}", createDto.PhimId, createDto.DaoDienId);
 
-            var existingRelations = (await _unitOfWork.DaoDienCuaPhims.GetAllAsync(1, int.MaxValue, cancellationToken)).relations;
+            var existing = (await _unitOfWork.DaoDienCuaPhims.GetAllAsync(1, int.MaxValue, cancellationToken)).daoDienCuaPhims;
 
-            var entity = await _orchestrator.CreateAsync(createDto, existingRelations, cancellationToken);
+            var daoDienCuaPhim = await _orchestrator.CreateAsync(createDto, existing, cancellationToken);
 
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
-            var result = await _unitOfWork.DaoDienCuaPhims.CreateAsync(entity, cancellationToken);
+            var result = await _unitOfWork.DaoDienCuaPhims.CreateAsync(daoDienCuaPhim, cancellationToken);
             if (result is null)
             {
                 await transaction.RollbackAsync(cancellationToken);
@@ -74,18 +74,18 @@ namespace GienPhim_Services.FilmService.Application.Services
         {
             _logger.LogInformation("Service: Bắt đầu UpdateAsync DaoDienCuaPhim với PhimId={PhimId}, DaoDienId={DaoDienId}", updateDto.PhimId, updateDto.DaoDienId);
 
-            var existingRelation = await _unitOfWork.DaoDienCuaPhims.GetByIdAsync(updateDto.PhimId, updateDto.DaoDienId, cancellationToken);
-            if (existingRelation is null)
+            var existing = await _unitOfWork.DaoDienCuaPhims.GetByIdAsync(updateDto.PhimId, updateDto.DaoDienId, cancellationToken);
+            if (existing is null)
             {
                 _logger.LogWarning("Service: Không tìm thấy quan hệ PhimId={PhimId}, DaoDienId={DaoDienId}", updateDto.PhimId, updateDto.DaoDienId);
                 throw new DaoDienCuaPhimNotFoundException(updateDto.PhimId, updateDto.DaoDienId);
             }
 
-            var entity = await _orchestrator.UpdateAsync(updateDto, existingRelation, cancellationToken);
+            var daoDienCuaPhim = await _orchestrator.UpdateAsync(updateDto, existing, cancellationToken);
 
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
-            var result = await _unitOfWork.DaoDienCuaPhims.UpdateAsync(entity, cancellationToken);
+            var result = await _unitOfWork.DaoDienCuaPhims.UpdateAsync(daoDienCuaPhim, cancellationToken);
             if (result is null)
             {
                 await transaction.RollbackAsync(cancellationToken);

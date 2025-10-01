@@ -14,7 +14,7 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<(List<DienVienCuaPhim> relations, int total, int last)> GetAllAsync(int page, int limit, CancellationToken cancellationToken = default)
+        public async Task<(List<DienVienCuaPhim> dienVienCuaPhims, int total, int last)> GetAllAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
             var query = _context.DienVienCuaPhim
                 .Include(r => r.Phim)
@@ -24,14 +24,14 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             var total = await query.CountAsync(cancellationToken);
             var last = (int)Math.Ceiling((double)total / limit);
 
-            var relations = await query
+            var dienVienCuaPhims = await query
                 .OrderBy(r => r.PhimId)
                 .ThenBy(r => r.DienVienId)
                 .Skip((page - 1) * limit)
                 .Take(limit)
                 .ToListAsync(cancellationToken);
 
-            return (relations, total, last);
+            return (dienVienCuaPhims, total, last);
         }
 
         public async Task<DienVienCuaPhim?> GetByIdAsync(int phimId, int dienVienId, CancellationToken cancellationToken = default)
@@ -42,23 +42,23 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(r => r.PhimId == phimId && r.DienVienId == dienVienId, cancellationToken);
         }
 
-        public async Task<DienVienCuaPhim> CreateAsync(DienVienCuaPhim entity, CancellationToken cancellationToken = default)
+        public async Task<DienVienCuaPhim> CreateAsync(DienVienCuaPhim dienVienCuaPhim, CancellationToken cancellationToken = default)
         {
-            await _context.DienVienCuaPhim.AddAsync(entity, cancellationToken);
+            await _context.DienVienCuaPhim.AddAsync(dienVienCuaPhim, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
-            return entity;
+            return dienVienCuaPhim;
         }
 
-        public async Task<DienVienCuaPhim> UpdateAsync(DienVienCuaPhim entity, CancellationToken cancellationToken = default)
+        public async Task<DienVienCuaPhim> UpdateAsync(DienVienCuaPhim dienVienCuaPhim, CancellationToken cancellationToken = default)
         {
-            _context.DienVienCuaPhim.Update(entity);
+            _context.DienVienCuaPhim.Update(dienVienCuaPhim);
             await _context.SaveChangesAsync(cancellationToken);
-            return entity;
+            return dienVienCuaPhim;
         }
 
-        public async Task DeleteAsync(DienVienCuaPhim entity, CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(DienVienCuaPhim dienVienCuaPhim, CancellationToken cancellationToken = default)
         {
-            _context.DienVienCuaPhim.Remove(entity);
+            _context.DienVienCuaPhim.Remove(dienVienCuaPhim);
             await _context.SaveChangesAsync(cancellationToken);
         }
     }

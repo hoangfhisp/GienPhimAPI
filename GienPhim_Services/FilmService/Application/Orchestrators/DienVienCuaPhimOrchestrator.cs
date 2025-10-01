@@ -22,39 +22,39 @@ namespace GienPhim_Services.FilmService.Application.Orchestrators
             _logger = logger;
         }
 
-        public async Task<DienVienCuaPhim> CreateAsync(DienVienCuaPhimCreateDTO dto, IEnumerable<DienVienCuaPhim> existingRelations, CancellationToken cancellationToken = default)
+        public async Task<DienVienCuaPhim> CreateAsync(DienVienCuaPhimCreateDTO dto, IEnumerable<DienVienCuaPhim> existing, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu CreateAsync cho quan hệ PhimId={PhimId}, DienVienId={DienVienId}", dto.PhimId, dto.DienVienId);
 
-            var entity = _factory.Create(dto);
+            var dienVienCuaPhim = _factory.Create(dto);
 
-            _domainService.EnsureCanCreate(entity, existingRelations);
+            _domainService.EnsureCanCreate(dienVienCuaPhim, existing);
 
             _logger.LogInformation("Orchestrator: Quan hệ PhimId={PhimId}, DienVienId={DienVienId} đã được validate thành công", dto.PhimId, dto.DienVienId);
 
-            return await Task.FromResult(entity);
+            return await Task.FromResult(dienVienCuaPhim);
         }
 
-        public async Task<DienVienCuaPhim> UpdateAsync(DienVienCuaPhimUpdateDTO dto, DienVienCuaPhim? existingRelation, CancellationToken cancellationToken = default)
+        public async Task<DienVienCuaPhim> UpdateAsync(DienVienCuaPhimUpdateDTO dto, DienVienCuaPhim? existing, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu UpdateAsync cho quan hệ PhimId={PhimId}, DienVienId={DienVienId}", dto.PhimId, dto.DienVienId);
 
-            var entity = _factory.Update(dto);
+            var dienVienCuaPhim = _factory.Update(dto);
 
-            _domainService.EnsureCanUpdate(entity, existingRelation);
+            _domainService.EnsureCanUpdate(dienVienCuaPhim, existing);
 
             _logger.LogInformation("Orchestrator: Quan hệ PhimId={PhimId}, DienVienId={DienVienId} đã được validate update thành công", dto.PhimId, dto.DienVienId);
 
-            return await Task.FromResult(entity);
+            return await Task.FromResult(dienVienCuaPhim);
         }
 
         public async Task DeleteAsync(DienVienCuaPhimDeleteDTO dto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu DeleteAsync cho quan hệ PhimId={PhimId}, DienVienId={DienVienId}", dto.PhimId, dto.DienVienId);
 
-            var entity = new DienVienCuaPhim { PhimId = dto.PhimId, DienVienId = dto.DienVienId };
+            var dienVienCuaPhim = new DienVienCuaPhim { PhimId = dto.PhimId, DienVienId = dto.DienVienId };
 
-            _domainService.EnsureCanDelete(entity);
+            _domainService.EnsureCanDelete(dienVienCuaPhim);
 
             _logger.LogInformation("Orchestrator: Quan hệ PhimId={PhimId}, DienVienId={DienVienId} đã được validate để xóa", dto.PhimId, dto.DienVienId);
 

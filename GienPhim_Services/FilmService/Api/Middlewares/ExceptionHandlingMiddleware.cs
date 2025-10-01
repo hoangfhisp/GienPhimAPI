@@ -77,6 +77,18 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
             { typeof(DienVienCuaPhimFailedException), StatusCodes.Status500InternalServerError },
             { typeof(InvalidDienVienCuaPhimException), StatusCodes.Status500InternalServerError },
             { typeof(DienVienCuaPhimNotFoundException), StatusCodes.Status500InternalServerError },
+
+            // Phân loại thể loại
+            { typeof(DuplicatePhanLoaiTheLoaiException), StatusCodes.Status500InternalServerError },
+            { typeof(PhanLoaiTheLoaiFailedException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidPhanLoaiTheLoaiException), StatusCodes.Status500InternalServerError },
+            { typeof(PhanLoaiTheLoaiNotFoundException), StatusCodes.Status500InternalServerError },
+
+            // Phân loại thẻ tag
+            { typeof(DuplicatePhanLoaiTheTagException), StatusCodes.Status500InternalServerError },
+            { typeof(PhanLoaiTheTagFailedException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidPhanLoaiTheTagException), StatusCodes.Status500InternalServerError },
+            { typeof(PhanLoaiTheTagNotFoundException), StatusCodes.Status500InternalServerError },
         };
 
 
@@ -90,7 +102,9 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
                 !context.Request.Path.StartsWithSegments("/api/QuocGia") &&
                 !context.Request.Path.StartsWithSegments("/api/Phim") &&
                 !context.Request.Path.StartsWithSegments("/api/DaoDienCuaPhim") &&
-                !context.Request.Path.StartsWithSegments("/api/DienVienCuaPhim"))
+                !context.Request.Path.StartsWithSegments("/api/DienVienCuaPhim") &&
+                !context.Request.Path.StartsWithSegments("/api/PhanLoaiTheLoai") &&
+                !context.Request.Path.StartsWithSegments("/api/PhanLoaiTheTag"))
             {
                 await _next(context);
                 return;
