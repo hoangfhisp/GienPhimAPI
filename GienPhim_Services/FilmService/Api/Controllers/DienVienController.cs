@@ -18,7 +18,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             _logger = logger;
         }
 
-        // GET: api/DienVien/GetAllDienViens?page=1&limit=10
+        // Lấy danh sách diễn viên
         [HttpGet("GetAllDienViens")]
         public async Task<IActionResult> GetAllDienViens(int page = 1, int limit = 10, CancellationToken cancellationToken = default)
         {
@@ -28,7 +28,16 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
-        // POST: api/DienVien/Create
+        // Lấy chi tiết diễn viên theo ID
+        [HttpGet("Detail/{dienVienId}")]
+        public async Task<IActionResult> GetDetail(int dienVienId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: GetDetail DienVien Id={DienVienId}", dienVienId);
+            var result = await _dienVienService.GetDetailAsync(dienVienId, ct);
+            return Ok(result);
+        }
+
+        // Thêm mới diễn viên
         [HttpPost("Create")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] DienVienCreateDTO dto, CancellationToken ct = default)
@@ -39,7 +48,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
-        // PUT: api/DienVien/Update
+        // Cập nhật thông tin diễn viên
         [HttpPut("Update")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromBody] DienVienUpdateDTO dto, CancellationToken ct = default)
@@ -50,7 +59,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
-        // DELETE: api/DienVien/Delete?DienVienId=123
+        // Xóa diễn viên
         [HttpDelete("Delete")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromQuery] DienVienDeleteDTO deleteDto, CancellationToken ct = default)

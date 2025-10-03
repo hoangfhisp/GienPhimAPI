@@ -89,6 +89,15 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
             { typeof(PhanLoaiTheTagFailedException), StatusCodes.Status500InternalServerError },
             { typeof(InvalidPhanLoaiTheTagException), StatusCodes.Status500InternalServerError },
             { typeof(PhanLoaiTheTagNotFoundException), StatusCodes.Status500InternalServerError },
+
+            // Tập phim
+            { typeof(DuplicateTapPhimException), StatusCodes.Status500InternalServerError },
+            { typeof(TapPhimFailedException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidTapPhimException), StatusCodes.Status500InternalServerError },
+            { typeof(TapPhimNotFoundException), StatusCodes.Status500InternalServerError },
+
+            // Lượt xem phim
+            { typeof(FilmViewNotFoundException), StatusCodes.Status500InternalServerError },
         };
 
 
@@ -104,7 +113,9 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
                 !context.Request.Path.StartsWithSegments("/api/DaoDienCuaPhim") &&
                 !context.Request.Path.StartsWithSegments("/api/DienVienCuaPhim") &&
                 !context.Request.Path.StartsWithSegments("/api/PhanLoaiTheLoai") &&
-                !context.Request.Path.StartsWithSegments("/api/PhanLoaiTheTag"))
+                !context.Request.Path.StartsWithSegments("/api/PhanLoaiTheTag") &&
+                !context.Request.Path.StartsWithSegments("/api/TapPhim") &&
+                !context.Request.Path.StartsWithSegments("/api/FilmView"))
             {
                 await _next(context);
                 return;

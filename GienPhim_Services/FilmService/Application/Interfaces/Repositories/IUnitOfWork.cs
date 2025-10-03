@@ -13,6 +13,8 @@
         IDienVienCuaPhimRepository DienVienCuaPhims { get; } // Repository
         IPhanLoaiTheLoaiRepository PhanLoaiTheLoais { get; } // Repository
         IPhanLoaiTheTagRepository PhanLoaiTheTags { get; } // Repository
+        ITapPhimRepository TapPhims { get; } // Repository
+        IFilmViewRepository FilmViews { get; } // Repository
         Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default); // Transaction
     }
 }

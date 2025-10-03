@@ -55,6 +55,25 @@ namespace GienPhim_Services.FilmService.Application.Services
                 pagination
             );
         }
+
+        public async Task<ResultDTO<TheLoaiResponseDTO>> GetDetailAsync(int theLoaiId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho TheLoaiId={TheLoaiId}", theLoaiId);
+
+            var entity = await _unitOfWork.TheLoais.GetByIdAsync(theLoaiId, ct);
+            if (entity is null)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy Thể Loại Id={TheLoaiId}", theLoaiId);
+                throw new TheLoaiNotFoundException(theLoaiId.ToString());
+            }
+
+            var dto = _theLoaiResponseMapper.toDto(entity);
+
+            _logger.LogInformation("ApplicationService: Lấy chi tiết Thể Loại Id={TheLoaiId} thành công", theLoaiId);
+
+            return ResultDTO<TheLoaiResponseDTO>.Success(dto, "Lấy chi tiết thể loại thành công");
+        }
+
         public async Task<ResultDTO> CreateTheLoaiAsync(TheLoaiCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreateTheLoaiAsync với tên thể loại {TenTL}", createDto.TenTL);

@@ -28,6 +28,15 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
+        // Lấy chi tiết thể loại theo ID
+        [HttpGet("Detail/{theLoaiId}")]
+        public async Task<IActionResult> GetDetail(int theLoaiId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: GetDetail TheLoai Id={TheLoaiId}", theLoaiId);
+            var result = await _theLoaiService.GetDetailAsync(theLoaiId, ct);
+            return Ok(result);
+        }
+
         // Tạo mới thể loại
         [HttpPost("Create")]
         [Authorize(Roles = "Admin")]

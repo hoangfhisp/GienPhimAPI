@@ -30,6 +30,15 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
+        // Lấy chi tiết ngôn ngữ theo Id
+        [HttpGet("Detail/{ngonNguId}")]
+        public async Task<IActionResult> GetDetail(int ngonNguId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: GetDetail NgonNgu Id={NgonNguId}", ngonNguId);
+            var result = await _ngonNguService.GetDetailAsync(ngonNguId, ct);
+            return Ok(result);
+        }
+
         // Tạo ngôn ngữ mới
         [HttpPost("Create")]
         [Authorize(Roles = "Admin")]

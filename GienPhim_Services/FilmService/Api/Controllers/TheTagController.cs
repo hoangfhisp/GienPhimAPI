@@ -30,6 +30,15 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
+        // Lấy chi tiết thẻ tag theo ID
+        [HttpGet("Detail/{theTagId}")]
+        public async Task<IActionResult> GetDetail(int theTagId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: GetDetail TheTag Id={TheTagId}", theTagId);
+            var result = await _theTagService.GetDetailAsync(theTagId, ct);
+            return Ok(result);
+        }
+
         // Tạo mới thẻ tag
         [HttpPost("Create")]
         [Authorize(Roles = "Admin")]

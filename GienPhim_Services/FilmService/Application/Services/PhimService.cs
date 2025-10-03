@@ -57,6 +57,24 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultListDTO<List<PhimResponseDTO>>.Success(resultDtos, "Lấy danh sách phim thành công", pagination);
         }
 
+        public async Task<ResultDTO<PhimResponseDTO>> GetByIdAsync(int id, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetByIdAsync với Id={PhimId}", id);
+
+            var phim = await _unitOfWork.Phims.GetByIdAsync(id, ct);
+            if (phim is null)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy Phim với Id={PhimId}", id);
+                throw new PhimNotFoundException(id);
+            }
+
+            var dto = _phimResponseMapper.ToDto(phim);
+
+            _logger.LogInformation("ApplicationService: Lấy chi tiết Phim Id={PhimId} thành công", id);
+
+            return ResultDTO<PhimResponseDTO>.Success(dto, $"Lấy chi tiết phim Id={id} thành công");
+        }
+
         public async Task<ResultDTO> CreatePhimAsync(PhimCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreatePhimAsync với tên {TenP}", createDto.TenP);

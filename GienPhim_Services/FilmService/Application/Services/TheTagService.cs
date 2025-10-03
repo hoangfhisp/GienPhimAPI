@@ -56,6 +56,24 @@ namespace GienPhim_Services.FilmService.Application.Services
             );
         }
 
+        public async Task<ResultDTO<TheTagResponseDTO>> GetDetailAsync(int theTagId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho TheTagId={TheTagId}", theTagId);
+
+            var entity = await _unitOfWork.TheTags.GetByIdAsync(theTagId, ct);
+            if (entity is null)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy Thẻ Tag Id={TheTagId}", theTagId);
+                throw new TheTagNotFoundException(theTagId.ToString());
+            }
+
+            var dto = _theTagResponseMapper.toDto(entity);
+
+            _logger.LogInformation("ApplicationService: Lấy chi tiết Thẻ Tag Id={TheTagId} thành công", theTagId);
+
+            return ResultDTO<TheTagResponseDTO>.Success(dto, "Lấy chi tiết thẻ tag thành công");
+        }
+
         public async Task<ResultDTO> CreateTheTagAsync(TheTagCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Service: Bắt đầu CreateTheTagAsync với tên {TenT}", createDto.TenT);
