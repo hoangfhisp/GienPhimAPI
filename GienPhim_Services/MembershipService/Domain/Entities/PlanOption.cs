@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GienPhim_Services.MembershipService.Domain.Entities
 {
+    [Table("PlanOption")]
     public class PlanOption
     {
         [Key]

@@ -27,11 +27,18 @@ namespace GienPhim_Services.MembershipService.Api.Middlewares
             { typeof(MembershipPlanFailedException), StatusCodes.Status500InternalServerError },
             { typeof(InvalidMembershipPlanException), StatusCodes.Status500InternalServerError },
             { typeof(MembershipPlanNotFoundException), StatusCodes.Status500InternalServerError },
+
+            // PlanOption
+            { typeof(DuplicatePlanOptionException), StatusCodes.Status500InternalServerError },
+            { typeof(PlanOptionFailedException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidPlanOptionException), StatusCodes.Status500InternalServerError },
+            { typeof(PlanOptionNotFoundException), StatusCodes.Status500InternalServerError },
         };
 
         public async Task InvokeAsync(HttpContext context)
         {
-            if (!context.Request.Path.StartsWithSegments("/api/MembershipPlan"))
+            if (!context.Request.Path.StartsWithSegments("/api/MembershipPlan") &&
+                !context.Request.Path.StartsWithSegments("/api/PlanOption"))
             {
                 await _next(context);
                 return;

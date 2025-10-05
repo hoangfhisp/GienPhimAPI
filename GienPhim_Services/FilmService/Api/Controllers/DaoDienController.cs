@@ -1,11 +1,7 @@
 ﻿using GienPhim_Services.FilmService.Application.DTOs.Client.DaoDien;
 using GienPhim_Services.FilmService.Application.Interfaces.Services;
-using GienPhim_Services.FilmService.Application.DTOs.Common;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using GienPhim_Services.FilmService.Application.Services;
 
 namespace GienPhim_Services.FilmService.Api.Controllers
 {

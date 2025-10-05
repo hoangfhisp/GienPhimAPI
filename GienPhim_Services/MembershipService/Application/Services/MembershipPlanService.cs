@@ -32,7 +32,7 @@ namespace GienPhim_Services.MembershipService.Application.Services
             _logger = logger;
         }
 
-        // 🧩 Lấy danh sách MembershipPlans
+        // Lấy danh sách MembershipPlans
         public async Task<ResultListDTO<List<MembershipPlanResponseDTO>>> GetAllMembershipPlansAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetAllMembershipPlansAsync với trang {Page}, giới hạn {Limit}", page, limit);
@@ -51,7 +51,7 @@ namespace GienPhim_Services.MembershipService.Application.Services
             return ResultListDTO<List<MembershipPlanResponseDTO>>.Success(resultPlans, "Lấy danh sách gói thành viên thành công", pagination);
         }
 
-        // 🧩 Lấy chi tiết theo Id
+        // Lấy chi tiết theo Id
         public async Task<ResultDTO<MembershipPlanResponseDTO>> GetDetailAsync(string planId, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho PlanId={PlanId}", planId);
@@ -67,7 +67,7 @@ namespace GienPhim_Services.MembershipService.Application.Services
             return ResultDTO<MembershipPlanResponseDTO>.Success(dto, "Lấy chi tiết gói thành viên thành công");
         }
 
-        // 🧩 Tạo mới
+        // Tạo mới
         public async Task<ResultDTO> CreateMembershipPlanAsync(MembershipPlanCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreateMembershipPlanAsync với tên {TenPlan}", createDto.TenPlan);
@@ -99,7 +99,7 @@ namespace GienPhim_Services.MembershipService.Application.Services
             return ResultDTO.Success($"Tạo gói thành viên {plan.TenPlan} thành công");
         }
 
-        // 🧩 Cập nhật
+        // Cập nhật
         public async Task<ResultDTO<UpdateMembershipPlanResponseDTO>> UpdateMembershipPlanAsync(MembershipPlanUpdateDTO updateDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu UpdateMembershipPlanAsync với Id={PlanId}", updateDto.PlanId);
@@ -123,7 +123,7 @@ namespace GienPhim_Services.MembershipService.Application.Services
             return ResultDTO<UpdateMembershipPlanResponseDTO>.Success(response, $"Cập nhật gói thành viên {plan.TenPlan} thành công");
         }
 
-        // 🧩 Xóa
+        // Xóa
         public async Task<ResultDTO> DeleteMembershipPlanAsync(MembershipPlanDeleteDTO deleteDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu DeleteMembershipPlanAsync với Id={PlanId}", deleteDto.PlanId);

@@ -10,13 +10,16 @@ namespace GienPhim_Services.MembershipService.Infrastructure.Repositories
         public UnitOfWork
         (
             MembershipDbContext context,
-            IMembershipPlanRepository membershipPlans)
+            IMembershipPlanRepository membershipPlans,
+            IPlanOptionRepository planOptions)
         {
             _context = context;
             MembershipPlans = membershipPlans;
+            PlanOptions = planOptions;
         }
 
         public IMembershipPlanRepository MembershipPlans { get; }
+        public IPlanOptionRepository PlanOptions { get; }
 
         public async Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
         {

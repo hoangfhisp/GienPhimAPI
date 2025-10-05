@@ -25,17 +25,19 @@ namespace GienPhim_Services.MembershipService
             // SERVICES
             // SERVICE
             services.AddScoped<IMembershipPlanService, MembershipPlanService>();
-
-
+            services.AddScoped<IPlanOptionService, PlanOptionService>();
 
             // FACTORIES
             services.AddScoped<IMembershipPlanFactory, MembershipPlanFactory>();
+            services.AddScoped<IPlanOptionFactory, PlanOptionFactory>();
 
             // MAPPERS
             services.AddScoped<IMembershipPlanResponseMapper, MembershipPlanResponseMapper>();
+            services.AddScoped<IPlanOptionResponseMapper, PlanOptionResponseMapper>();
 
             // ORCHESTRATORS
             services.AddScoped<IMembershipPlanOrchestrator, MembershipPlanOrchestrator>();
+            services.AddScoped<IPlanOptionOrchestrator, PlanOptionOrchestrator>();
 
             // VALIRATORS
             // Dịch vụ validation chung
@@ -51,6 +53,7 @@ namespace GienPhim_Services.MembershipService
             /*-----------------------------------------DOMAIN--------------------------------------------*/
             // DOMAIN SERVICES
             services.AddScoped<IMembershipPlanDomainService, MembershipPlanDomainService>();
+            services.AddScoped<IPlanOptionDomainService, PlanOptionDomainService>();
 
             //MAPPERS
             services.AddScoped<IPaginationMapper, PaginationMapper>();
@@ -63,6 +66,7 @@ namespace GienPhim_Services.MembershipService
 
             // REPOSITORIES
             services.AddScoped<IMembershipPlanRepository, MembershipPlanRepository>();
+            services.AddScoped<IPlanOptionRepository, PlanOptionRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Unit of Work
             return services;

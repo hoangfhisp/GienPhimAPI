@@ -3,6 +3,7 @@
     public interface IUnitOfWork
     {
         IMembershipPlanRepository MembershipPlans { get; }
+        IPlanOptionRepository PlanOptions { get; }
         Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default); // Transaction
     }
 }
