@@ -7,9 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="MembershipService\Infrastructure\Data\Repositories\**" />
+    <Compile Remove="MembershipService\Services\**" />
     <Compile Remove="WalletService\Models\Entities\**" />
+    <Content Remove="MembershipService\Infrastructure\Data\Repositories\**" />
+    <Content Remove="MembershipService\Services\**" />
     <Content Remove="WalletService\Models\Entities\**" />
+    <EmbeddedResource Remove="MembershipService\Infrastructure\Data\Repositories\**" />
+    <EmbeddedResource Remove="MembershipService\Services\**" />
     <EmbeddedResource Remove="WalletService\Models\Entities\**" />
+    <None Remove="MembershipService\Infrastructure\Data\Repositories\**" />
+    <None Remove="MembershipService\Services\**" />
     <None Remove="WalletService\Models\Entities\**" />
   </ItemGroup>
 
@@ -48,10 +56,9 @@
     <Folder Include="InteractionService\Data\Repositories\Interfaces\" />
     <Folder Include="InteractionService\Models\DTOs\" />
     <Folder Include="InteractionService\Services\" />
-    <Folder Include="MembershipService\Data\Migrations\" />
-    <Folder Include="MembershipService\Data\Repositories\Interfaces\" />
-    <Folder Include="MembershipService\Models\DTOs\" />
-    <Folder Include="MembershipService\Services\" />
+    <Folder Include="MembershipService\Application\DTOs\Admin\" />
+    <Folder Include="MembershipService\Application\Interfaces\Validators\" />
+    <Folder Include="MembershipService\Application\Validators\" />
     <Folder Include="OrderService\Data\Migrations\" />
     <Folder Include="OrderService\Data\Repositories\Interfaces\" />
     <Folder Include="OrderService\Models\DTOs\" />

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace GienPhim_Services.MembershipService.Models.Entities
+namespace GienPhim_Services.MembershipService.Domain.Entities
 {
     public class UserMembership
     {

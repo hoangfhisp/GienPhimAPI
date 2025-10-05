@@ -1,7 +1,7 @@
-﻿using GienPhim_Services.MembershipService.Models.Entities;
+﻿using GienPhim_Services.MembershipService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace GienPhim_Services.MembershipService.Data
+namespace GienPhim_Services.MembershipService.Infrastructure.Data
 {
     public class MembershipDbContext : DbContext
     {
@@ -15,8 +15,8 @@ namespace GienPhim_Services.MembershipService.Data
             // Có thể thêm cấu hình mô hình tại đây nếu cần
         }
         
-        DbSet<MembershipPlan> MembershipPlan { get; set; } // Bảng kế hoạch thành viên
-        DbSet<PlanOption> PlanOption { get; set; } // Bảng tùy chọn kế hoạch thành viên
-        DbSet<UserMembership> UserMembership { get; set; } // Bảng thành viên người dùng
+        public DbSet<MembershipPlan> MembershipPlans { get; set; } // Bảng kế hoạch thành viên
+        public DbSet<PlanOption> PlanOptions { get; set; } // Bảng tùy chọn kế hoạch thành viên
+        public DbSet<UserMembership> UserMemberships { get; set; } // Bảng thành viên người dùng
     }
 }

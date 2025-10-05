@@ -115,7 +115,6 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO.Success($"Tạo phim {phim.TenP} thành công");
         }
 
-
         public async Task<ResultDTO<UpdatePhimResponseDTO>> UpdatePhimAsync(PhimUpdateDTO updateDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu UpdatePhimAsync với Id={PhimId}", updateDto.PhimId);
