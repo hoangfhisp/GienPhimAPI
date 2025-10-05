@@ -11,15 +11,18 @@ namespace GienPhim_Services.MembershipService.Infrastructure.Repositories
         (
             MembershipDbContext context,
             IMembershipPlanRepository membershipPlans,
-            IPlanOptionRepository planOptions)
+            IPlanOptionRepository planOptions,
+            IUserMembershipRepository userMemberships)
         {
             _context = context;
             MembershipPlans = membershipPlans;
             PlanOptions = planOptions;
+            UserMemberships = userMemberships;
         }
 
         public IMembershipPlanRepository MembershipPlans { get; }
         public IPlanOptionRepository PlanOptions { get; }
+        public IUserMembershipRepository UserMemberships { get; }
 
         public async Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
         {

@@ -26,18 +26,22 @@ namespace GienPhim_Services.MembershipService
             // SERVICE
             services.AddScoped<IMembershipPlanService, MembershipPlanService>();
             services.AddScoped<IPlanOptionService, PlanOptionService>();
+            services.AddScoped<IUserMembershipService, UserMembershipService>();
 
             // FACTORIES
             services.AddScoped<IMembershipPlanFactory, MembershipPlanFactory>();
             services.AddScoped<IPlanOptionFactory, PlanOptionFactory>();
+            services.AddScoped<IUserMembershipFactory, UserMembershipFactory>();
 
             // MAPPERS
             services.AddScoped<IMembershipPlanResponseMapper, MembershipPlanResponseMapper>();
             services.AddScoped<IPlanOptionResponseMapper, PlanOptionResponseMapper>();
+            services.AddScoped<IUserMembershipResponseMapper, UserMembershipResponseMapper>();
 
             // ORCHESTRATORS
             services.AddScoped<IMembershipPlanOrchestrator, MembershipPlanOrchestrator>();
             services.AddScoped<IPlanOptionOrchestrator, PlanOptionOrchestrator>();
+            services.AddScoped<IUserMembershipOrchestrator, UserMembershipOrchestrator>();
 
             // VALIRATORS
             // Dịch vụ validation chung
@@ -54,6 +58,7 @@ namespace GienPhim_Services.MembershipService
             // DOMAIN SERVICES
             services.AddScoped<IMembershipPlanDomainService, MembershipPlanDomainService>();
             services.AddScoped<IPlanOptionDomainService, PlanOptionDomainService>();
+            services.AddScoped<IUserMembershipDomainService, UserMembershipDomainService>();
 
             //MAPPERS
             services.AddScoped<IPaginationMapper, PaginationMapper>();
@@ -67,6 +72,7 @@ namespace GienPhim_Services.MembershipService
             // REPOSITORIES
             services.AddScoped<IMembershipPlanRepository, MembershipPlanRepository>();
             services.AddScoped<IPlanOptionRepository, PlanOptionRepository>();
+            services.AddScoped<IUserMembershipRepository, UserMembershipRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Unit of Work
             return services;
