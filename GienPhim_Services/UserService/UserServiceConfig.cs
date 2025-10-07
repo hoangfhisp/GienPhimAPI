@@ -44,6 +44,7 @@ namespace GienPhim_Services.UserService
             // MAPPERS
             services.AddScoped<IUserResponseMapper, UserResponseMapper>(); // User Mapper
             services.AddScoped<IPaginationMapper,PaginationMapper>();
+            services.AddScoped<IRoleResponseMapper, RoleResponseMapper>(); // Role Mapper
 
             // Đăng ký tất cả validators tự động
             services.Scan(scan => scan

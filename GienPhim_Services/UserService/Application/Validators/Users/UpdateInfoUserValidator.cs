@@ -8,7 +8,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace GienPhim_Services.UserService.Application.Validators.Users
 {
-    public class UpdateInfoUserValidator : IContextValidator<InfoUserUpdateDTO,string>
+    public class UpdateInfoUserValidator : IContextValidator<InfoUserUpdateRequestDTO,string>
     {
         private readonly IUserRepository _userRepository;
 
@@ -17,12 +17,12 @@ namespace GienPhim_Services.UserService.Application.Validators.Users
             _userRepository = userRepository;
         }
         // 🔹 Bắt buộc implement từ IValidator<T>
-        public async Task ValidateAsync(InfoUserUpdateDTO updateInfo, CancellationToken cancellationToken = default)
+        public async Task ValidateAsync(InfoUserUpdateRequestDTO updateInfo, CancellationToken cancellationToken = default)
         {
             
         }
 
-        public async Task ValidateAsync(InfoUserUpdateDTO updateInfo,string userId, CancellationToken cancellationToken = default)
+        public async Task ValidateAsync(InfoUserUpdateRequestDTO updateInfo,string userId, CancellationToken cancellationToken = default)
         {
             // Check user có tồn tại không 
             var user = await _userRepository.FindByUserIdAsync(userId,cancellationToken);

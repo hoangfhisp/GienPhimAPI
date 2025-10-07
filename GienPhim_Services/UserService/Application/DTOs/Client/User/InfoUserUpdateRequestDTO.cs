@@ -2,7 +2,7 @@
 
 namespace GienPhim_Services.UserService.Application.DTOs.Client.User
 {
-    public class InfoUserUpdateDTO
+    public class InfoUserUpdateRequestDTO
     {
         [Required(ErrorMessage = "Tên tài khoản là bắt buộc")]
         [RegularExpression("^[a-zA-Z0-9]+$", ErrorMessage = "Tên tài khoản chỉ được chứa chữ và số")]

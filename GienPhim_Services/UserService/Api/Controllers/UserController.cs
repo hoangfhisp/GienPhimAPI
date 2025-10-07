@@ -1,8 +1,10 @@
-﻿using GienPhim_Services.UserService.Application.DTOs.Client.Login;
+﻿using GienPhim_Services.UserService.Application.DTOs.Admin.User;
+using GienPhim_Services.UserService.Application.DTOs.Client.Login;
 using GienPhim_Services.UserService.Application.DTOs.Client.User;
 using GienPhim_Services.UserService.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace GienPhim_Services.UserService.Api.Controllers
 {
@@ -32,7 +34,7 @@ namespace GienPhim_Services.UserService.Api.Controllers
         // Update Thông tin người dùng
         [HttpPut("UpdateInfoUser")]
         [Authorize]
-        public async Task<IActionResult> UpdateInfoUser([FromForm]InfoUserUpdateDTO update, CancellationToken cancellationToken) //[FromForm] bắt buộc server lấy dữ liệu từ form-data, gồm cả IFormFile.
+        public async Task<IActionResult> UpdateInfoUser([FromForm]InfoUserUpdateRequestDTO update, CancellationToken cancellationToken) //[FromForm] bắt buộc server lấy dữ liệu từ form-data, gồm cả IFormFile.
         {
             _logger.LogInformation("API Request: UpdateInfoUser cho user {UserName}", update.UserName);
 
@@ -65,7 +67,7 @@ namespace GienPhim_Services.UserService.Api.Controllers
 
         // Tìm User theo email
         [HttpGet("GetUserByEmail")]
-        public async Task<IActionResult> GetUserByEmail([FromQuery]FindUserByEmailDTO dto, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetUserByEmail([FromQuery]FindUserByEmailRequestDTO dto, CancellationToken cancellationToken)
         {
             _logger.LogInformation("API Request: FindUserByEmail cho email {Email}", dto.Email);
             var result = await _userService.FindUserByEmailAsync(dto, cancellationToken);
@@ -75,7 +77,7 @@ namespace GienPhim_Services.UserService.Api.Controllers
 
         // Tìm User theo email
         [HttpGet("GetUserByUserId")]
-        public async Task<IActionResult> GetUserByUserId([FromQuery] FindUserByIdDTO dto, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetUserByUserId([FromQuery] FindUserByIdRequestDTO dto, CancellationToken cancellationToken)
         {
             _logger.LogInformation("API Request: FindUserByUserId cho id {id}", dto.UserId);
             var result = await _userService.FindUserByUserIdAsync(dto, cancellationToken);
@@ -105,12 +107,33 @@ namespace GienPhim_Services.UserService.Api.Controllers
         }
 
         [HttpGet("GetListUser")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetListUser([FromQuery]ListUserRequestDTO dto, CancellationToken cancellationToken)
         {
             _logger.LogInformation("API Request: GetListUser trang {PageNumber} với kích thước {PageSize}", dto.page, dto.limit);
             var result = await _userService.GetAllUsersAsync(dto, cancellationToken);
             _logger.LogInformation("API Response: GetListUser trả về {Count} user với trạng thái {Status}", result.Data.Count, result.Status);
+            return Ok(result);
+        }
+
+        [HttpGet("GetUserByTenND")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUserByTenND([FromQuery] FindUserByTenNDRequestTO request,CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Request: GetUserByTenND cho NameND: {NameND}", request.TenND);
+            var result = await _userService.FindUserByTenNDAsync(request,cancellationToken);
+            _logger.LogInformation("API Response: GetUserByTenND cho NameND: {NameND} thành công", request.TenND);
+            return Ok(result);
+        }
+
+        // Xóa User
+        [HttpDelete("DeleteUser")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser([FromQuery] DeleteUserRequestDTO request, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("API Request: DeleteUser cho UserId: {UserId}", request.UserId);
+            var result = await _userService.DeleteUserAsync(request, cancellationToken);
+            _logger.LogInformation("API Response: DeleteUser cho UserId: {UserId} với trạng thái {Status}", request.UserId, result.Status);
             return Ok(result);
         }
     }

@@ -1,4 +1,5 @@
-﻿using GienPhim_Services.UserService.Application.DTOs.Client.Login;
+﻿using GienPhim_Services.UserService.Application.DTOs.Admin.User;
+using GienPhim_Services.UserService.Application.DTOs.Client.Login;
 using GienPhim_Services.UserService.Application.DTOs.Client.User;
 using GienPhim_Services.UserService.Application.Interfaces.Factories;
 using GienPhim_Services.UserService.Domain.Entities;
@@ -40,7 +41,7 @@ namespace GienPhim_Services.UserService.Application.Factories
             };
         }
 
-        public User CreateUpdateInfoUser(InfoUserUpdateDTO update, string userId)
+        public User CreateUpdateInfoUser(InfoUserUpdateRequestDTO update, string userId)
         {
             return new User
             {
@@ -54,7 +55,7 @@ namespace GienPhim_Services.UserService.Application.Factories
             };
         }
 
-        public User CreateEmail(FindUserByEmailDTO dto)
+        public User CreateEmail(FindUserByEmailRequestDTO dto)
         {
             return new User
             {
@@ -62,7 +63,7 @@ namespace GienPhim_Services.UserService.Application.Factories
             };
         }
 
-        public User CreateUserId(FindUserByIdDTO dto)
+        public User CreateUserId(FindUserByIdRequestDTO dto)
         {
             return new User
             {

@@ -13,6 +13,10 @@ using Shared.FileStorage;
 using GienPhim_Services.UserService.Application.Exceptions.NotFounds;
 using GienPhim_Services.UserService.Application.Exceptions.Duplicates;
 using GienPhim_Services.UserService.Domain.Services.Interfaces;
+using System.Security.Claims;
+using GienPhim_Services.UserService.Application.DTOs.Admin.User;
+using GienPhim_Services.UserService.Domain.Entities;
+using System.Net.WebSockets;
 
 namespace GienPhim_Services.UserService.Application.Services
 {
@@ -24,13 +28,14 @@ namespace GienPhim_Services.UserService.Application.Services
         private readonly IUserResponseMapper _userResponseMapper;
         private readonly IPaginationMapper _paginationMapper;
         private readonly string _defaultRole; // Vai trò mặc định khi tạo tài khoản
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<UserService> _logger;
 
 
         public UserService(IUnitOfWork unitOfWork , IUserDomainService userDomainService
             , IUserOrchestrator userOrchestrator, IOptions<UserSettings> userSettings
             , IUserResponseMapper userResponseMapper  , IPaginationMapper paginationMapper
-            , ILogger<UserService> logger)
+            ,IHttpContextAccessor httpContextAccessor, ILogger<UserService> logger)
         {
             //tham số của phương thức bị null nhưng không được phép null.
             _userDomainService = userDomainService ?? throw new ArgumentNullException(nameof(userDomainService));
@@ -39,6 +44,7 @@ namespace GienPhim_Services.UserService.Application.Services
             _userResponseMapper = userResponseMapper ?? throw new ArgumentNullException(nameof(userResponseMapper));
             _paginationMapper = paginationMapper ?? throw new ArgumentNullException(nameof(paginationMapper));
             _defaultRole = userSettings.Value.DefaultRole ?? "User";
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _logger = logger;
         }
 
@@ -160,12 +166,19 @@ namespace GienPhim_Services.UserService.Application.Services
             return ResultDTO<ExternalLoginUserResponseDTO>.Success(_userResponseMapper.ToExternalLogin(user), $"Đăng Nhập bằng '{user.TypeLogin}' thành công");
         }
 
-
         // Update Info người dùng
-        public async Task<ResultDTO<UpdateInfoUserResponseDTO>> UpdateInfoUserAsync(InfoUserUpdateDTO update, CancellationToken cancellationToken = default)
+        public async Task<ResultDTO<UpdateInfoUserResponseDTO>> UpdateInfoUserAsync(InfoUserUpdateRequestDTO update, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation(": Bắt đầu cập nhật thông tin user {UserName}", update.UserName);
-            var userUpdate = await _userOrchestrator.UpdateInfoUserAsync(update, cancellationToken);
+            // Lấy userId từ token
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value; // User mặc định có Claims là rỗng chứ không null.
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("Orchestrator: Không xác định được UserId đã gửi update!");
+                throw new UserNotFoundByIdException(userId);
+            }
+
+            var userUpdate = await _userOrchestrator.UpdateInfoUserAsync(update,userId, cancellationToken);
 
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
@@ -248,11 +261,11 @@ namespace GienPhim_Services.UserService.Application.Services
         }
 
         // Tìm User theo email
-        public async Task<ResultDTO<UserResponseDTO>> FindUserByEmailAsync(FindUserByEmailDTO dto, CancellationToken cancellationToken = default)
+        public async Task<ResultDTO<UserResponseDTO>> FindUserByEmailAsync(FindUserByEmailRequestDTO dto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationSerVice: Tìm kiếm người dùng với Email {Email}", dto.Email);
 
-            var userFind = _userOrchestrator.RepareUserByEmail(dto);
+            var userFind = _userOrchestrator.GetUserByEmail(dto);
 
             // Tìm người dùng theo email
             var user = await _unitOfWork.Users.FindByEmailAsync(userFind.Email, cancellationToken);
@@ -276,11 +289,11 @@ namespace GienPhim_Services.UserService.Application.Services
         }
 
         // Tìm User theo userId
-        public async Task<ResultDTO<UserResponseDTO>> FindUserByUserIdAsync(FindUserByIdDTO dto, CancellationToken cancellationToken = default)
+        public async Task<ResultDTO<UserResponseDTO>> FindUserByUserIdAsync(FindUserByIdRequestDTO dto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationSerVice: Tìm kiếm người dùng với id {id}", dto.UserId);
 
-            var userFind = _userOrchestrator.RepareUserByUserId(dto);
+            var userFind = _userOrchestrator.GetUserByUserId(dto);
 
             // Tìm người dùng theo email
             var user = await _unitOfWork.Users.FindByUserIdAsync(userFind.Id, cancellationToken);
@@ -300,6 +313,31 @@ namespace GienPhim_Services.UserService.Application.Services
             user.Roles = roles.ToList();
             _logger.LogInformation("ApplicationSerVice: Tìm thấy người dùng với Email {Email}", userFind.Email);
             return ResultDTO<UserResponseDTO>.Success(_userResponseMapper.ToDto(user), $"Tìm thấy người dùng '{userFind.Email}' thành công.");
+        }
+
+        // Tìm User theo NameND
+        public async Task<ResultListDTO<UserResponseDTO>> FindUserByTenNDAsync(FindUserByTenNDRequestTO dto, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationSerVice: Tìm kiếm người dùng với Tên người dùng {TenND}", dto.TenND);
+            // Tìm người dùng theo email
+            var users = await _userOrchestrator.GetUserByNameND(dto, cancellationToken);
+            foreach (var user in users.user)
+            {
+                // Lấy vai trò của người dùng
+                var roles = await _unitOfWork.Users.GetRolesUserAsync(user);
+                if (roles == null || !roles.Any())
+                {
+                    _logger.LogError("ApplicationSerVice: User {Account} không có vai trò!", user.Email);
+                    throw new InvalidUserHasNoRoleException(user.Email);
+                }
+                user.Roles = roles.ToList();
+            }
+            // Trả về kết quả login
+            var userDtos = users.user.Select(u => _userResponseMapper.ToDto(u)).ToList();
+            var pagination = _paginationMapper.ToDto(dto.Page ,dto.Limit, users.total, users.last);
+
+            _logger.LogInformation("ApplicationSerVice: Tìm thấy người dùng với Tên {TenND}", dto.TenND);
+            return ResultListDTO<UserResponseDTO>.Success(userDtos, $"Tìm thấy người dùng '{dto.TenND}' thành công.",pagination);
         }
 
         // Reset mật khẩu
@@ -436,6 +474,25 @@ namespace GienPhim_Services.UserService.Application.Services
 
             _logger.LogInformation("ApplicationSerVice: Lấy danh sách tất cả người dùng thành công với {Count} người dùng", users.total);
             return ResultListDTO<UserResponseDTO>.Success(userDtos, "Lấy danh sách tất cả người dùng thành công",pagination);
+        }
+
+        // Xóa người dùng
+        public async Task<ResultDTO> DeleteUserAsync(DeleteUserRequestDTO request, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationSerVice: Bắt đầu xóa người dùng với Id {UserId}", request.UserId);
+            var user = await _userOrchestrator.DeleteUserAsync(request);
+            // Xóa người dùng
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+            var delete = await _unitOfWork.Users.DeleteUserAsync(user);
+            if (!delete.Succeeded)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.LogError("ApplicationSerVice: Xóa người dùng {UserName} thất bại!", user.UserName);
+                throw new DeleteUserFailedException(user.UserName);
+            }
+            await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation("ApplicationSerVice: Xóa người dùng {UserName} thành công!", user.UserName);
+            return ResultDTO.Success($"Xóa người dùng '{user.UserName}' thành công.");
         }
     }
 }
