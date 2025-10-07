@@ -25,5 +25,11 @@ namespace GienPhim_Services.UserService.Domain.Entities
         [Display(Name = "Thời gian cập nhật")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}")]
         public DateTime? ThoiGianCapNhat { get; set; }
+
+        public bool DuplicateRoleName(string roleName)
+        {
+            return string.Equals(NormalizedName, roleName?.ToUpperInvariant(), StringComparison.Ordinal);
+        }
+
     }
 }

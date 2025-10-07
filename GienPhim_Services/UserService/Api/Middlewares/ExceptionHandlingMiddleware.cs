@@ -23,6 +23,7 @@ namespace GienPhim_Services.UserService.Api.Middlewares
         {
             //Duplicate
             { typeof(DuplicateEmailException), StatusCodes.Status409Conflict },
+            { typeof(DuplicateRoleNameException), StatusCodes.Status409Conflict },
             // Invalid
             { typeof(InvalidRoleNameNullException), StatusCodes.Status400BadRequest },
             { typeof(InvalidUserEmailException), StatusCodes.Status400BadRequest },
@@ -34,6 +35,8 @@ namespace GienPhim_Services.UserService.Api.Middlewares
             { typeof(InvalidChangeEmailException), StatusCodes.Status400BadRequest },
             { typeof(InvalidUserPageException), StatusCodes.Status400BadRequest },
             { typeof(InvalidUserPageLimitException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidTenNDException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidRoleIdNullException), StatusCodes.Status400BadRequest },
 
             //NotFounds
 

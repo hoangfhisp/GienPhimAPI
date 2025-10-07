@@ -1,15 +1,12 @@
-﻿using GienPhim_Services.UserService.Application.DTOs.Client.Login;
+﻿using GienPhim_Services.UserService.Application.DTOs.Admin.User;
+using GienPhim_Services.UserService.Application.DTOs.Client.Login;
 using GienPhim_Services.UserService.Application.DTOs.Client.User;
-using GienPhim_Services.UserService.Application.Exceptions.NotFounds;
 using GienPhim_Services.UserService.Application.Interfaces.Factories;
 using GienPhim_Services.UserService.Application.Interfaces.Mappers;
 using GienPhim_Services.UserService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.UserService.Application.Interfaces.Validators;
 using GienPhim_Services.UserService.Domain.Entities;
 using GienPhim_Services.UserService.Domain.Services.Interfaces;
-using System.Security.Claims;
-using System.Threading.Tasks;
-
 namespace GienPhim_Services.UserService.Application.Orchestrators
 {
     public class UserOrchestrator : IUserOrchestrator
@@ -19,19 +16,18 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
         private readonly IUserFactory _userFactory;
         private readonly IUserResponseMapper _userResponseMapper;
         private readonly IGuidUserNameGenerator _guidUserNameGenerator;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+
         private readonly ILogger<UserOrchestrator> _logger;
         public UserOrchestrator(IUserDomainService userDomainService, IValidationService validationService
             , IUserFactory userFactory, IUserResponseMapper userResponseMapper
             , IGuidUserNameGenerator guidUserNameGenerator
-            , IHttpContextAccessor httpContextAccessor, ILogger<UserOrchestrator> logger)
+            , ILogger<UserOrchestrator> logger)
         {
             _userDomainService = userDomainService;
             _validationService = validationService;
             _userFactory = userFactory;
             _userResponseMapper = userResponseMapper;
             _guidUserNameGenerator = guidUserNameGenerator;
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _logger = logger;
         }
 
@@ -89,17 +85,9 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
         }
 
         // Cập nhật thông tin user
-        public async Task<User> UpdateInfoUserAsync(InfoUserUpdateDTO update, CancellationToken cancellationToken = default)
+        public async Task<User> UpdateInfoUserAsync(InfoUserUpdateRequestDTO update, string userId,CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu UpdateInfoUserAsync với user {UserName}", update.UserName);
-
-            // Lấy userId từ token
-            var userId = _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value; // User mặc định có Claims là rỗng chứ không null.
-            if (string.IsNullOrEmpty(userId))
-            {
-                _logger.LogWarning("Orchestrator: Không xác định được UserId đã gửi update!");
-                throw new UserNotFoundByIdException(userId);
-            }
 
             // Validate dữ liệu cập nhật
             await _validationService.ValidateAsync(update, userId, cancellationToken);
@@ -130,7 +118,7 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
         }
 
         // Tìm user bằng email
-        public User RepareUserByEmail(FindUserByEmailDTO dto)
+        public User GetUserByEmail(FindUserByEmailRequestDTO dto)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu FindUserByEmailAsync với email {Email}", dto.Email);
 
@@ -144,7 +132,7 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
         }
 
         // Tìm user bằng userId
-        public User RepareUserByUserId(FindUserByIdDTO dto)
+        public User GetUserByUserId(FindUserByIdRequestDTO dto)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu FindUserByIdAsync với userId {UserId}", dto.UserId);
             // Tạo đối tượng User từ userId
@@ -153,6 +141,17 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
             _userDomainService.EnsureCanUserId(user);
             _logger.LogInformation("Orchestrator: Tìm thấy user với userId {UserId}", dto.UserId);
             return user;
+        }
+
+        // Tìm user bằng tenND
+        public async Task<(List<User> user, int total, int last)> GetUserByNameND(FindUserByTenNDRequestTO request,CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu FindUserByTenNDAsync với tenND {TenND}", request.TenND);
+            // Validate tenND
+            _userDomainService.EnsureCanNameND(request.TenND, request.Page, request.Limit);
+            var users = await _validationService.ValidateAsync<FindUserByTenNDRequestTO, (List<User> user, int total, int last)>(request,cancellationToken);
+            _logger.LogInformation("Orchestrator: Tìm thấy user với tenND {TenND}", request.TenND);
+            return (users.user, users.total, users.last);
         }
 
         // Đổi email
@@ -177,12 +176,24 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
             return user;
         }
 
-        // 
+        // Lấy danh sách user với phân trang và lọc
         public async Task GetListUserAsync(ListUserRequestDTO request, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu GetListUserAsync với PageIndex {PageIndex} và PageSize {PageSize}", request.page, request.limit);
             _userDomainService.EnsureCanGetListUser(request.page, request.limit);
             await _validationService.ValidateAsync(request, cancellationToken);
         }
+
+        public async Task<User> DeleteUserAsync(DeleteUserRequestDTO request, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu DeleteUserAsync với userId {UserId}", request.UserId);
+            var user = await _validationService.ValidateAsync<DeleteUserRequestDTO,User>(request, cancellationToken);
+            _userDomainService.EnsureCanUserId(user);
+            await _validationService.ValidateAsync<DeleteUserRequestDTO, User>(request, cancellationToken);
+            _logger.LogInformation("Orchestrator: Xóa user thành công với userId {UserId}", request.UserId);
+
+            return user;
+        }
+        
     }
 }

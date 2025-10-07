@@ -38,5 +38,29 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
             _logger.LogInformation("[Orchestrator] Role '{RoleName}' đã được validate và khởi tạo thành công", createRole.RoleName);
             return role;
         }
+
+        // Lấy danh sách Role với phân trang
+        public async Task<(List<Role> role, int total, int last)> GetAllRoleAsync(GetListRoleRequestDTO request,CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu GetAllRoleAsync");
+            _roleDomainService.EnsureCanGetListRole(request.Page, request.Limit); // Kiểm tra các điều kiện để lấy danh sách Role
+
+            var roles = await _validationService.ValidateAsync<GetListRoleRequestDTO, (List<Role> role, int total, int last)>(request, cancellationToken);
+
+            _logger.LogInformation("Orchestrator: Hoàn thành GetAllRoleAsync với {Count} roles",roles.total);
+            return roles;
+        }
+
+        // Tìm Role theo tên
+        public async Task<(List<Role> role, int total, int last)> GetRoleByRoleNameAsync(FindRoleByRoleNameRequestDTO request, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu FindRoleByRoleName với RoleName {RoleName}", request.RoleName);
+
+            _roleDomainService.EnsureCanFindUserName(request.RoleName, request.Page, request.Limit);
+            // Kiểm tra các điều kiện để tìm Role theo tên
+            var roles = await _validationService.ValidateAsync<FindRoleByRoleNameRequestDTO, (List<Role> role, int total, int last)>(request, cancellationToken);
+            
+            return roles;
+        }
     }
 }

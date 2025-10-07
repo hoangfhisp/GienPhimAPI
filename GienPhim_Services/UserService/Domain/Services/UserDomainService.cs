@@ -85,6 +85,7 @@ namespace GienPhim_Services.UserService.Domain.Services
             InValidUser(user);
         }
 
+        // Tìm User Dựa vào userId
         public void EnsureCanUserId(User user)
         {
             InValidUser(user);
@@ -129,7 +130,16 @@ namespace GienPhim_Services.UserService.Domain.Services
             ValidatePagination(page, limit);
         }
 
-        // private methods
+        public void EnsureCanNameND(string tenND, int page, int limit)
+        {
+            if(string.IsNullOrWhiteSpace(tenND))
+                throw new InvalidTenNDException(tenND);
+
+            ValidatePagination(page,limit);
+        }
+
+        // private methods //
+        // Validate email
         private void ValidateEmail(string? email)
         {
             if (string.IsNullOrWhiteSpace(email))
@@ -139,6 +149,7 @@ namespace GienPhim_Services.UserService.Domain.Services
                 throw new InvalidUserEmailException(email);
         }
 
+        // Validate phân trang
         private void ValidatePagination(int page, int limit)
         {
             if (page <= 0)
@@ -148,11 +159,13 @@ namespace GienPhim_Services.UserService.Domain.Services
                 throw new InvalidUserPageLimitException(limit);
         }
 
+        // Kiểm tra user có null không
         private void InValidUser(User user)
         {
             if (user == null)
                 throw new InvalidUserException(user?.Email);
-
         }
+
+
     }
 }

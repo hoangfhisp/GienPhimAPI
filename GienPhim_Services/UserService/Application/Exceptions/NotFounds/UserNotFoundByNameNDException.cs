@@ -1,0 +1,11 @@
+﻿using GienPhim_Services.UserService.Shared.Exceptions;
+
+namespace GienPhim_Services.UserService.Application.Exceptions.NotFounds
+{
+    public class UserNotFoundByNameNDException : BusinessException
+    {
+        public override int StatusCode => 404;
+        public UserNotFoundByNameNDException(string? nameND = "")
+            : base($"Không tìm thấy người dùng với tên người dùng: {nameND ?? string.Empty}") { }
+    }
+}
