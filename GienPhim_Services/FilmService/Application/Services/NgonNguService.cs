@@ -52,6 +52,24 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultListDTO<List<NgonNguResponseDTO>>.Success(resultDtos, "Lấy danh sách ngôn ngữ thành công", pagination);
         }
 
+        public async Task<ResultDTO<NgonNguResponseDTO>> GetDetailAsync(int ngonNguId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho NgonNguId={NgonNguId}", ngonNguId);
+
+            var ngonNgu = await _unitOfWork.NgonNgus.GetByIdAsync(ngonNguId, ct);
+            if (ngonNgu is null)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy Ngôn Ngữ Id={NgonNguId}", ngonNguId);
+                throw new NgonNguNotFoundException(ngonNguId.ToString());
+            }
+
+            var dto = _ngonNguResponseMapper.ToDto(ngonNgu);
+
+            _logger.LogInformation("ApplicationService: Lấy chi tiết Ngôn Ngữ Id={NgonNguId} thành công", ngonNguId);
+
+            return ResultDTO<NgonNguResponseDTO>.Success(dto, "Lấy chi tiết ngôn ngữ thành công");
+        }
+
         public async Task<ResultDTO> CreateNgonNguAsync(NgonNguCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreateNgonNguAsync với tên {TenNN}", createDto.TenNN);

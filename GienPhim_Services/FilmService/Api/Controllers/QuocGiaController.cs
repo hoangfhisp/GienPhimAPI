@@ -28,6 +28,16 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
+        // Lấy chi tiết quốc gia theo ID
+        [HttpGet("Detail/{quocGiaId}")]
+        public async Task<IActionResult> GetDetail(int quocGiaId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: GetDetail QuocGia Id={QuocGiaId}", quocGiaId);
+            var result = await _quocGiaService.GetDetailAsync(quocGiaId, ct);
+            return Ok(result);
+        }
+
+        // Tạo mới quốc gia
         [HttpPost("Create")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] QuocGiaCreateDTO dto, CancellationToken ct = default)
@@ -38,6 +48,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
+        // Cập nhật quốc gia
         [HttpPut("Update")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromBody] QuocGiaUpdateDTO dto, CancellationToken ct = default)
@@ -48,6 +59,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
+        // Xóa quốc gia
         [HttpDelete("Delete")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromQuery] QuocGiaDeleteDTO deleteDto, CancellationToken ct = default)

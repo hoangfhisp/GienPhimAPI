@@ -9,14 +9,20 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
 
         public UnitOfWork
         (
-            FilmDbContext context, 
-            IDaoDienRepository daoDien, 
-            IDienVienRepository dienVien, 
-            ITheLoaiRepository theLoai, 
-            ITheTagRepository TheTag, 
+            FilmDbContext context,
+            IDaoDienRepository daoDien,
+            IDienVienRepository dienVien,
+            ITheLoaiRepository theLoai,
+            ITheTagRepository TheTag,
             INgonNguRepository ngonNgu,
             IQuocGiaRepository quocGia,
-            IPhimRepository phim)
+            IPhimRepository phim,
+            IDaoDienCuaPhimRepository daoDienCuaPhim,
+            IDienVienCuaPhimRepository dienVienCuaPhim,
+            IPhanLoaiTheLoaiRepository phanLoaiTheLoai,
+            IPhanLoaiTheTagRepository phanLoaiTheTags,
+            ITapPhimRepository tapPhims,
+            IFilmViewRepository filmViews)
         {
             _context = context;
             DaoDiens = daoDien;
@@ -26,6 +32,12 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             NgonNgus = ngonNgu;
             QuocGias = quocGia;
             Phims = phim;
+            DaoDienCuaPhims = daoDienCuaPhim;
+            DienVienCuaPhims = dienVienCuaPhim;
+            PhanLoaiTheLoais = phanLoaiTheLoai;
+            PhanLoaiTheTags = phanLoaiTheTags;
+            TapPhims = tapPhims;
+            FilmViews = filmViews;
         }
 
         public IDaoDienRepository DaoDiens { get; }
@@ -35,6 +47,12 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         public INgonNguRepository NgonNgus { get; }
         public IQuocGiaRepository QuocGias { get; }
         public IPhimRepository Phims { get; }
+        public IDaoDienCuaPhimRepository DaoDienCuaPhims { get; }
+        public IDienVienCuaPhimRepository DienVienCuaPhims { get; }
+        public IPhanLoaiTheLoaiRepository PhanLoaiTheLoais { get; }
+        public IPhanLoaiTheTagRepository PhanLoaiTheTags { get; }
+        public ITapPhimRepository TapPhims { get; }
+        public IFilmViewRepository FilmViews { get; }
 
         public async Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
         {

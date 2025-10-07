@@ -5,8 +5,7 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Mappers
 {
     public interface IPhimResponseMapper
     {
-        PhimResponseDTO ToDto(Phim phim);
-        List<PhimResponseDTO> ToDtoList(List<Phim> phims);
+        PhimResponseDTO ToDto(Phim phim); List<PhimResponseDTO> ToDtoList(List<Phim> phims);
 
         UpdatePhimResponseDTO ToUpdateDto(Phim phim);
         List<UpdatePhimResponseDTO> ToUpdateDtoList(List<Phim> phims);

@@ -9,6 +9,12 @@
         INgonNguRepository NgonNgus { get; } // Repository
         IQuocGiaRepository QuocGias { get; } // Repository
         IPhimRepository Phims { get; } // Repository 
+        IDaoDienCuaPhimRepository DaoDienCuaPhims { get; } // Repository
+        IDienVienCuaPhimRepository DienVienCuaPhims { get; } // Repository
+        IPhanLoaiTheLoaiRepository PhanLoaiTheLoais { get; } // Repository
+        IPhanLoaiTheTagRepository PhanLoaiTheTags { get; } // Repository
+        ITapPhimRepository TapPhims { get; } // Repository
+        IFilmViewRepository FilmViews { get; } // Repository
         Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default); // Transaction
     }
 }

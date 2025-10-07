@@ -52,6 +52,24 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultListDTO<List<QuocGiaResponseDTO>>.Success(resultDtos, "Lấy danh sách quốc gia thành công", pagination);
         }
 
+        public async Task<ResultDTO<QuocGiaResponseDTO>> GetDetailAsync(int quocGiaId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho QuocGiaId={QuocGiaId}", quocGiaId);
+
+            var entity = await _unitOfWork.QuocGias.GetByIdAsync(quocGiaId, ct);
+            if (entity is null)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy Quốc Gia Id={QuocGiaId}", quocGiaId);
+                throw new QuocGiaNotFoundException(quocGiaId.ToString());
+            }
+
+            var dto = _quocGiaResponseMapper.ToDto(entity);
+
+            _logger.LogInformation("ApplicationService: Lấy chi tiết Quốc Gia Id={QuocGiaId} thành công", quocGiaId);
+
+            return ResultDTO<QuocGiaResponseDTO>.Success(dto, "Lấy chi tiết quốc gia thành công");
+        }
+
         public async Task<ResultDTO> CreateQuocGiaAsync(QuocGiaCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreateQuocGiaAsync với tên {TenQG}", createDto.TenQG);

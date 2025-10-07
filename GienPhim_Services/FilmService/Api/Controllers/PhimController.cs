@@ -33,6 +33,19 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
+        // Xem chi tiết phim
+        [HttpGet("GetById/{id}")]
+        public async Task<IActionResult> GetById(int id, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: GetById Phim Id={PhimId}", id);
+
+            var result = await _phimService.GetByIdAsync(id, ct);
+
+            _logger.LogInformation("API Response: GetById Phim Id={PhimId} Status={Status}", id, result.Status);
+
+            return Ok(result);
+        }
+
         // Tạo phim mới
         [HttpPost("Create")]
         [Authorize(Roles = "Admin")]

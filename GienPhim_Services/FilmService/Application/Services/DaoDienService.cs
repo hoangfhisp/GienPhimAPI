@@ -58,6 +58,24 @@ namespace GienPhim_Services.FilmService.Application.Services
             );
         }
 
+        public async Task<ResultDTO<DaoDienResponseDTO>> GetDetailAsync(int daoDienId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho DaoDienId={DaoDienId}", daoDienId);
+
+            var daoDien = await _unitOfWork.DaoDiens.GetByIdAsync(daoDienId, ct);
+            if (daoDien is null)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy Đạo diễn Id={DaoDienId}", daoDienId);
+                throw new DaoDienNotFoundException(daoDienId.ToString());
+            }
+
+            var dto = _daoDienResponseMapper.toDto(daoDien);
+
+            _logger.LogInformation("ApplicationService: Lấy chi tiết Đạo diễn Id={DaoDienId} thành công", daoDienId);
+
+            return ResultDTO<DaoDienResponseDTO>.Success(dto, "Lấy chi tiết đạo diễn thành công");
+        }
+
         // Tạo DaoDien mới
         public async Task<ResultDTO> CreateDaoDienAsync(DaoDienCreateDTO createDto, CancellationToken cancellationToken = default)
         {

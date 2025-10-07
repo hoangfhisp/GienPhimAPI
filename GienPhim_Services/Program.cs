@@ -2,7 +2,8 @@
 using GienPhim_Services.FilmService;
 using GienPhim_Services.Filters;
 using GienPhim_Services.InteractionService.Data;
-using GienPhim_Services.MembershipService.Data;
+using GienPhim_Services.MembershipService;
+using GienPhim_Services.MembershipService.Infrastructure.Data;
 using GienPhim_Services.OrderService.Data;
 using GienPhim_Services.PaymentService.Data;
 using GienPhim_Services.UserService;
@@ -87,6 +88,7 @@ builder.Services.AddDbContext<OrderDbContext>(options =>
 builder.Services.AddUserService(builder.Configuration); // UserService
 builder.Services.AddAuthService(builder.Configuration); // AuthService
 builder.Services.AddFilmService(builder.Configuration); // FilmService
+builder.Services.AddMembershipService(builder.Configuration); // MembershipService
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
@@ -102,6 +104,7 @@ app.UseCors("AllowFrontend");
 app.AuthAuthService(); // AuthService
 app.UseUserService(); // UserService
 app.FilmFilmService(); // FilmService
+app.MembershipService(); // MembershipService
 
 // Cho phép phục vụ file tĩnh từ wwwroot
 app.UseStaticFiles();

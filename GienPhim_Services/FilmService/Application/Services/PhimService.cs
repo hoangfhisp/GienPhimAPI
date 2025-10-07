@@ -57,6 +57,24 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultListDTO<List<PhimResponseDTO>>.Success(resultDtos, "Lấy danh sách phim thành công", pagination);
         }
 
+        public async Task<ResultDTO<PhimResponseDTO>> GetByIdAsync(int id, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetByIdAsync với Id={PhimId}", id);
+
+            var phim = await _unitOfWork.Phims.GetByIdAsync(id, ct);
+            if (phim is null)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy Phim với Id={PhimId}", id);
+                throw new PhimNotFoundException(id);
+            }
+
+            var dto = _phimResponseMapper.ToDto(phim);
+
+            _logger.LogInformation("ApplicationService: Lấy chi tiết Phim Id={PhimId} thành công", id);
+
+            return ResultDTO<PhimResponseDTO>.Success(dto, $"Lấy chi tiết phim Id={id} thành công");
+        }
+
         public async Task<ResultDTO> CreatePhimAsync(PhimCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreatePhimAsync với tên {TenP}", createDto.TenP);
@@ -67,12 +85,12 @@ namespace GienPhim_Services.FilmService.Application.Services
 
             if (createDto.AvatarP != null)
             {
-                avatarFileName = await FileHelper.SaveImageAsync(createDto.AvatarP, Path.Combine("wwwroot", "images", "phim", "avatar"));
+                avatarFileName = await FileHelper.SaveImageAsync(createDto.AvatarP, Path.Combine("wwwroot", "images", "films"));
             }
 
             if (createDto.AvatarPoster != null)
             {
-                posterFileName = await FileHelper.SaveImageAsync(createDto.AvatarPoster, Path.Combine("wwwroot", "images", "phim", "poster"));
+                posterFileName = await FileHelper.SaveImageAsync(createDto.AvatarPoster, Path.Combine("wwwroot", "images", "banners"));
             }
 
             // 2. Gọi orchestrator để build entity + validate
@@ -97,7 +115,6 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO.Success($"Tạo phim {phim.TenP} thành công");
         }
 
-
         public async Task<ResultDTO<UpdatePhimResponseDTO>> UpdatePhimAsync(PhimUpdateDTO updateDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu UpdatePhimAsync với Id={PhimId}", updateDto.PhimId);
@@ -117,14 +134,14 @@ namespace GienPhim_Services.FilmService.Application.Services
             if (updateDto.AvatarP != null)
             {
                 // Xoá ảnh cũ
-                FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "phim", "avatar", existingPhim.AvatarP));
-                avatarFileName = await FileHelper.SaveImageAsync(updateDto.AvatarP, Path.Combine("wwwroot", "images", "phim", "avatar"));
+                FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "films", existingPhim.AvatarP));
+                avatarFileName = await FileHelper.SaveImageAsync(updateDto.AvatarP, Path.Combine("wwwroot", "images", "films"));
             }
 
             if (updateDto.AvatarPoster != null)
             {
-                FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "phim", "poster", existingPhim.AvatarPoster));
-                posterFileName = await FileHelper.SaveImageAsync(updateDto.AvatarPoster, Path.Combine("wwwroot", "images", "phim", "poster"));
+                FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "banners", existingPhim.AvatarPoster));
+                posterFileName = await FileHelper.SaveImageAsync(updateDto.AvatarPoster, Path.Combine("wwwroot", "images", "banners"));
             }
 
             // 3. Factory dựng lại entity mới
@@ -166,8 +183,8 @@ namespace GienPhim_Services.FilmService.Application.Services
             }
 
             // Xóa file ảnh vật lý
-            FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "phim", "avatar", phim.AvatarP));
-            FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "phim", "poster", phim.AvatarPoster));
+            FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "films", phim.AvatarP));
+            FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "banners", phim.AvatarPoster));
 
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 

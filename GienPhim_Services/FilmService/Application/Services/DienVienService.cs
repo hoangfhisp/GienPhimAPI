@@ -6,6 +6,7 @@ using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
 using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.FilmService.Application.Interfaces.Services;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
+using GienPhim_Services.FilmService.Application.Mappers;
 
 namespace GienPhim_Services.FilmService.Application.Services
 {
@@ -53,6 +54,24 @@ namespace GienPhim_Services.FilmService.Application.Services
                 "Lấy danh sách diễn viên thành công",
                 pagination
             );
+        }
+
+        public async Task<ResultDTO<DienVienResponseDTO>> GetDetailAsync(int dienVienId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho DienVienId={DienVienId}", dienVienId);
+
+            var dienVien = await _unitOfWork.DienViens.GetByIdAsync(dienVienId, ct);
+            if (dienVien is null)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy Diễn viên Id={DienVienId}", dienVienId);
+                throw new DienVienNotFoundException(dienVienId.ToString());
+            }
+
+            var dto = _mapper.toDto(dienVien);
+
+            _logger.LogInformation("ApplicationService: Lấy chi tiết Diễn viên Id={DienVienId} thành công", dienVienId);
+
+            return ResultDTO<DienVienResponseDTO>.Success(dto, "Lấy chi tiết diễn viên thành công");
         }
 
         public async Task<ResultDTO> CreateDienVienAsync(DienVienCreateDTO createDto, CancellationToken cancellationToken = default)
