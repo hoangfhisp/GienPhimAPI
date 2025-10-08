@@ -10,5 +10,7 @@ namespace GienPhim_Services.MembershipService.Application.Interfaces.Repositorie
         Task<UserMembership> CreateAsync(UserMembership userMembership, CancellationToken ct = default);
         Task<UserMembership> UpdateAsync(UserMembership userMembership, CancellationToken ct = default);
         Task DeleteAsync(UserMembership userMembership, CancellationToken ct = default);
+        Task<UserMembership?> GetCurrentMembershipAsync(string userId, CancellationToken cancellationToken = default);
+        Task<bool> HasActiveMembershipAsync(string userId, string optionId, CancellationToken cancellationToken = default);
     }
 }

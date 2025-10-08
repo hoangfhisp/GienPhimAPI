@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using GienPhim_Services.MembershipService.Application.Interfaces.Services;
 using GienPhim_Services.MembershipService.Infrastructure.Data;
+using GienPhim_Services.MembershipService.Infrastructure.Data.HttpClients;
+using GienPhim_Services.MembershipService.Infrastructure.Data.HttpClients.Interfaces;
 using GienPhim_Services.MembershipService.Infrastructure.Repositories;
 using GienPhim_Services.MembershipService.Application.Interfaces.Repositories;
 using GienPhim_Services.MembershipService.Application.Interfaces.Orchestrators;
@@ -65,6 +67,15 @@ namespace GienPhim_Services.MembershipService
 
             /*-----------------------------------------INFRASTRUCTURE--------------------------------------------*/
             //CONFIG
+
+            // HTTP Client
+            services.AddHttpClient<IUserServiceClient, UserServiceClient>("Membership_UserServiceClient", (sp, client) =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();
+                var userServiceUrl = config["ServiceUrls:UserService"];
+                client.BaseAddress = new Uri(userServiceUrl);
+            });
+
             // Configure database contexts
             services.AddDbContext<MembershipDbContext>(options =>
                 options.UseSqlServer(config.GetConnectionString("MembershipDb")));

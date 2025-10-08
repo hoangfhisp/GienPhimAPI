@@ -71,5 +71,27 @@ namespace GienPhim_Services.MembershipService.Api.Controllers
             _logger.LogInformation("API Response: Delete UserMembership Id={UserMembershipId} Status={Status}", deleteDto.UserMembershipId, result.Status);
             return Ok(result);
         }
+
+        // Kiểm tra gói thành viên hiện tại của user
+        [HttpGet("CurrentMembership")]
+        [Authorize(Roles = "User,Admin")]
+        public async Task<IActionResult> GetCurrentMembership([FromQuery] string userId, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Request: GetCurrentMembershipAsync cho UserId={UserId}", userId);
+            var result = await _userMembershipService.GetCurrentMembershipAsync(userId, cancellationToken);
+            _logger.LogInformation("API Response: GetCurrentMembershipAsync UserId={UserId} Status={Status}", userId, result.Status);
+            return Ok(result);
+        }
+
+        // Kiểm tra người dùng đã có gói thành viên chưa
+        [HttpGet("CheckUserMembership")]
+        [Authorize(Roles = "User,Admin")] // Admin dùng để test
+        public async Task<IActionResult> CheckUserMembership([FromQuery] string userId, [FromQuery] string optionId, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Request: CheckUserMembershipAsync với UserId={UserId}, OptionId={OptionId}", userId, optionId);
+            var result = await _userMembershipService.CheckUserHasMembershipAsync(userId, optionId, cancellationToken);
+            _logger.LogInformation("API Response: CheckUserMembershipAsync với UserId={UserId}, OptionId={OptionId}, Status={Status}", userId, optionId, result.Status);
+            return Ok(result);
+        }
     }
 }
