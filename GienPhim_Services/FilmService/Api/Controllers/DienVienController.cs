@@ -33,7 +33,11 @@ namespace GienPhim_Services.FilmService.Api.Controllers
         public async Task<IActionResult> GetDetail(int dienVienId, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: GetDetail DienVien Id={DienVienId}", dienVienId);
+
             var result = await _dienVienService.GetDetailAsync(dienVienId, ct);
+
+            _logger.LogInformation("API Response: GetDetail DienVien Id={DienVienId} Status={Status}", dienVienId, result.Status);
+
             return Ok(result);
         }
 
@@ -67,6 +71,20 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             _logger.LogInformation("API Request: DeleteDienVien Id={Id}", deleteDto.DienVienId);
             var result = await _dienVienService.DeleteDienVienAsync(deleteDto, ct);
             _logger.LogInformation("API Response: DeleteDienVien Id={Id} Status={Status}", deleteDto.DienVienId, result.Status);
+            return Ok(result);
+        }
+
+        // Tìm kiếm diễn viên theo từ khóa
+        [HttpGet("Search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromQuery] string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: SearchDienViens với từ khóa {Keyword}", keyword);
+
+            var result = await _dienVienService.SearchDienViensAsync(keyword, ct);
+
+            _logger.LogInformation("API Response: SearchDienViens Status={Status}, Tổng={Count}", result.Status, result.Data.Count);
+
             return Ok(result);
         }
     }

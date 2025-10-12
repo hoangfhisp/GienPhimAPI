@@ -2,6 +2,7 @@
 using GienPhim_Services.FilmService.Domain.Entities;
 using GienPhim_Services.FilmService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Shared.FileStorage;
 
 namespace GienPhim_Services.FilmService.Infrastructure.Repositories
 {
@@ -54,6 +55,26 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         {
             _filmContext.TheLoai.Remove(theLoai);
             await _filmContext.SaveChangesAsync(ct);
+        }
+
+        public async Task<List<TheLoai>> SearchTheLoaisAsync(string keyword, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return new List<TheLoai>();
+
+            var normalizedKeyword = SlugHelper.NormalizeSearchText(keyword);
+
+            var all = await _filmContext.TheLoai
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            var matched = all
+                .Where(t => SlugHelper.NormalizeSearchText(t.TenTL ?? "").Contains(normalizedKeyword)
+                         || SlugHelper.NormalizeSearchText(t.MoTa ?? "").Contains(normalizedKeyword))
+                .OrderByDescending(t => t.TheLoaiId)
+                .ToList();
+
+            return matched;
         }
     }
 }

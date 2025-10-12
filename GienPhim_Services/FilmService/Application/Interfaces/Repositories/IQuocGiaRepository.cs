@@ -9,5 +9,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Repositories
         Task<QuocGia> CreateAsync(QuocGia quocGia, CancellationToken ct = default);
         Task<QuocGia> UpdateAsync(QuocGia quocGia, CancellationToken ct = default);
         Task DeleteAsync(QuocGia quocGia, CancellationToken ct = default);
+        Task<List<QuocGia>> SearchQuocGiasAsync(string keyword, CancellationToken cancellationToken = default);
     }
 }

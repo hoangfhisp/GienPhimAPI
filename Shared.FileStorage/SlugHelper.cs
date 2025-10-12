@@ -29,7 +29,7 @@ namespace Shared.FileStorage
             return str;
         }
 
-        private static string RemoveDiacritics(string text)
+        public static string RemoveDiacritics(string text)
         {
             var normalized = text.Normalize(NormalizationForm.FormD);
             var sb = new StringBuilder();
@@ -44,6 +44,12 @@ namespace Shared.FileStorage
             }
 
             return sb.ToString().Normalize(NormalizationForm.FormC);
+        }
+
+        public static string NormalizeSearchText(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+            return RemoveDiacritics(text).Trim().ToLowerInvariant();
         }
     }
 }

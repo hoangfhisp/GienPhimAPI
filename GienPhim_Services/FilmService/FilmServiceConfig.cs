@@ -22,6 +22,8 @@ using GienPhim_Services.FilmService.Application.DTOs.Client.TheLoai;
 using GienPhim_Services.FilmService.Application.Validators.TheLoai;
 using GienPhim_Services.FilmService.Application.DTOs.Client.TheTag;
 using GienPhim_Services.FilmService.Application.Validators.TheTag;
+using GienPhim_Services.FilmService.Infrastructure.Data.HttpClients.Interfaces;
+using GienPhim_Services.FilmService.Infrastructure.Data.HttpClients;
 
 namespace GienPhim_Services.FilmService
 {
@@ -66,6 +68,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhanLoaiTheTagFactory, PhanLoaiTheTagFactory>(); // Phân loại thẻ tag Factory
             services.AddScoped<ITapPhimFactory, TapPhimFactory>(); // Tập phim Factory
             services.AddScoped<IFilmViewFactory, FilmViewFactory>(); // Lượt xem phim Factory
+            services.AddScoped<IApiPhimFactory, ApiPhimFactory>(); // Factory xử lý dữ liệu từ API
 
             // MAPPERS
             services.AddScoped<IDaoDienResponseMapper, DaoDienResponseMapper>(); // Đạo diễn Mapper
@@ -81,6 +84,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhanLoaiTheTagResponseMapper, PhanLoaiTheTagResponseMapper>(); // Phân loại thẻ tag Mapper
             services.AddScoped<ITapPhimResponseMapper, TapPhimResponseMapper>(); // Tập phim Mapper
             services.AddScoped<IFilmViewResponseMapper, FilmViewResponseMapper>(); // Lượt xem phim Mapper
+            services.AddScoped<IApiPhimMapper, ApiPhimMapper>(); // Mapper xử lý dữ liệu từ API
 
             // ORCHESTRATORS
             services.AddScoped<IDaoDienOrchestrator, DaoDienOrchestrator>(); // Đạo diễn Orchestrator
@@ -96,6 +100,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhanLoaiTheTagOrchestrator, PhanLoaiTheTagOrchestrator>(); // Phân loại thẻ tag Orchestrator
             services.AddScoped<ITapPhimOrchestrator, TapPhimOrchestrator>(); // Tập phim Orchestrator
             services.AddScoped<IFilmViewOrchestrator, FilmViewOrchestrator>(); // Lượt xem phim Orchestrator
+            services.AddScoped<IApiPhimOrchestrator, ApiPhimOrchestrator>(); // Orchestrator xử lý nhập phim từ API
 
             // VALIRATORS
             // Dịch vụ validation chung
@@ -133,6 +138,14 @@ namespace GienPhim_Services.FilmService
             // Configure database contexts
             services.AddDbContext<FilmDbContext>(options =>
                 options.UseSqlServer(config.GetConnectionString("FilmDb")));
+
+            services.AddHttpClient<IApiPhimServiceClient, ApiPhimServiceClient>((sp, client) =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();
+                var phimApiUrl = config["ServiceUrls:PhimApi"]; // Lấy từ appsettings.json
+                client.BaseAddress = new Uri(phimApiUrl);
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
 
             // REPOSITORIES
             services.AddScoped<IDaoDienRepository, DaoDienRepository>(); // Đạo Diễn

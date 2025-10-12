@@ -10,5 +10,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Services
         Task<ResultDTO> CreateNgonNguAsync(NgonNguCreateDTO createDto, CancellationToken cancellationToken = default);
         Task<ResultDTO<UpdateNgonNguResponseDTO>> UpdateNgonNguAsync(NgonNguUpdateDTO updateDto, CancellationToken cancellationToken = default);
         Task<ResultDTO> DeleteNgonNguAsync(NgonNguDeleteDTO deleteDto, CancellationToken cancellationToken = default);
+        Task<ResultListDTO<List<NgonNguResponseDTO>>> SearchNgonNgusAsync(string keyword, CancellationToken ct = default);
     }
 }

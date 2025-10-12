@@ -6,7 +6,6 @@ using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
 using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.FilmService.Application.Interfaces.Services;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
-using GienPhim_Services.FilmService.Application.Mappers;
 
 namespace GienPhim_Services.FilmService.Application.Services
 {
@@ -32,6 +31,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             _logger = logger;
         }
 
+        // Lấy danh sách diễn viên (có phân trang)
         public async Task<ResultListDTO<List<DienVienResponseDTO>>> GetAllDienViensAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetAllDienViensAsync với page={Page}, limit={Limit}", page, limit);
@@ -56,6 +56,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             );
         }
 
+        // Xem chi tiết diễn viên
         public async Task<ResultDTO<DienVienResponseDTO>> GetDetailAsync(int dienVienId, CancellationToken ct = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho DienVienId={DienVienId}", dienVienId);
@@ -74,6 +75,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO<DienVienResponseDTO>.Success(dto, "Lấy chi tiết diễn viên thành công");
         }
 
+        // Tạo mới diễn viên
         public async Task<ResultDTO> CreateDienVienAsync(DienVienCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreateDienVienAsync với tên {TenDV}", createDto.TenDV);
@@ -94,6 +96,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO.Success($"Tạo diễn viên {dienVien.TenDV} thành công");
         }
 
+        // Cập nhật diễn viên
         public async Task<ResultDTO<UpdateDienVienResponseDTO>> UpdateDienVienAsync(DienVienUpdateDTO updateDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu UpdateDienVienAsync với Id={Id}", updateDto.DienVienId);
@@ -119,6 +122,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             );
         }
 
+        // Xóa diễn viên
         public async Task<ResultDTO> DeleteDienVienAsync(DienVienDeleteDTO deleteDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu DeleteDienVienAsync với Id={Id}", deleteDto.DienVienId);
@@ -138,6 +142,27 @@ namespace GienPhim_Services.FilmService.Application.Services
             await transaction.CommitAsync(cancellationToken);
 
             return ResultDTO.Success($"Xóa diễn viên {dienVien.TenDV} thành công");
+        }
+
+
+        // Tìm kiếm diễn viên theo từ khóa (gần đúng)
+        public async Task<ResultListDTO<List<DienVienResponseDTO>>> SearchDienViensAsync(string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu SearchDienViensAsync với keyword = {Keyword}", keyword);
+
+            var dienViens = await _unitOfWork.DienViens.SearchDienViensAsync(keyword, ct);
+
+            if (dienViens == null || !dienViens.Any())
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy diễn viên nào phù hợp với keyword = {Keyword}", keyword);
+                throw new DienVienNotFoundException();
+            }
+
+            var resultDtos = _mapper.toDtoList(dienViens);
+
+            _logger.LogInformation("ApplicationService: Tìm kiếm diễn viên thành công, tổng={Count}", resultDtos.Count);
+
+            return ResultListDTO<List<DienVienResponseDTO>>.Success(resultDtos, "Tìm kiếm diễn viên thành công");
         }
     }
 }

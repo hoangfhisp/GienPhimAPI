@@ -10,5 +10,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Services
         Task<ResultDTO> CreateTheLoaiAsync(TheLoaiCreateDTO createDto, CancellationToken cancellationToken = default);
         Task<ResultDTO<UpdateTheLoaiResponseDTO>> UpdateTheLoaiAsync(TheLoaiUpdateDTO updateDto, CancellationToken cancellationToken = default);
         Task<ResultDTO> DeleteTheLoaiAsync(TheLoaiDeleteDTO deleteDto, CancellationToken cancellationToken = default);
+        Task<ResultListDTO<List<TheLoaiResponseDTO>>> SearchTheLoaisAsync(string keyword, CancellationToken ct = default);
     }
 }

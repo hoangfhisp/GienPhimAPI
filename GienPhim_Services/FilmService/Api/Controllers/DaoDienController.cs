@@ -32,7 +32,11 @@ namespace GienPhim_Services.FilmService.Api.Controllers
         public async Task<IActionResult> GetDetail(int daoDienId, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: GetDetail DaoDien Id={DaoDienId}", daoDienId);
+
             var result = await _daoDienService.GetDetailAsync(daoDienId, ct);
+
+            _logger.LogInformation("API Response: GetDetail DaoDien Id={DaoDienId} Status={Status}", daoDienId, result.Status);
+
             return Ok(result);
         }
 
@@ -66,6 +70,20 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             _logger.LogInformation("API Request: DeleteDaoDien Id={DaoDienId}", deleteDto.DaoDienId);
             var result = await _daoDienService.DeleteDaoDienAsync(deleteDto, ct);
             _logger.LogInformation("API Response: DeleteDaoDien Id={DaoDienId} Status={Status}", deleteDto.DaoDienId, result.Status);
+            return Ok(result);
+        }
+
+        // Tìm kiếm đạo diễn theo từ khóa
+        [HttpGet("Search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromQuery] string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: Search DaoDien với keyword = {Keyword}", keyword);
+
+            var result = await _daoDienService.SearchDaoDiensAsync(keyword, ct);
+
+            _logger.LogInformation("API Response: Search DaoDien với keyword = {Keyword}, Status={Status}, Total={Total}", keyword, result.Status, result.Data?.Count);
+
             return Ok(result);
         }
     }

@@ -2,6 +2,7 @@
 using GienPhim_Services.FilmService.Domain.Entities;
 using GienPhim_Services.FilmService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Shared.FileStorage;
 
 namespace GienPhim_Services.FilmService.Infrastructure.Repositories
 {
@@ -54,6 +55,28 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         {
             _filmContext.NgonNgu.Remove(ngonNgu);
             await _filmContext.SaveChangesAsync(ct);
+        }
+
+        public async Task<List<NgonNgu>> SearchNgonNgusAsync(string keyword, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return new List<NgonNgu>();
+
+            // Chuẩn hóa từ khóa (bỏ dấu + lower)
+            var normalizedKeyword = SlugHelper.NormalizeSearchText(keyword);
+
+            // Lấy tất cả ngôn ngữ
+            var allLanguages = await _filmContext.NgonNgu
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            // So sánh bỏ dấu gần đúng
+            var matched = allLanguages
+                .Where(n => SlugHelper.NormalizeSearchText(n.TenNN ?? "").Contains(normalizedKeyword))
+                .OrderByDescending(n => n.NgonNguId)
+                .ToList();
+
+            return matched;
         }
     }
 }

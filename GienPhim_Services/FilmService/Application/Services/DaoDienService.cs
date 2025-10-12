@@ -51,11 +51,7 @@ namespace GienPhim_Services.FilmService.Application.Services
 
             _logger.LogInformation("ApplicationService: Lấy danh sách DaoDien thành công, tổng={Total}", total);
 
-            return ResultListDTO<List<DaoDienResponseDTO>>.Success(
-                resultDaoDien,
-                "Lấy danh sách đạo diễn thành công",
-                pagination
-            );
+            return ResultListDTO<List<DaoDienResponseDTO>>.Success(resultDaoDien, "Lấy danh sách đạo diễn thành công", pagination);
         }
 
         public async Task<ResultDTO<DaoDienResponseDTO>> GetDetailAsync(int daoDienId, CancellationToken ct = default)
@@ -154,5 +150,30 @@ namespace GienPhim_Services.FilmService.Application.Services
             _logger.LogInformation("ApplicationService: Xóa DaoDien {DaoDienId} thành công!", deleteDto.DaoDienId);
             return ResultDTO.Success($"Xóa đạo diễn {daoDien.TenDD} thành công");
         }
+
+        // Tìm kiếm DaoDien theo từ khóa (gần đúng)
+        public async Task<ResultListDTO<List<DaoDienResponseDTO>>> SearchDaoDiensAsync(string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu SearchDaoDiensAsync với keyword = {Keyword}", keyword);
+
+            // Gọi repository
+            var daoDiens = await _unitOfWork.DaoDiens.SearchDaoDiensAsync(keyword, ct);
+
+            // Nếu không có kết quả
+            if (daoDiens == null || !daoDiens.Any())
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy đạo diễn nào phù hợp với keyword = {Keyword}", keyword);
+                throw new DaoDienNotFoundException();
+            }
+
+            // Mapping sang DTO
+            var resultDtos = _daoDienResponseMapper.toDtoList(daoDiens);
+
+            _logger.LogInformation("ApplicationService: Tìm kiếm đạo diễn thành công, tổng={Total}", resultDtos.Count);
+
+            // Trả về kết quả
+            return ResultListDTO<List<DaoDienResponseDTO>>.Success(resultDtos, "Tìm kiếm đạo diễn thành công");
+        }
+
     }
 }

@@ -10,5 +10,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Services
         Task<ResultDTO> CreateDaoDienAsync(DaoDienCreateDTO createDto, CancellationToken cancellationToken = default);
         Task<ResultDTO<UpdateDaoDienResponseDTO>> UpdateDaoDienAsync(DaoDienUpdateDTO updateDto, CancellationToken cancellationToken = default);
         Task<ResultDTO> DeleteDaoDienAsync(DaoDienDeleteDTO deleteDto, CancellationToken cancellationToken = default);
+        Task<ResultListDTO<List<DaoDienResponseDTO>>> SearchDaoDiensAsync(string keyword, CancellationToken ct = default);
     }
 }

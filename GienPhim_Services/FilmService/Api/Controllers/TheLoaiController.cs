@@ -33,7 +33,11 @@ namespace GienPhim_Services.FilmService.Api.Controllers
         public async Task<IActionResult> GetDetail(int theLoaiId, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: GetDetail TheLoai Id={TheLoaiId}", theLoaiId);
+
             var result = await _theLoaiService.GetDetailAsync(theLoaiId, ct);
+
+            _logger.LogInformation("API Response: GetDetail TheLoai Id={TheLoaiId} Status={Status}", theLoaiId, result.Status);
+
             return Ok(result);
         }
 
@@ -67,6 +71,20 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             _logger.LogInformation("API Request: DeleteTheLoai Id={TheLoaiId}", deleteDto.TheLoaiId);
             var result = await _theLoaiService.DeleteTheLoaiAsync(deleteDto, ct);
             _logger.LogInformation("API Response: DeleteTheLoai Id={TheLoaiId} Status={Status}", deleteDto.TheLoaiId, result.Status);
+            return Ok(result);
+        }
+
+        // Tìm kiếm thể loại theo từ khóa
+        [HttpGet("Search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromQuery] string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: SearchTheLoais với từ khóa {Keyword}", keyword);
+
+            var result = await _theLoaiService.SearchTheLoaisAsync(keyword, ct);
+
+            _logger.LogInformation("API Response: SearchTheLoais Status={Status}, Tổng={Count}", result.Status, result.Data.Count);
+
             return Ok(result);
         }
     }

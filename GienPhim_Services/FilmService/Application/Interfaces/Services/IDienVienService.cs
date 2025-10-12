@@ -10,5 +10,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Services
         Task<ResultDTO> CreateDienVienAsync(DienVienCreateDTO createDto, CancellationToken cancellationToken = default);
         Task<ResultDTO<UpdateDienVienResponseDTO>> UpdateDienVienAsync(DienVienUpdateDTO updateDto, CancellationToken cancellationToken = default);
         Task<ResultDTO> DeleteDienVienAsync(DienVienDeleteDTO deleteDto, CancellationToken cancellationToken = default);
+        Task<ResultListDTO<List<DienVienResponseDTO>>> SearchDienViensAsync(string keyword, CancellationToken ct = default);
     }
 }

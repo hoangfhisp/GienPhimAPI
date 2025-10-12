@@ -79,6 +79,31 @@ namespace GienPhim_Services.FilmService.Domain.Services
 
         }
 
+        public void EnsureCanCreateApiFilm(Phim phim)
+        {
+            if (phim == null) throw new InvalidPhimException("Dữ liệu phim API không hợp lệ.");
+            if (string.IsNullOrWhiteSpace(phim.TenP))
+                throw new InvalidPhimException("Phim từ API phải có tên.");
+
+            if (phim.TenP.Length > 200)
+                phim.TenP = phim.TenP.Substring(0, 200);
+
+            if (phim.NgayPhatHanhP == default) phim.NgayPhatHanhP = DateTime.UtcNow;
+
+            // Nếu có ảnh thì validate, nếu không thì fallback
+            if (!string.IsNullOrWhiteSpace(phim.AvatarP)) ValidateAvatar(phim.AvatarP);
+            else
+                phim.AvatarP = "/images/films/default-avatar.jpg";
+
+            if (!string.IsNullOrWhiteSpace(phim.AvatarPoster)) ValidatePoster(phim.AvatarPoster);
+            else
+                phim.AvatarPoster = "/images/banners/default-poster.jpg";
+
+
+            phim.ThoiGianTao = DateTime.UtcNow;
+            phim.ThoiGianCapNhat = DateTime.UtcNow;
+        }
+
         // Kiểm tra avatar & poster
         public void ValidateAvatar(string avatar)
         {

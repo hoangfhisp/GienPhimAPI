@@ -6,8 +6,10 @@ using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.FilmService.Application.Interfaces.Services;
 using GienPhim_Services.FilmService.Application.Interfaces.Factories;
+using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.FilmService.Domain.Services.Interfaces;
 using Shared.FileStorage;
+using GienPhim_Services.FilmService.Domain.Entities;
 
 namespace GienPhim_Services.FilmService.Application.Services
 {
@@ -18,6 +20,8 @@ namespace GienPhim_Services.FilmService.Application.Services
         private readonly IPaginationMapper _paginationMapper;
         private readonly IPhimFactory _phimFactory;
         private readonly IPhimDomainService _phimDomainService;
+        private readonly IApiPhimFactory apiPhimFactory;
+        private readonly IApiPhimOrchestrator _orchestrator;
         private readonly ILogger<PhimService> _logger;
 
         public PhimService(
@@ -26,6 +30,8 @@ namespace GienPhim_Services.FilmService.Application.Services
             IPaginationMapper paginationMapper,
             IPhimDomainService phimDomainService,
             IPhimFactory phimFactory,
+            IApiPhimOrchestrator orchestrator,
+            IApiPhimFactory apiPhimFactory,
             ILogger<PhimService> logger)
         {
             _unitOfWork = unitOfWork;
@@ -33,6 +39,8 @@ namespace GienPhim_Services.FilmService.Application.Services
             _paginationMapper = paginationMapper;
             _phimDomainService = phimDomainService;
             _phimFactory = phimFactory;
+            _orchestrator = orchestrator;
+            this.apiPhimFactory = apiPhimFactory;
             _logger = logger;
         }
 
@@ -197,5 +205,97 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO.Success($"Xoá phim {phim.TenP} thành công");
         }
 
+        public async Task<ResultDTO<PhimResponseDTO>> ImportPhimFromApiAsync(string slug, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu ImportPhimFromApiAsync với slug={Slug}", slug);
+
+            // 1️⃣ Lấy dữ liệu phim từ API thông qua orchestrator
+            var phim = await _orchestrator.ProcessImportAsync(slug, cancellationToken);
+            if (phim is null)
+            {
+                _logger.LogWarning("ApplicationService: Không thể tạo entity phim từ API slug={Slug}", slug);
+                throw new PhimNotFoundException($"Không thể lấy dữ liệu phim từ slug '{slug}'.");
+            }
+
+            // 2️⃣ Kiểm tra phim đã tồn tại chưa (theo slug hoặc tên)
+            var existing = await _unitOfWork.Phims.GetBySlugAsync(phim.NguonP, cancellationToken);
+            if (existing != null)
+            {
+                _logger.LogWarning("ApplicationService: Phim với slug={Slug} đã tồn tại", slug);
+                throw new CreatePhimFailedException($"Phim '{phim.TenP}' đã tồn tại trong hệ thống.");
+            }
+
+            // 3️⃣ Bắt đầu transaction
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            try
+            {
+                _logger.LogInformation("ApplicationService: Bắt đầu lưu phim {TenP} vào DB", phim.TenP);
+
+                // Repository pattern: tự SaveChangesAsync bên trong
+                var createdPhim = await _unitOfWork.Phims.CreateAsync(phim, cancellationToken);
+                if (createdPhim == null)
+                {
+                    _logger.LogError("ApplicationService: Lưu phim {TenP} thất bại!", phim.TenP);
+                    await transaction.RollbackAsync(cancellationToken);
+                    throw new CreatePhimFailedException(phim.TenP);
+                }
+
+                await transaction.CommitAsync(cancellationToken);
+
+                _logger.LogInformation("ApplicationService: Import phim {TenP} thành công!", phim.TenP);
+
+                var dto = _phimResponseMapper.ToDto(createdPhim);
+                return ResultDTO<PhimResponseDTO>.Success(dto, $"Import phim '{createdPhim.TenP}' thành công");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.LogError(ex, "ApplicationService: Import phim {Slug} thất bại!", slug);
+                throw new CreatePhimFailedException($"Import phim thất bại: {ex.Message}");
+            }
+        }
+
+        public async Task<ResultDTO<List<PhimResponseDTO>>> SearchPhimsAsync(string keyword, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu SearchPhimsAsync với từ khóa {Keyword}", keyword);
+
+            // 1️⃣ Gọi repository
+            var phims = await _unitOfWork.Phims.SearchPhimsAsync(keyword, cancellationToken);
+
+            if (phims == null || !phims.Any())
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy phim nào với từ khóa {Keyword}", keyword);
+                throw new PhimNotFoundException();
+            }
+
+            // 2️⃣ Map sang DTO
+            var dtoList = phims.Select(_phimResponseMapper.ToDto).ToList();
+
+            _logger.LogInformation("ApplicationService: Tìm thấy {Count} phim với từ khóa {Keyword}", dtoList.Count, keyword);
+
+            // 3️⃣ Trả kết quả
+            return ResultDTO<List<PhimResponseDTO>>.Success(dtoList, "Tìm kiếm phim thành công");
+        }
+
+        public async Task<ResultListDTO<List<PhimResponseDTO>>> FilterPhimsAsync(FilterPhimDTO dto, int page, int limit, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu FilterPhimsAsync với filter {@Dto}, page={Page}, limit={Limit}", dto, page, limit);
+
+            var (phims, total, last) = await _unitOfWork.Phims.FilterPhimsAsync(dto.NgonNguId, dto.QuocGiaId, dto.DienVienId, dto.DaoDienId, page, limit, cancellationToken);
+
+            if (total == 0)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy phim nào phù hợp filter {@Dto}", dto);
+                throw new PhimNotFoundException();
+            }
+
+            var resultDtos = _phimResponseMapper.ToDtoList(phims);
+            var pagination = _paginationMapper.ToDto(page, limit, total, last);
+
+            _logger.LogInformation("ApplicationService: Lọc phim thành công, tổng={Total}", total);
+
+            return ResultListDTO<List<PhimResponseDTO>>.Success(resultDtos, "Lọc phim thành công", pagination);
+        }
     }
 }

@@ -35,7 +35,11 @@ namespace GienPhim_Services.FilmService.Api.Controllers
         public async Task<IActionResult> GetDetail(int ngonNguId, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: GetDetail NgonNgu Id={NgonNguId}", ngonNguId);
+
             var result = await _ngonNguService.GetDetailAsync(ngonNguId, ct);
+
+            _logger.LogInformation("API Response: GetDetail NgonNgu Id={NgonNguId} Status={Status}", ngonNguId, result.Status);
+
             return Ok(result);
         }
 
@@ -69,6 +73,19 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             _logger.LogInformation("API Request: DeleteNgonNgu Id={NgonNguId}", deleteDto.NgonNguId);
             var result = await _ngonNguService.DeleteNgonNguAsync(deleteDto, ct);
             _logger.LogInformation("API Response: DeleteNgonNgu Id={NgonNguId} Status={Status}", deleteDto.NgonNguId, result.Status);
+            return Ok(result);
+        }
+
+        [HttpGet("Search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromQuery] string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: SearchNgonNgus với từ khóa {Keyword}", keyword);
+
+            var result = await _ngonNguService.SearchNgonNgusAsync(keyword, ct);
+
+            _logger.LogInformation("API Response: SearchNgonNgus Status={Status}, Tổng={Count}", result.Status, result.Data.Count);
+
             return Ok(result);
         }
     }
