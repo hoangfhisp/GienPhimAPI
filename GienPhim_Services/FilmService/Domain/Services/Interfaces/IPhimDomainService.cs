@@ -10,6 +10,7 @@ namespace GienPhim_Services.FilmService.Domain.Services.Interfaces
         void ValidateAvatar(string avatar);
         void ValidatePoster(string poster);
         void EnsureCanCreateApiFilm(Phim phim);
+        void EnsureCanUpdateApiFilm(Phim phim);
 
     }
 }

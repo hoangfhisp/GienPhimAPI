@@ -79,6 +79,7 @@ namespace GienPhim_Services.FilmService.Domain.Services
 
         }
 
+        // Tạo phim từ API
         public void EnsureCanCreateApiFilm(Phim phim)
         {
             if (phim == null) throw new InvalidPhimException("Dữ liệu phim API không hợp lệ.");
@@ -101,6 +102,34 @@ namespace GienPhim_Services.FilmService.Domain.Services
 
 
             phim.ThoiGianTao = DateTime.UtcNow;
+            phim.ThoiGianCapNhat = DateTime.UtcNow;
+        }
+
+        // Cập nhật phim từ API
+        public void EnsureCanUpdateApiFilm(Phim phim)
+        {
+            if (phim == null)
+                throw new InvalidPhimException("Phim cập nhật từ API không hợp lệ.");
+
+            if (string.IsNullOrWhiteSpace(phim.TenP))
+                throw new InvalidPhimException("Phim cập nhật từ API phải có tên hợp lệ.");
+
+            // Kiểm tra ngày phát hành hợp lệ
+            if (phim.NgayPhatHanhP == default)
+                phim.NgayPhatHanhP = DateTime.UtcNow;
+
+            // Validate avatar & poster nếu có
+            if (!string.IsNullOrWhiteSpace(phim.AvatarP))
+                ValidateAvatar(phim.AvatarP);
+            else
+                phim.AvatarP = "/images/films/default-avatar.jpg";
+
+            if (!string.IsNullOrWhiteSpace(phim.AvatarPoster))
+                ValidatePoster(phim.AvatarPoster);
+            else
+                phim.AvatarPoster = "/images/banners/default-poster.jpg";
+
+            // Cập nhật timestamp
             phim.ThoiGianCapNhat = DateTime.UtcNow;
         }
 

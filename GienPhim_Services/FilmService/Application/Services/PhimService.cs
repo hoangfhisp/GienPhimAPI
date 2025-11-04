@@ -44,6 +44,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             _logger = logger;
         }
 
+        // Lấy tất cả phim với phân trang
         public async Task<ResultListDTO<List<PhimResponseDTO>>> GetAllPhimsAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetAllPhimsAsync với page={Page}, limit={Limit}", page, limit);
@@ -65,6 +66,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultListDTO<List<PhimResponseDTO>>.Success(resultDtos, "Lấy danh sách phim thành công", pagination);
         }
 
+        // Lấy chi tiết phim theo Id
         public async Task<ResultDTO<PhimResponseDTO>> GetByIdAsync(int id, CancellationToken ct = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetByIdAsync với Id={PhimId}", id);
@@ -83,6 +85,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO<PhimResponseDTO>.Success(dto, $"Lấy chi tiết phim Id={id} thành công");
         }
 
+        // Tạo mới phim
         public async Task<ResultDTO> CreatePhimAsync(PhimCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreatePhimAsync với tên {TenP}", createDto.TenP);
@@ -123,6 +126,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO.Success($"Tạo phim {phim.TenP} thành công");
         }
 
+        // Cập nhật phim
         public async Task<ResultDTO<UpdatePhimResponseDTO>> UpdatePhimAsync(PhimUpdateDTO updateDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu UpdatePhimAsync với Id={PhimId}", updateDto.PhimId);
@@ -179,6 +183,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO<UpdatePhimResponseDTO>.Success(response, $"Cập nhật phim {updatedPhim.TenP} thành công");
         }
 
+        // Xoá phim
         public async Task<ResultDTO> DeletePhimAsync(PhimDeleteDTO deleteDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu DeletePhimAsync với Id={PhimId}", deleteDto.PhimId);
@@ -205,6 +210,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO.Success($"Xoá phim {phim.TenP} thành công");
         }
 
+        // Import phim từ API ngoài
         public async Task<ResultDTO<PhimResponseDTO>> ImportPhimFromApiAsync(string slug, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu ImportPhimFromApiAsync với slug={Slug}", slug);
@@ -256,6 +262,49 @@ namespace GienPhim_Services.FilmService.Application.Services
             }
         }
 
+        // Cập nhật phim từ API ngoài
+        public async Task<ResultDTO<PhimResponseDTO>> UpdatePhimFromApiAsync(string slug, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu UpdatePhimFromApiAsync với slug={Slug}", slug);
+
+            // 1️⃣ Lấy phim hiện có trong DB
+            var existing = await _unitOfWork.Phims.GetBySlugAsync(slug, cancellationToken);
+            if (existing == null)
+            {
+                _logger.LogWarning("ApplicationService: Phim với slug={Slug} không tồn tại", slug);
+                throw new PhimNotFoundException($"Phim slug '{slug}' không tồn tại trong hệ thống.");
+            }
+
+            // 2️⃣ Bắt đầu transaction để đảm bảo an toàn dữ liệu
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            try
+            {
+                // 3️⃣ Gọi orchestrator xử lý cập nhật domain (mapper, factory, validate,…)
+                var updatedPhim = await _orchestrator.ProcessUpdateAsync(slug, cancellationToken);
+
+                _logger.LogInformation("ApplicationService: Đã xử lý cập nhật phim {TenP} từ API", updatedPhim.TenP);
+
+                // 4️⃣ Lưu thay đổi xuống DB
+                await _unitOfWork.Phims.UpdateAsync(updatedPhim, cancellationToken);
+                await _unitOfWork.CommitAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+
+                _logger.LogInformation("ApplicationService: Cập nhật phim {TenP} từ API thành công!", updatedPhim.TenP);
+
+                // 5️⃣ Trả kết quả cho client
+                var dto = _phimResponseMapper.ToDto(updatedPhim);
+                return ResultDTO<PhimResponseDTO>.Success(dto, $"Cập nhật phim '{updatedPhim.TenP}' thành công từ API.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.LogError(ex, "ApplicationService: Lỗi khi cập nhật phim {Slug} từ API", slug);
+                throw new UpdatePhimFailedException($"Cập nhật phim thất bại: {ex.Message}");
+            }
+        }
+
+        // Tìm kiếm phim theo từ khóa
         public async Task<ResultDTO<List<PhimResponseDTO>>> SearchPhimsAsync(string keyword, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu SearchPhimsAsync với từ khóa {Keyword}", keyword);
@@ -278,6 +327,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO<List<PhimResponseDTO>>.Success(dtoList, "Tìm kiếm phim thành công");
         }
 
+        // Lọc phim theo nhiều tiêu chí
         public async Task<ResultListDTO<List<PhimResponseDTO>>> FilterPhimsAsync(FilterPhimDTO dto, int page, int limit, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu FilterPhimsAsync với filter {@Dto}, page={Page}, limit={Limit}", dto, page, limit);

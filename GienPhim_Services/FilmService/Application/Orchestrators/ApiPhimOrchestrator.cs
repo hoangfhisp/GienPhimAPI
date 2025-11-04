@@ -86,5 +86,35 @@ namespace GienPhim_Services.FilmService.Application.Orchestrators
 
             return phim;
         }
+
+        public async Task<Phim> ProcessUpdateAsync(string slug, CancellationToken ct = default)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu ProcessUpdateAsync cho phim {Slug}", slug);
+
+            // 1️⃣ Lấy dữ liệu mới từ API ngoài
+            var dto = await _apiClient.GetPhimDataAsync(slug, ct);
+            if (dto == null || dto.Movie == null)
+                throw new InvalidOperationException($"Không thể lấy dữ liệu phim từ API với slug {slug}");
+
+            // 2️⃣ Lấy entity hiện có trong DB
+            var existing = await _factory.GetExistingPhimAsync(slug, ct);
+            // ⚠️ Nếu bạn chưa có hàm này trong factory, có thể chuyển sang lấy trực tiếp qua UnitOfWork.Phims trong Service
+
+            if (existing == null)
+                throw new InvalidOperationException($"Phim slug={slug} chưa tồn tại trong hệ thống.");
+
+            // 3️⃣ Cập nhật thông tin cơ bản (poster, trailer, lượt xem,…)
+            _factory.UpdatePhim(existing, dto);
+
+            // 4️⃣ Cập nhật danh sách tập phim (thêm tập mới hoặc cập nhật link)
+            _factory.UpdateTapPhims(existing, dto);
+
+            // 5️⃣ Validate domain rule (nếu có quy định phim bị khoá không cho update,…)
+            _domainService.EnsureCanUpdateApiFilm(existing);
+
+            _logger.LogInformation("Orchestrator: Hoàn tất cập nhật phim {TenP}", existing.TenP);
+
+            return existing;
+        }
     }
 }

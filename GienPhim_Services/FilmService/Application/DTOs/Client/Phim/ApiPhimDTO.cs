@@ -58,4 +58,36 @@
         public string? Link_Embed { get; set; }
         public string? Link_M3u8 { get; set; }
     }
+
+    public class ApiPhimListResponse
+    {
+        public bool Status { get; set; }
+        public string Msg { get; set; } = string.Empty;
+        public List<ApiPhimItemDTO> Items { get; set; } = new();
+    }
+
+    public class ApiPhimItemDTO
+    {
+        public string? Id { get; set; }
+        public string? Name { get; set; }
+        public string? Slug { get; set; }
+        public string? Origin_Name { get; set; }
+        public string? Type { get; set; }
+        public string? Poster_Url { get; set; }
+        public string? Thumb_Url { get; set; }
+        public string? Episode_Current { get; set; }
+        public string? Status { get; set; }
+        public string? Quality { get; set; }
+        public string? Lang { get; set; }
+        public int Year { get; set; }
+        public ModifiedTime? Modified { get; set; }
+        public List<CategoryData>? Category { get; set; }
+        public List<CountryData>? Country { get; set; }
+    }
+
+    public class ModifiedTime
+    {
+        public DateTime Time { get; set; }
+    }
+
 }

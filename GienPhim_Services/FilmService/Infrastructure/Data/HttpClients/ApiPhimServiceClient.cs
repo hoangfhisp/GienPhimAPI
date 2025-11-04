@@ -19,8 +19,8 @@ namespace GienPhim_Services.FilmService.Infrastructure.Data.HttpClients
         {
             _logger.LogInformation("Infra: Đang gọi API phim với slug {Slug}", slug);
 
-            // Chỉ gọi phần slug, vì BaseAddress đã có sẵn domain
-            var response = await _httpClient.GetAsync(slug, ct);
+            // ✅ Gọi endpoint đúng dạng /phim/{slug}
+            var response = await _httpClient.GetAsync($"phim/{slug}", ct);
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync(ct);

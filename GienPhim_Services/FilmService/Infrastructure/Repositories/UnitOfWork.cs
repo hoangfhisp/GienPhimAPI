@@ -1,5 +1,7 @@
-﻿using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
+﻿using GienPhim_Services.FilmService.Application.Interfaces.HttpClients;
+using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.FilmService.Infrastructure.Data;
+using GienPhim_Services.FilmService.Infrastructure.Data.HttpClients.Interfaces;
 
 namespace GienPhim_Services.FilmService.Infrastructure.Repositories
 {
@@ -53,12 +55,19 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         public IPhanLoaiTheTagRepository PhanLoaiTheTags { get; }
         public ITapPhimRepository TapPhims { get; }
         public IFilmViewRepository FilmViews { get; }
+        public IExternalApiClient ExternalApiClients { get; }
 
         public async Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
         {
             var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             return new EfTransaction(transaction);
         }
+
+        public async Task<int> CommitAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.SaveChangesAsync(cancellationToken);
+        }
+
     }
 
 }

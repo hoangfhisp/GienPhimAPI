@@ -6,6 +6,7 @@ namespace GienPhim_Services.FilmService.Application.Mappers
 {
     public class ApiPhimMapper : IApiPhimMapper
     {
+        /* ------------------- Ánh xạ PHIM ------------------- */
         public Phim ToPhimEntity(ApiPhimDTO dto, NgonNgu ngonNgu, QuocGia quocGia, string slug)
         {
             var movie = dto.Movie!;
@@ -172,6 +173,79 @@ namespace GienPhim_Services.FilmService.Application.Mappers
                 }
             }
             return list;
+        }
+
+        /* ------------------- UPDATE PHIM & TẬP PHIM ------------------- */
+
+        // Cập nhật thông tin cơ bản của phim từ API (poster, trailer, mô tả, lượt xem,…)
+        public void UpdatePhimEntity(Phim existing, ApiPhimDTO dto)
+        {
+            if (dto.Movie == null) return;
+            var movie = dto.Movie;
+
+            existing.MoTaP = movie.Content ?? existing.MoTaP;
+            existing.AvatarP = movie.Thumb_Url ?? existing.AvatarP;
+            existing.AvatarPoster = movie.Poster_Url ?? existing.AvatarPoster;
+            existing.TraiLerP = movie.Trailer_Url ?? existing.TraiLerP;
+            existing.LuotXemP = movie.View > 0 ? movie.View : existing.LuotXemP;
+            existing.ThuoiLuongP = movie.Time ?? existing.ThuoiLuongP;
+            existing.ThoiGianCapNhat = DateTime.UtcNow;
+        }
+
+        // Cập nhật danh sách tập phim (thêm tập mới hoặc update link)
+        public void UpdateTapPhimEntities(Phim existing, ApiPhimDTO dto)
+        {
+            if (dto.Episodes == null) return;
+
+            foreach (var server in dto.Episodes)
+            {
+                if (server.Server_Data == null) continue;
+
+                foreach (var tap in server.Server_Data)
+                {
+                    // Tìm tập cũ theo slug
+                    var existingTap = existing.TapPhims
+                        .FirstOrDefault(t => t.SlugTap == tap.Slug);
+
+                    // Nếu chưa có → thêm mới
+                    if (existingTap == null)
+                    {
+                        existing.TapPhims.Add(new TapPhim
+                        {
+                            TapId = Guid.NewGuid().ToString(),
+                            PhimId = existing.PhimId,
+                            TenTap = tap.Name ?? "Tập ?",
+                            SlugTap = tap.Slug ?? "khong-ro",
+                            TenFile = tap.Filename ?? "khong-ro",
+                            LinkPhu = tap.Link_Embed ?? "",
+                            LinkChinh = tap.Link_M3u8 ?? "",
+                            ThoiGianTao = DateTime.UtcNow,
+                            ThoiGianCapNhat = DateTime.UtcNow
+                        });
+                    }
+                    else
+                    {
+                        // Nếu đã có nhưng link đổi → cập nhật
+                        bool changed = false;
+
+                        if (existingTap.LinkChinh != tap.Link_M3u8 && !string.IsNullOrWhiteSpace(tap.Link_M3u8))
+                        {
+                            existingTap.LinkChinh = tap.Link_M3u8;
+                            changed = true;
+                        }
+                        if (existingTap.LinkPhu != tap.Link_Embed && !string.IsNullOrWhiteSpace(tap.Link_Embed))
+                        {
+                            existingTap.LinkPhu = tap.Link_Embed;
+                            changed = true;
+                        }
+
+                        if (changed)
+                        {
+                            existingTap.ThoiGianCapNhat = DateTime.UtcNow;
+                        }
+                    }
+                }
+            }
         }
     }
 }

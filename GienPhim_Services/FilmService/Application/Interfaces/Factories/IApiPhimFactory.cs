@@ -12,5 +12,8 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Factories
         List<DienVien> CreateDienViens(ApiPhimDTO dto);
         List<DaoDien> CreateDaoDiens(ApiPhimDTO dto);
         List<TapPhim> CreateTapPhims(ApiPhimDTO dto, int phimId);
+        void UpdatePhim(Phim existing, ApiPhimDTO dto);
+        void UpdateTapPhims(Phim existing, ApiPhimDTO dto);
+        Task<Phim?> GetExistingPhimAsync(string slug, CancellationToken ct = default);
     }
 }

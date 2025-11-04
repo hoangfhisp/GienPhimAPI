@@ -24,6 +24,7 @@ using GienPhim_Services.FilmService.Application.DTOs.Client.TheTag;
 using GienPhim_Services.FilmService.Application.Validators.TheTag;
 using GienPhim_Services.FilmService.Infrastructure.Data.HttpClients.Interfaces;
 using GienPhim_Services.FilmService.Infrastructure.Data.HttpClients;
+using GienPhim_Services.FilmService.Application.Interfaces.HttpClients;
 
 namespace GienPhim_Services.FilmService
 {
@@ -142,7 +143,15 @@ namespace GienPhim_Services.FilmService
             services.AddHttpClient<IApiPhimServiceClient, ApiPhimServiceClient>((sp, client) =>
             {
                 var config = sp.GetRequiredService<IConfiguration>();
-                var phimApiUrl = config["ServiceUrls:PhimApi"]; // Lấy từ appsettings.json
+                var phimApiUrl = config["ServiceUrls:PhimApi"];
+                client.BaseAddress = new Uri(phimApiUrl);
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
+
+            services.AddHttpClient<IExternalApiClient, ExternalApiClient>((sp, client) =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();
+                var phimApiUrl = config["ServiceUrls:PhimApi"];
                 client.BaseAddress = new Uri(phimApiUrl);
                 client.Timeout = TimeSpan.FromSeconds(30);
             });

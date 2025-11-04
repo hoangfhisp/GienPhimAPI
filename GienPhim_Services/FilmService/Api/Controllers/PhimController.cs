@@ -89,6 +89,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
+        // Nhập phim từ API ngoài
         [HttpPost("ImportFromApi")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ImportFromApi([FromQuery] string slug, CancellationToken cancellationToken = default)
@@ -102,6 +103,21 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
+        // Cập nhật phim từ API ngoài
+        [HttpPut("UpdateFromApi")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateFromApi([FromQuery] string slug, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Request: UpdateFromApi slug={Slug}", slug);
+
+            var result = await _phimService.UpdatePhimFromApiAsync(slug, cancellationToken);
+
+            _logger.LogInformation("API Response: UpdateFromApi slug={Slug} Status={Status}", slug, result.Status);
+
+            return Ok(result);
+        }
+
+        // Tìm kiếm phim theo từ khóa
         [HttpGet("Search")]
         [AllowAnonymous]
         public async Task<IActionResult> Search([FromQuery] string keyword, CancellationToken ct = default)
@@ -115,6 +131,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
+        // Lọc phim theo nhiều tiêu chí
         [HttpPost("FilterPhims")]
         public async Task<IActionResult> FilterPhims([FromBody] FilterPhimDTO dto, int page = 1, int limit = 10, CancellationToken cancellationToken = default)
         {

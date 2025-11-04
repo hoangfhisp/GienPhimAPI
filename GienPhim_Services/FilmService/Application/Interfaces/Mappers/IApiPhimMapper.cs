@@ -26,5 +26,11 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Mappers
 
         // Tập phim
         List<TapPhim> ToTapPhimEntities(ApiPhimDTO dto, int phimId);
+
+        // Cập nhật phim
+        void UpdatePhimEntity(Phim existing, ApiPhimDTO dto);
+
+        // Cập nhật tập phim
+        void UpdateTapPhimEntities(Phim existing, ApiPhimDTO dto);
     }
 }
