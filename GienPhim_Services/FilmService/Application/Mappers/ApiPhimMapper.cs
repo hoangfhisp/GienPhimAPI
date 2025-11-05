@@ -195,19 +195,34 @@ namespace GienPhim_Services.FilmService.Application.Mappers
         // Cập nhật danh sách tập phim (thêm tập mới hoặc update link)
         public void UpdateTapPhimEntities(Phim existing, ApiPhimDTO dto)
         {
-            if (dto.Episodes == null) return;
+            // Kiểm tra null toàn diện
+            if (dto == null)
+            {
+                Console.WriteLine("⚠️ DTO phim null, bỏ qua cập nhật tập phim.");
+                return;
+            }
+
+            if (dto.Episodes == null || !dto.Episodes.Any())
+            {
+                Console.WriteLine($"⚠️ Phim {dto.Movie?.Name ?? "(không rõ)"} không có danh sách Episodes.");
+                return;
+            }
 
             foreach (var server in dto.Episodes)
             {
-                if (server.Server_Data == null) continue;
+                if (server?.Server_Data == null || !server.Server_Data.Any())
+                {
+                    Console.WriteLine($"⚠️ Server {server?.Server_Name ?? "(null)"} không có Server_Data, bỏ qua.");
+                    continue;
+                }
 
                 foreach (var tap in server.Server_Data)
                 {
-                    // Tìm tập cũ theo slug
+                    if (tap == null) continue; // đề phòng phần tử null trong mảng
+
                     var existingTap = existing.TapPhims
                         .FirstOrDefault(t => t.SlugTap == tap.Slug);
 
-                    // Nếu chưa có → thêm mới
                     if (existingTap == null)
                     {
                         existing.TapPhims.Add(new TapPhim
@@ -215,25 +230,26 @@ namespace GienPhim_Services.FilmService.Application.Mappers
                             TapId = Guid.NewGuid().ToString(),
                             PhimId = existing.PhimId,
                             TenTap = tap.Name ?? "Tập ?",
-                            SlugTap = tap.Slug ?? "khong-ro",
+                            SlugTap = tap.Slug ?? $"slug-{Guid.NewGuid()}",
                             TenFile = tap.Filename ?? "khong-ro",
                             LinkPhu = tap.Link_Embed ?? "",
                             LinkChinh = tap.Link_M3u8 ?? "",
                             ThoiGianTao = DateTime.UtcNow,
                             ThoiGianCapNhat = DateTime.UtcNow
                         });
+
+                        Console.WriteLine($"➕ Đã thêm tập mới: {tap.Name ?? tap.Filename ?? "(Không rõ)"}");
                     }
                     else
                     {
-                        // Nếu đã có nhưng link đổi → cập nhật
                         bool changed = false;
 
-                        if (existingTap.LinkChinh != tap.Link_M3u8 && !string.IsNullOrWhiteSpace(tap.Link_M3u8))
+                        if (!string.IsNullOrWhiteSpace(tap.Link_M3u8) && existingTap.LinkChinh != tap.Link_M3u8)
                         {
                             existingTap.LinkChinh = tap.Link_M3u8;
                             changed = true;
                         }
-                        if (existingTap.LinkPhu != tap.Link_Embed && !string.IsNullOrWhiteSpace(tap.Link_Embed))
+                        if (!string.IsNullOrWhiteSpace(tap.Link_Embed) && existingTap.LinkPhu != tap.Link_Embed)
                         {
                             existingTap.LinkPhu = tap.Link_Embed;
                             changed = true;
@@ -242,6 +258,7 @@ namespace GienPhim_Services.FilmService.Application.Mappers
                         if (changed)
                         {
                             existingTap.ThoiGianCapNhat = DateTime.UtcNow;
+                            Console.WriteLine($"♻️ Cập nhật link cho tập {existingTap.TenTap}");
                         }
                     }
                 }

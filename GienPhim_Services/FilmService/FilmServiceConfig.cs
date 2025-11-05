@@ -34,7 +34,6 @@ namespace GienPhim_Services.FilmService
         {
             /*-----------------------------------------APPLICATION--------------------------------------------*/
             // SERVICES
-            // SERVICE
             services.AddScoped<IDaoDienService, DaoDienService>(); // Đạo diễn Service                                                                            
             services.AddScoped<IDienVienService, DienVienService>(); // Diễn viên Service
             services.AddScoped<ITheLoaiService, TheLoaiService>(); // Thể loại Service
@@ -48,6 +47,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhanLoaiTheTagService, PhanLoaiTheTagService>(); // Phân loại thẻ tag Service
             services.AddScoped<ITapPhimService, TapPhimService>(); // Tập phim Service
             services.AddScoped<IFilmViewService, FilmViewService>(); // Lượt xem phim Service
+            services.AddScoped<IBotConfigService, BotConfigService>(); // Bot Config Service
 
             // Đạo diễn
             services.AddScoped<IValidator<DaoDienCreateDTO>, CreateDaoDienValidator>(); // Validator tạo đạo diễn
@@ -70,6 +70,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<ITapPhimFactory, TapPhimFactory>(); // Tập phim Factory
             services.AddScoped<IFilmViewFactory, FilmViewFactory>(); // Lượt xem phim Factory
             services.AddScoped<IApiPhimFactory, ApiPhimFactory>(); // Factory xử lý dữ liệu từ API
+            services.AddScoped<IBotConfigFactory, BotConfigFactory>(); // Factory Bot Config
 
             // MAPPERS
             services.AddScoped<IDaoDienResponseMapper, DaoDienResponseMapper>(); // Đạo diễn Mapper
@@ -86,6 +87,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<ITapPhimResponseMapper, TapPhimResponseMapper>(); // Tập phim Mapper
             services.AddScoped<IFilmViewResponseMapper, FilmViewResponseMapper>(); // Lượt xem phim Mapper
             services.AddScoped<IApiPhimMapper, ApiPhimMapper>(); // Mapper xử lý dữ liệu từ API
+            services.AddScoped<IBotConfigMapper, BotConfigMapper>(); // Mapper Bot Config
 
             // ORCHESTRATORS
             services.AddScoped<IDaoDienOrchestrator, DaoDienOrchestrator>(); // Đạo diễn Orchestrator
@@ -102,6 +104,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<ITapPhimOrchestrator, TapPhimOrchestrator>(); // Tập phim Orchestrator
             services.AddScoped<IFilmViewOrchestrator, FilmViewOrchestrator>(); // Lượt xem phim Orchestrator
             services.AddScoped<IApiPhimOrchestrator, ApiPhimOrchestrator>(); // Orchestrator xử lý nhập phim từ API
+            services.AddScoped<IBotConfigOrchestrator, BotConfigOrchestrator>(); // Orchestrator cấu hình bot
 
             // VALIRATORS
             // Dịch vụ validation chung
@@ -153,7 +156,24 @@ namespace GienPhim_Services.FilmService
                 var config = sp.GetRequiredService<IConfiguration>();
                 var phimApiUrl = config["ServiceUrls:PhimApi"];
                 client.BaseAddress = new Uri(phimApiUrl);
-                client.Timeout = TimeSpan.FromSeconds(30);
+                client.Timeout = TimeSpan.FromSeconds(60);
+
+                // ✅ Thêm User-Agent để tránh bị chặn
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; GienPhimBot/1.0; +https://gienphim.vn)");
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                // ✅ Ép buộc chỉ dùng TLS 1.2 và 1.3
+                SslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                             | System.Security.Authentication.SslProtocols.Tls13,
+
+                // ✅ Bỏ qua validate chứng chỉ (đề phòng CA mismatch)
+                ServerCertificateCustomValidationCallback =
+                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
+
+                // ✅ Giữ kết nối ổn định
+                AutomaticDecompression =
+                    System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate,
             });
 
             // REPOSITORIES
@@ -170,6 +190,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhanLoaiTheTagRepository, PhanLoaiTheTagRepository>(); // Phân loại thẻ tag
             services.AddScoped<ITapPhimRepository, TapPhimRepository>(); // Tập Phim
             services.AddScoped<IFilmViewRepository, FilmViewRepository>(); // Lượt Xem Phim
+            services.AddScoped<IBotConfigRepository, BotConfigRepository>(); // Bot Config
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Unit of Work
             return services;
         }

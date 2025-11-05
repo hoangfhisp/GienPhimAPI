@@ -18,6 +18,7 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Repositories
         ITapPhimRepository TapPhims { get; } // Repository
         IFilmViewRepository FilmViews { get; } // Repository
         IExternalApiClient ExternalApiClients { get; } // External API Client
+        IBotConfigRepository BotConfigs { get; } // Repository
         Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default); // Transaction
         Task<int> CommitAsync(CancellationToken cancellationToken = default); // Commit changes
     }

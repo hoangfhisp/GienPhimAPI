@@ -25,6 +25,12 @@ namespace GienPhim_Services.FilmService.Infrastructure.Data
             builder.Entity<DienVienCuaPhim>()
                 .HasKey(ddp => new { ddp.PhimId, ddp.DienVienId });
 
+            builder.Entity<BotConfig>(entity =>
+            {
+                entity.Property(e => e.LastUpdated)
+                      .HasColumnType("datetime2")
+                      .HasDefaultValueSql("GETUTCDATE()");
+            });
         }
         public DbSet<Phim> Phim { get; set; }
         public DbSet<DaoDien> DaoDien { get; set; }
@@ -40,6 +46,7 @@ namespace GienPhim_Services.FilmService.Infrastructure.Data
         public DbSet<TapPhim> TapPhim { get; set; }
         public DbSet<LichSuXem> LichSuXem { get; set; }
         public DbSet<FilmView> FilmView { get; set; }
+        public DbSet<BotConfig> BotConfigs { get; set; }
 
     }
 }

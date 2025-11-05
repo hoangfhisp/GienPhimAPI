@@ -12,6 +12,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Quartz;
 using GienPhim_Services.FilmService.Application.Jobs;
+using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
+
+System.Net.ServicePointManager.SecurityProtocol =
+    System.Net.SecurityProtocolType.Tls12 |
+    System.Net.SecurityProtocolType.Tls13;
 
 var builder = WebApplication.CreateBuilder(args);
 // Set UTF-8 hỗ trợ tiếng việt khi console log
@@ -84,67 +89,94 @@ builder.Services.AddDbContext<OrderDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("OrderDb")));
 
 
-//ADD MICROSERVICE
+// ADD MICROSERVICE
 builder.Services.AddUserService(builder.Configuration); // UserService
 builder.Services.AddAuthService(builder.Configuration); // AuthService
 builder.Services.AddFilmService(builder.Configuration); // FilmService
 builder.Services.AddMembershipService(builder.Configuration); // MembershipService
 
-//// Đăng ký Quartz job cho đồng bộ phim
-//builder.Services.AddQuartz(q =>
-//{
-//    var jobKey = new JobKey("SyncPhimJob");
-
-//    // Đăng ký job
-//    q.AddJob<SyncPhimJob>(opts => opts.WithIdentity(jobKey));
-
-//    // Đặt lịch chạy — ví dụ: mỗi 3 giờ 1 lần
-//    q.AddTrigger(opts => opts
-//        .ForJob(jobKey)
-//        .WithIdentity("SyncPhimJob-trigger")
-//        .WithSimpleSchedule(x => x
-//            .WithIntervalInHours(3)   // ⏱ thay đổi nếu muốn (ví dụ .WithIntervalInMinutes(30))
-//            .RepeatForever()));
-//});
-
-//// Cho phép Quartz chạy nền khi app khởi động -> tự động lấy api mỗi khi chạy project, sau 3 giờ tự động lấy api tiếp
-//builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
-
-// Chỉ chạy sau 3 giờ kể từ khi backend khởi động
+// Đăng ký Quartz Scheduler
 builder.Services.AddQuartz(q =>
 {
-    var jobKey = new JobKey("SyncPhimJob");
-    q.AddJob<SyncPhimJob>(opts => opts.WithIdentity(jobKey));
+    // KHÔNG cần trigger mặc định cho SyncPhimJob nữa
+    q.AddJob<SyncPhimJob>(opts => opts
+        .WithIdentity("SyncPhimJob")
+        .StoreDurably());
 
-    // Trigger: bắt đầu sau 3 giờ, lặp lại mỗi 3 giờ
+    // Watcher job kiểm tra thay đổi BotConfig
+    q.AddJob<BotConfigWatcherJob>(opts => opts.WithIdentity("BotConfigWatcherJob"));
     q.AddTrigger(opts => opts
-        .ForJob(jobKey)
-        .WithIdentity("SyncPhimJob-trigger")
-        .StartAt(DateBuilder.FutureDate(3, IntervalUnit.Hour)) // ⏳ đợi 3 tiếng
-        .WithSimpleSchedule(x => x
-            .WithIntervalInHours(3)
-            .RepeatForever()));
+    .ForJob("BotConfigWatcherJob")
+    .WithIdentity("BotConfigWatcherJob-trigger")
+    // Bắt đầu sau 5 phút, tránh chạy ngay khi app start
+    .StartAt(DateBuilder.FutureDate(5, IntervalUnit.Minute))
+    .WithSimpleSchedule(x => x
+        .WithIntervalInMinutes(5)
+        .RepeatForever()
+        .WithMisfireHandlingInstructionNextWithRemainingCount()));
 });
 
 builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
 
-//// Lịch cố định hằng ngày chạy vào 3 giờ sáng mỗi ngày
-//builder.Services.AddQuartz(q =>
-//{
-//    var jobKey = new JobKey("SyncPhimJob");
-//    q.AddJob<SyncPhimJob>(opts => opts.WithIdentity(jobKey));
-
-//    // Trigger: chạy vào 03:00 sáng mỗi ngày
-//    q.AddTrigger(opts => opts
-//        .ForJob(jobKey)
-//        .WithIdentity("SyncPhimJob-trigger")
-//        .WithSchedule(CronScheduleBuilder.DailyAtHourAndMinute(3, 0)) // 🕒 3:00 AM
-//        .InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"))); // 🇻🇳 múi giờ Việt Nam
-//});
-
-//builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
-
 var app = builder.Build();
+
+// Khi app khởi động: cấu hình lại Quartz dựa theo BotConfig trong DB
+using (var scope = app.Services.CreateScope())
+{
+    var schedulerFactory = scope.ServiceProvider.GetRequiredService<ISchedulerFactory>();
+    var scheduler = await schedulerFactory.GetScheduler();
+
+    var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+    var botConfig = await unitOfWork.BotConfigs.GetAsync();
+
+    if (botConfig != null && botConfig.IsEnabled)
+    {
+        var jobKey = new JobKey("SyncPhimJob");
+
+        var jobDetail = await scheduler.GetJobDetail(jobKey)
+                         ?? JobBuilder.Create<SyncPhimJob>()
+                             .WithIdentity(jobKey)
+                             .StoreDurably()
+                             .Build();
+
+        if (await scheduler.CheckExists(jobKey))
+        {
+            Console.WriteLine("🔁 Job SyncPhimJob đã tồn tại, xóa trigger cũ và tạo lại...");
+
+            var oldTriggerKey = new TriggerKey("SyncPhimJob-trigger");
+            await scheduler.UnscheduleJob(oldTriggerKey); // ❌ Bỏ trigger cũ hoàn toàn
+
+            var newTrigger = TriggerBuilder.Create()
+                .ForJob(jobDetail)
+                .WithIdentity("SyncPhimJob-trigger")
+                //.StartNow() // có thể đổi sang .StartAt(DateBuilder.FutureDate(...)) nếu muốn delay, hiện tại vừa khởi chạy project là chạy bot ngay lập từc và lập lại sau số giờ trong config
+                .StartAt(DateTimeOffset.Now.AddHours(botConfig.IntervalHours)) //Bot khởi chạy theo sau giờ đã config
+                .WithSimpleSchedule(x => x
+                    .WithIntervalInHours(botConfig.IntervalHours)
+                    .RepeatForever())
+                .Build();
+
+            await scheduler.ScheduleJob(newTrigger);
+
+            Console.WriteLine($"✅ Job rescheduled thành công. Lần chạy tiếp theo: {newTrigger.GetNextFireTimeUtc()?.ToLocalTime()}");
+        }
+        else
+        {
+            var trigger = TriggerBuilder.Create()
+                .ForJob(jobDetail)
+                .WithIdentity("SyncPhimJob-trigger")
+                .StartAt(DateTimeOffset.Now.AddHours(botConfig.IntervalHours))
+                .WithSimpleSchedule(x => x
+                    .WithIntervalInHours(botConfig.IntervalHours)
+                    .RepeatForever())
+                .Build();
+
+            await scheduler.ScheduleJob(jobDetail, trigger);
+            Console.WriteLine($"🕐 Lên lịch job lần đầu, chạy sau {botConfig.IntervalHours} giờ ({trigger.GetNextFireTimeUtc()?.ToLocalTime()})");
+        }
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

@@ -3,7 +3,6 @@ using GienPhim_Services.FilmService.Application.Interfaces.Services;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.FilmService.Application.Interfaces.HttpClients;
 
-
 namespace GienPhim_Services.FilmService.Application.Jobs
 {
     public class SyncPhimJob : IJob
@@ -12,56 +11,88 @@ namespace GienPhim_Services.FilmService.Application.Jobs
         private readonly ILogger<SyncPhimJob> _logger;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IExternalApiClient _externalApiClient;
+        private readonly IBotConfigService _botConfigService;
 
-        public SyncPhimJob(IPhimService phimService, ILogger<SyncPhimJob> logger, IUnitOfWork unitOfWork, IExternalApiClient externalApiClient)
+        public SyncPhimJob(
+            IPhimService phimService,
+            ILogger<SyncPhimJob> logger,
+            IUnitOfWork unitOfWork,
+            IExternalApiClient externalApiClient,
+            IBotConfigService botConfigService)
         {
             _phimService = phimService;
             _logger = logger;
             _unitOfWork = unitOfWork;
             _externalApiClient = externalApiClient;
+            _botConfigService = botConfigService;
         }
 
         public async Task Execute(IJobExecutionContext context)
         {
-            _logger.LogInformation("🔁 Bắt đầu đồng bộ phim mới cập nhật...");
+            _logger.LogInformation("Bắt đầu tiến trình đồng bộ phim theo cấu hình bot...");
 
-            var list = await _externalApiClient.GetLatestFilmsV3Async(page: 1);
+            // Lấy cấu hình bot hiện tại
+            var configResult = await _botConfigService.GetBotConfigAsync();
+            var config = configResult.Data;
 
-            if (list?.Items == null || !list.Items.Any())
+            if (config == null)
             {
-                _logger.LogInformation("⏹ Không có phim nào để đồng bộ.");
+                _logger.LogWarning("Không tìm thấy cấu hình bot trong DB. Dừng tiến trình.");
                 return;
             }
 
-            foreach (var item in list.Items)
+            // Kiểm tra trạng thái bot
+            if (!config.IsEnabled)
             {
-                try
-                {
-                    var existing = await _unitOfWork.Phims.GetBySlugAsync(item.Slug);
+                _logger.LogInformation("Bot đang bị tắt (IsEnabled = false). Bỏ qua lần đồng bộ này.");
+                return;
+            }
 
-                    if (existing == null)
-                    {
-                        await _phimService.ImportPhimFromApiAsync(item.Slug);
-                        _logger.LogInformation($"🟢 Đã import phim mới: {item.Name}");
-                    }
-                    else if (item.Modified?.Time > existing.ThoiGianCapNhat)
-                    {
-                        await _phimService.UpdatePhimFromApiAsync(item.Slug);
-                        _logger.LogInformation($"🟡 Đã cập nhật phim: {item.Name}");
-                    }
-                    else
-                    {
-                        _logger.LogInformation($"⏩ Bỏ qua {item.Slug} (không có thay đổi)");
-                    }
-                }
-                catch (Exception ex)
+            _logger.LogInformation("BotConfig hiện tại: ApiPerRun = {ApiPerRun}, IntervalHours = {IntervalHours}",
+                config.ApiPerRun, config.IntervalHours);
+
+            // Vòng lặp lấy API theo cấu hình
+            for (int page = 1; page <= config.ApiPerRun; page++)
+            {
+                _logger.LogInformation("Đang lấy dữ liệu từ trang API {Page}...", page);
+
+                var list = await _externalApiClient.GetLatestFilmsV3Async(page);
+
+                if (list?.Items == null || !list.Items.Any())
                 {
-                    _logger.LogError(ex, $"❌ Lỗi khi xử lý phim {item.Slug}");
+                    _logger.LogInformation("Trang {Page} không có dữ liệu phim mới. Dừng tại đây.", page);
+                    break;
+                }
+
+                foreach (var item in list.Items)
+                {
+                    try
+                    {
+                        var existing = await _unitOfWork.Phims.GetBySlugAsync(item.Slug);
+
+                        if (existing == null)
+                        {
+                            await _phimService.ImportPhimFromApiAsync(item.Slug);
+                            _logger.LogInformation($"Đã import phim mới: {item.Name}");
+                        }
+                        else if (item.Modified?.Time > existing.ThoiGianCapNhat)
+                        {
+                            await _phimService.UpdatePhimFromApiAsync(item.Slug);
+                            _logger.LogInformation($"Đã cập nhật phim: {item.Name}");
+                        }
+                        else
+                        {
+                            _logger.LogInformation($"Bỏ qua {item.Slug} (không có thay đổi)");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Lỗi khi xử lý phim {item.Slug}");
+                    }
                 }
             }
 
-            _logger.LogInformation("✅ Hoàn tất đồng bộ phim mới! Tổng số phim xử lý: {Count}", list.Items.Count);
+            _logger.LogInformation("Hoàn tất đồng bộ phim mới theo cấu hình bot!");
         }
-
     }
 }
