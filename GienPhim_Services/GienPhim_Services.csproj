@@ -7,15 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="InteractionService\Infrastructure\Data\Repositories\**" />
+    <Compile Remove="InteractionService\Services\**" />
     <Compile Remove="MembershipService\Infrastructure\Data\Repositories\**" />
     <Compile Remove="MembershipService\Services\**" />
     <Compile Remove="WalletService\Models\Entities\**" />
+    <Content Remove="InteractionService\Infrastructure\Data\Repositories\**" />
+    <Content Remove="InteractionService\Services\**" />
     <Content Remove="MembershipService\Infrastructure\Data\Repositories\**" />
     <Content Remove="MembershipService\Services\**" />
     <Content Remove="WalletService\Models\Entities\**" />
+    <EmbeddedResource Remove="InteractionService\Infrastructure\Data\Repositories\**" />
+    <EmbeddedResource Remove="InteractionService\Services\**" />
     <EmbeddedResource Remove="MembershipService\Infrastructure\Data\Repositories\**" />
     <EmbeddedResource Remove="MembershipService\Services\**" />
     <EmbeddedResource Remove="WalletService\Models\Entities\**" />
+    <None Remove="InteractionService\Infrastructure\Data\Repositories\**" />
+    <None Remove="InteractionService\Services\**" />
     <None Remove="MembershipService\Infrastructure\Data\Repositories\**" />
     <None Remove="MembershipService\Services\**" />
     <None Remove="WalletService\Models\Entities\**" />
@@ -53,10 +61,11 @@
     <Folder Include="AuthService\Infrastructure\Migrations\" />
     <Folder Include="FilmService\Application\DTOs\Admin\" />
     <Folder Include="FilmService\Domain\Mappers\" />
-    <Folder Include="InteractionService\Data\Migrations\" />
-    <Folder Include="InteractionService\Data\Repositories\Interfaces\" />
-    <Folder Include="InteractionService\Models\DTOs\" />
-    <Folder Include="InteractionService\Services\" />
+    <Folder Include="InteractionService\Api\" />
+    <Folder Include="InteractionService\Application\Exceptions\" />
+    <Folder Include="InteractionService\Application\Interfaces\Services\" />
+    <Folder Include="InteractionService\Application\Services\" />
+    <Folder Include="InteractionService\Infrastructure\Data\Migrations\" />
     <Folder Include="MembershipService\Application\DTOs\Admin\" />
     <Folder Include="MembershipService\Application\Interfaces\Validators\" />
     <Folder Include="MembershipService\Application\Validators\" />

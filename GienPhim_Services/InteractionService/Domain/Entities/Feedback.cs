@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 
-namespace GienPhim_Services.InteractionService.Models.Entities
+namespace GienPhim_Services.InteractionService.Domain.Entities
 {
     public class Feedback
     {

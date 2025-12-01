@@ -1,5 +1,4 @@
-﻿
-namespace GienPhim_Services.InteractionService.Models.Entities
+﻿namespace GienPhim_Services.InteractionService.Domain.Entities
 {
     public class Comment
     {

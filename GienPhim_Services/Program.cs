@@ -1,7 +1,6 @@
 ﻿using GienPhim_Services.AuthService;
 using GienPhim_Services.FilmService;
 using GienPhim_Services.Filters;
-using GienPhim_Services.InteractionService.Data;
 using GienPhim_Services.MembershipService;
 using GienPhim_Services.MembershipService.Infrastructure.Data;
 using GienPhim_Services.OrderService.Data;
@@ -13,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using Quartz;
 using GienPhim_Services.FilmService.Application.Jobs;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
+using GienPhim_Services.InteractionService.Infrastructure.Data;
 
 System.Net.ServicePointManager.SecurityProtocol =
     System.Net.SecurityProtocolType.Tls12 |
@@ -144,7 +144,7 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine("🔁 Job SyncPhimJob đã tồn tại, xóa trigger cũ và tạo lại...");
 
             var oldTriggerKey = new TriggerKey("SyncPhimJob-trigger");
-            await scheduler.UnscheduleJob(oldTriggerKey); // ❌ Bỏ trigger cũ hoàn toàn
+            await scheduler.UnscheduleJob(oldTriggerKey);
 
             var newTrigger = TriggerBuilder.Create()
                 .ForJob(jobDetail)
