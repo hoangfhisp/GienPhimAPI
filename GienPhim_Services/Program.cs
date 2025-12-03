@@ -13,6 +13,8 @@ using Quartz;
 using GienPhim_Services.FilmService.Application.Jobs;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.InteractionService.Infrastructure.Data;
+using GienPhim_Services.InteractionService;
+using GienPhim_Services.Hubs;
 
 System.Net.ServicePointManager.SecurityProtocol =
     System.Net.SecurityProtocolType.Tls12 |
@@ -94,6 +96,10 @@ builder.Services.AddUserService(builder.Configuration); // UserService
 builder.Services.AddAuthService(builder.Configuration); // AuthService
 builder.Services.AddFilmService(builder.Configuration); // FilmService
 builder.Services.AddMembershipService(builder.Configuration); // MembershipService
+builder.Services.AddInteractionService(builder.Configuration); // InteractionService
+
+// Đăng ký SignalR
+builder.Services.AddSignalR();
 
 // Đăng ký Quartz Scheduler
 builder.Services.AddQuartz(q =>
@@ -190,6 +196,7 @@ app.AuthAuthService(); // AuthService
 app.UseUserService(); // UserService
 app.FilmFilmService(); // FilmService
 app.MembershipService(); // MembershipService
+app.InteractionService(); // InteractionService
 
 // Cho phép phục vụ file tĩnh từ wwwroot
 app.UseStaticFiles();
@@ -199,6 +206,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.MapHub<ChatGroupHub>("/hubs/chat-group");
 
 app.MapControllers();
 

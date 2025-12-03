@@ -3,7 +3,7 @@ using GienPhim_Services.InteractionService.Domain.Entities;
 
 namespace GienPhim_Services.InteractionService.Application.Interfaces.Mappers
 {
-    public interface IChatGroupMapper
+    public interface IChatGroupResponseMapper
     {
         ChatGroupResponseDTO ToResponseDto(ChatGroup group);
         List<ChatGroupResponseDTO> ToResponseDtoList(List<ChatGroup> groups);

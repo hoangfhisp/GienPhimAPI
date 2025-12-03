@@ -20,7 +20,7 @@ namespace GienPhim_Services.MembershipService.Api.Controllers
             _membershipPlanService = membershipPlanService;
         }
 
-        // 🧩 Lấy danh sách MembershipPlan (GET)
+        // Lấy danh sách MembershipPlan (GET)
         [HttpGet("GetAllMembershipPlans")]
         public async Task<IActionResult> GetAllMembershipPlans(int page = 1, int limit = 10, CancellationToken cancellationToken = default)
         {
@@ -30,7 +30,7 @@ namespace GienPhim_Services.MembershipService.Api.Controllers
             return Ok(result);
         }
 
-        // 🧩 Lấy chi tiết MembershipPlan theo Id
+        // Lấy chi tiết MembershipPlan theo Id
         [HttpGet("Detail/{planId}")]
         public async Task<IActionResult> GetDetail(string planId, CancellationToken ct = default)
         {
@@ -40,7 +40,7 @@ namespace GienPhim_Services.MembershipService.Api.Controllers
             return Ok(result);
         }
 
-        // 🧩 Tạo mới MembershipPlan
+        // Tạo mới MembershipPlan
         [HttpPost("Create")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] MembershipPlanCreateDTO dto, CancellationToken ct = default)
@@ -51,7 +51,7 @@ namespace GienPhim_Services.MembershipService.Api.Controllers
             return Ok(result);
         }
 
-        // 🧩 Cập nhật MembershipPlan
+        // Cập nhật MembershipPlan
         [HttpPut("Update")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromBody] MembershipPlanUpdateDTO dto, CancellationToken ct = default)
@@ -62,7 +62,7 @@ namespace GienPhim_Services.MembershipService.Api.Controllers
             return Ok(result);
         }
 
-        // 🧩 Xoá MembershipPlan
+        // Xoá MembershipPlan
         [HttpDelete("Delete")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromQuery] MembershipPlanDeleteDTO deleteDto, CancellationToken ct = default)

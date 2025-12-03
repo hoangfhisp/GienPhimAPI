@@ -61,10 +61,6 @@
     <Folder Include="AuthService\Infrastructure\Migrations\" />
     <Folder Include="FilmService\Application\DTOs\Admin\" />
     <Folder Include="FilmService\Domain\Mappers\" />
-    <Folder Include="InteractionService\Api\" />
-    <Folder Include="InteractionService\Application\Exceptions\" />
-    <Folder Include="InteractionService\Application\Interfaces\Services\" />
-    <Folder Include="InteractionService\Application\Services\" />
     <Folder Include="InteractionService\Infrastructure\Data\Migrations\" />
     <Folder Include="MembershipService\Application\DTOs\Admin\" />
     <Folder Include="MembershipService\Application\Interfaces\Validators\" />

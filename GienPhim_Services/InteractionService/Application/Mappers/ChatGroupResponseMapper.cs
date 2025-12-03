@@ -4,7 +4,7 @@ using GienPhim_Services.InteractionService.Domain.Entities;
 
 namespace GienPhim_Services.InteractionService.Application.Mappers
 {
-    public class ChatGroupMapper : IChatGroupMapper
+    public class ChatGroupResponseMapper : IChatGroupResponseMapper
     {
         // Detail response
         public ChatGroupResponseDTO ToResponseDto(ChatGroup group)

@@ -6,20 +6,9 @@ namespace GienPhim_Services.InteractionService.Application.Interfaces.Repositori
     {
         Task<ChatGroup?> GetByIdAsync(Guid groupId, CancellationToken cancellationToken = default);
 
-        Task<(List<ChatGroup> groups, int total, int last)> GetByFilmAsync(
-            int phimId,
-            string? status,
-            int page,
-            int pageSize,
-            CancellationToken cancellationToken = default);
+        Task<(List<ChatGroup> groups, int total, int last)> GetByFilmAsync(int phimId,string? status,int page,int pageSize,CancellationToken cancellationToken = default);
 
-        Task<(List<ChatGroup> groups, int total, int last)> GetMineAsync(
-            string userId,
-            string? role,
-            string? status,
-            int page,
-            int pageSize,
-            CancellationToken cancellationToken = default);
+        Task<(List<ChatGroup> groups, int total, int last)> GetMineAsync(string userId,string? role,string? status,int page,int pageSize,CancellationToken cancellationToken = default);
 
         Task<ChatGroup> CreateAsync(ChatGroup group, CancellationToken cancellationToken = default);
 
