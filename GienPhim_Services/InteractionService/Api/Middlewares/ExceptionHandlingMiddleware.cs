@@ -38,6 +38,17 @@ namespace GienPhim_Services.InteractionService.Api.Middlewares
             { typeof(InvalidGroupMemberException), StatusCodes.Status500InternalServerError },
             { typeof(InvalidGroupMemberException), StatusCodes.Status500InternalServerError },
 
+            // JoinRequest
+            { typeof(DuplicateJoinRequestException), StatusCodes.Status409Conflict },
+            { typeof(JoinRequestStateException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidJoinRequestException), StatusCodes.Status500InternalServerError },
+            { typeof(JoinRequestPermissionException), StatusCodes.Status500InternalServerError },
+            { typeof(NotChatGroupOwnerException), StatusCodes.Status500InternalServerError },
+
+            // ChatMessage
+            { typeof(InvalidChatMessageException), StatusCodes.Status500InternalServerError },
+            { typeof(ChatMessagePermissionException), StatusCodes.Status500InternalServerError },
+
         };
 
         public async Task InvokeAsync(HttpContext context)

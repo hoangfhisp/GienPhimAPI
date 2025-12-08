@@ -12,15 +12,22 @@ namespace GienPhim_Services.InteractionService.Infrastructure.Repositories
         (
             InteractionDbContext context,
             IChatGroupRepository chatGroups,
-            IGroupMemberRepository groupMembers)
+            IGroupMemberRepository groupMembers,
+            IJoinRequestRepository joinRequests,
+            IChatMessageRepository chatMessages)
         {
             _context = context;
             ChatGroups = chatGroups;
             GroupMembers = groupMembers;
+            JoinRequests = joinRequests;
+            ChatMessages = chatMessages;
         }
 
         public IChatGroupRepository ChatGroups { get; }
         public IGroupMemberRepository GroupMembers { get; }
+        public IJoinRequestRepository JoinRequests { get; }
+
+        public IChatMessageRepository ChatMessages { get; }
 
         public async Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
         {
