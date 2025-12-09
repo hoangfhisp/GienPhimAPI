@@ -25,7 +25,32 @@ namespace GienPhim_Services.FilmService.Application.Mappers
                 SoTapP = phim.SoTapP,
                 TraiLerP = phim.TraiLerP,
                 QuocGia = phim.QuocGia != null ? phim.QuocGia.TenQG : string.Empty,
-                NgonNgu = phim.NgonNgu != null ? phim.NgonNgu.TenNN : string.Empty
+                NgonNgu = phim.NgonNgu != null ? phim.NgonNgu.TenNN : string.Empty,
+
+                // 🔥 Thêm 4 dòng này:
+                TheLoais = phim.PhanLoaiTheLoais?
+                    .Where(pl => pl.TheLoai != null)
+                    .Select(pl => pl.TheLoai.TenTL)
+                    .Distinct()
+                    .ToList() ?? new List<string>(),
+
+                DaoDiens = phim.DaoDienCuaPhims?
+                    .Where(dp => dp.DaoDien != null)
+                    .Select(dp => dp.DaoDien.TenDD)
+                    .Distinct()
+                    .ToList() ?? new List<string>(),
+
+                DienViens = phim.DienVienCuaPhims?
+                    .Where(dv => dv.DienVien != null)
+                    .Select(dv => dv.DienVien.TenDV)
+                    .Distinct()
+                    .ToList() ?? new List<string>(),
+
+                TheTags = phim.PhanLoaiTheTags?
+                    .Where(t => t.TheTag != null)
+                    .Select(t => t.TheTag.TenT)
+                    .Distinct()
+                    .ToList() ?? new List<string>()
             };
         }
 

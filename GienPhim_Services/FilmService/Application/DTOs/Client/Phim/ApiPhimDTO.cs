@@ -21,6 +21,9 @@
         public string? Thumb_Url { get; set; }
         public string? Trailer_Url { get; set; }
         public string? Time { get; set; }
+        public string? Episode_Current { get; set; }
+        public string? Episode_Total { get; set; }
+        public string? Quality { get; set; }
         public string? Lang { get; set; }
         public int Year { get; set; }
         public long View { get; set; }

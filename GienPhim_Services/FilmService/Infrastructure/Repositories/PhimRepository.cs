@@ -21,6 +21,15 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             var query = _context.Phim
                 .Include(p => p.QuocGia)
                 .Include(p => p.NgonNgu)
+                .Include(p => p.PhanLoaiTheLoais)
+                    .ThenInclude(pl => pl.TheLoai)
+                .Include(p => p.DaoDienCuaPhims)
+                    .ThenInclude(ddp => ddp.DaoDien)
+                .Include(p => p.DienVienCuaPhims)
+                    .ThenInclude(dvcp => dvcp.DienVien)
+                .Include(p => p.PhanLoaiTheTags)
+                    .ThenInclude(pt => pt.TheTag)
+                // .Include(p => p.TapPhims) // nếu muốn lấy luôn số tập để tự đếm
                 .AsQueryable();
 
             var total = await query.CountAsync(cancellationToken);
@@ -40,6 +49,14 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             return await _context.Phim
                 .Include(p => p.QuocGia)
                 .Include(p => p.NgonNgu)
+                .Include(p => p.PhanLoaiTheLoais)
+                    .ThenInclude(pl => pl.TheLoai)
+                .Include(p => p.DaoDienCuaPhims)
+                    .ThenInclude(dp => dp.DaoDien)
+                .Include(p => p.DienVienCuaPhims)
+                    .ThenInclude(dv => dv.DienVien)
+                .Include(p => p.PhanLoaiTheTags)
+                    .ThenInclude(pt => pt.TheTag)
                 .FirstOrDefaultAsync(p => p.PhimId == id, cancellationToken);
         }
 

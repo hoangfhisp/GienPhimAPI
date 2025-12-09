@@ -213,32 +213,36 @@ namespace GienPhim_Services.FilmService.Application.Services
         // Import phim từ API ngoài
         public async Task<ResultDTO<PhimResponseDTO>> ImportPhimFromApiAsync(string slug, CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("ApplicationService: Bắt đầu ImportPhimFromApiAsync với slug={Slug}", slug);
+            // Chuẩn hóa slug ngay đầu (nhận cả URL, tên phim có dấu, slug…)
+            var normalizedSlug = SlugHelper.ExtractSlug(slug);
 
-            // 1️⃣ Lấy dữ liệu phim từ API thông qua orchestrator
-            var phim = await _orchestrator.ProcessImportAsync(slug, cancellationToken);
+            _logger.LogInformation(
+                "ApplicationService: Bắt đầu ImportPhimFromApiAsync với slug raw={RawSlug}, normalized={Slug}",
+                slug, normalizedSlug);
+
+            // 1️ Lấy dữ liệu phim từ API thông qua orchestrator
+            var phim = await _orchestrator.ProcessImportAsync(normalizedSlug, cancellationToken);
             if (phim is null)
             {
-                _logger.LogWarning("ApplicationService: Không thể tạo entity phim từ API slug={Slug}", slug);
-                throw new PhimNotFoundException($"Không thể lấy dữ liệu phim từ slug '{slug}'.");
+                _logger.LogWarning("ApplicationService: Không thể tạo entity phim từ API slug={Slug}", normalizedSlug);
+                throw new PhimNotFoundException($"Không thể lấy dữ liệu phim từ slug '{normalizedSlug}'.");
             }
 
-            // 2️⃣ Kiểm tra phim đã tồn tại chưa (theo slug hoặc tên)
+            // 2️ Kiểm tra phim đã tồn tại chưa (theo slug hoặc tên)
             var existing = await _unitOfWork.Phims.GetBySlugAsync(phim.NguonP, cancellationToken);
             if (existing != null)
             {
-                _logger.LogWarning("ApplicationService: Phim với slug={Slug} đã tồn tại", slug);
+                _logger.LogWarning("ApplicationService: Phim với slug={Slug} đã tồn tại", normalizedSlug);
                 throw new CreatePhimFailedException($"Phim '{phim.TenP}' đã tồn tại trong hệ thống.");
             }
 
-            // 3️⃣ Bắt đầu transaction
+            // 3️ Bắt đầu transaction
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
             try
             {
                 _logger.LogInformation("ApplicationService: Bắt đầu lưu phim {TenP} vào DB", phim.TenP);
 
-                // Repository pattern: tự SaveChangesAsync bên trong
                 var createdPhim = await _unitOfWork.Phims.CreateAsync(phim, cancellationToken);
                 if (createdPhim == null)
                 {
@@ -257,7 +261,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                _logger.LogError(ex, "ApplicationService: Import phim {Slug} thất bại!", slug);
+                _logger.LogError(ex, "ApplicationService: Import phim {Slug} thất bại!", normalizedSlug);
                 throw new CreatePhimFailedException($"Import phim thất bại: {ex.Message}");
             }
         }
@@ -265,41 +269,46 @@ namespace GienPhim_Services.FilmService.Application.Services
         // Cập nhật phim từ API ngoài
         public async Task<ResultDTO<PhimResponseDTO>> UpdatePhimFromApiAsync(string slug, CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("ApplicationService: Bắt đầu UpdatePhimFromApiAsync với slug={Slug}", slug);
+            // Chuẩn hóa slug giống ImportPhimFromApiAsync
+            var normalizedSlug = SlugHelper.ExtractSlug(slug);
 
-            // 1️⃣ Lấy phim hiện có trong DB
-            var existing = await _unitOfWork.Phims.GetBySlugAsync(slug, cancellationToken);
+            _logger.LogInformation("ApplicationService: Bắt đầu UpdatePhimFromApiAsync với slug raw={RawSlug}, normalized={Slug}", slug, normalizedSlug);
+
+            // 1️ Lấy phim hiện có trong DB theo slug đã chuẩn hóa (NguonP)
+            var existing = await _unitOfWork.Phims.GetBySlugAsync(normalizedSlug, cancellationToken);
             if (existing == null)
             {
-                _logger.LogWarning("ApplicationService: Phim với slug={Slug} không tồn tại", slug);
-                throw new PhimNotFoundException($"Phim slug '{slug}' không tồn tại trong hệ thống.");
+                _logger.LogWarning("ApplicationService: Phim với slug={Slug} không tồn tại", normalizedSlug);
+                throw new PhimNotFoundException($"Phim slug '{normalizedSlug}' không tồn tại trong hệ thống.");
             }
 
-            // 2️⃣ Bắt đầu transaction để đảm bảo an toàn dữ liệu
+            // 2️ Bắt đầu transaction để đảm bảo an toàn dữ liệu
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
             try
             {
-                // 3️⃣ Gọi orchestrator xử lý cập nhật domain (mapper, factory, validate,…)
-                var updatedPhim = await _orchestrator.ProcessUpdateAsync(slug, cancellationToken);
+                // 3️ Gọi orchestrator xử lý cập nhật từ API
+                //    (orchestrator bên trong cũng nên dùng normalizedSlug để gọi API ngoài)
+                var updatedPhim = await _orchestrator.ProcessUpdateAsync(normalizedSlug, cancellationToken);
 
                 _logger.LogInformation("ApplicationService: Đã xử lý cập nhật phim {TenP} từ API", updatedPhim.TenP);
 
-                // 4️⃣ Lưu thay đổi xuống DB
+                // 4️ Lưu thay đổi xuống DB
                 await _unitOfWork.Phims.UpdateAsync(updatedPhim, cancellationToken);
-                await _unitOfWork.CommitAsync(cancellationToken);
+
+                // Nếu UnitOfWork của bạn có Commit riêng thì giữ lại, còn nếu SaveChanges đã được gọi trong Repo rồi thì bỏ CommitAsync này đi
                 await transaction.CommitAsync(cancellationToken);
 
                 _logger.LogInformation("ApplicationService: Cập nhật phim {TenP} từ API thành công!", updatedPhim.TenP);
 
-                // 5️⃣ Trả kết quả cho client
+                // 5️ Trả kết quả cho client
                 var dto = _phimResponseMapper.ToDto(updatedPhim);
                 return ResultDTO<PhimResponseDTO>.Success(dto, $"Cập nhật phim '{updatedPhim.TenP}' thành công từ API.");
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                _logger.LogError(ex, "ApplicationService: Lỗi khi cập nhật phim {Slug} từ API", slug);
+                _logger.LogError(ex, "ApplicationService: Lỗi khi cập nhật phim {Slug} từ API", normalizedSlug);
                 throw new UpdatePhimFailedException($"Cập nhật phim thất bại: {ex.Message}");
             }
         }
@@ -309,7 +318,7 @@ namespace GienPhim_Services.FilmService.Application.Services
         {
             _logger.LogInformation("ApplicationService: Bắt đầu SearchPhimsAsync với từ khóa {Keyword}", keyword);
 
-            // 1️⃣ Gọi repository
+            // 1️ Gọi repository
             var phims = await _unitOfWork.Phims.SearchPhimsAsync(keyword, cancellationToken);
 
             if (phims == null || !phims.Any())
@@ -318,12 +327,12 @@ namespace GienPhim_Services.FilmService.Application.Services
                 throw new PhimNotFoundException();
             }
 
-            // 2️⃣ Map sang DTO
+            // 2️ Map sang DTO
             var dtoList = phims.Select(_phimResponseMapper.ToDto).ToList();
 
             _logger.LogInformation("ApplicationService: Tìm thấy {Count} phim với từ khóa {Keyword}", dtoList.Count, keyword);
 
-            // 3️⃣ Trả kết quả
+            // 3️ Trả kết quả
             return ResultDTO<List<PhimResponseDTO>>.Success(dtoList, "Tìm kiếm phim thành công");
         }
 

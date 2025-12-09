@@ -51,5 +51,37 @@ namespace Shared.FileStorage
             if (string.IsNullOrWhiteSpace(text)) return string.Empty;
             return RemoveDiacritics(text).Trim().ToLowerInvariant();
         }
+
+        public static string ExtractSlug(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
+
+            input = input.Trim();
+
+            // 1) Nếu input là URL → tách slug ở cuối
+            if (input.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                input.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    var uri = new Uri(input);
+                    // Lấy segment cuối cùng trong URL
+                    var last = uri.Segments.Last().Trim('/');
+
+                    // Chuẩn hóa thành slug
+                    return GenerateSlug(last);
+                }
+                catch
+                {
+                    // URL sai format → fallback: xử lý như text bình thường
+                    return GenerateSlug(input);
+                }
+            }
+
+            // 2) Nếu input KHÔNG phải URL → xử lý như text bình thường
+            return GenerateSlug(input);
+        }
+
     }
 }

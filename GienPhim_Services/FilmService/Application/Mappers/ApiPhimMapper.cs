@@ -26,6 +26,7 @@ namespace GienPhim_Services.FilmService.Application.Mappers
                 NgonNgu = ngonNgu,
                 QuocGia = quocGia,
                 TraiLerP = movie.Trailer_Url,
+                SoTapP = movie.Episode_Total,
             };
         }
 
@@ -189,6 +190,10 @@ namespace GienPhim_Services.FilmService.Application.Mappers
             existing.TraiLerP = movie.Trailer_Url ?? existing.TraiLerP;
             existing.LuotXemP = movie.View > 0 ? movie.View : existing.LuotXemP;
             existing.ThuoiLuongP = movie.Time ?? existing.ThuoiLuongP;
+
+            if (!string.IsNullOrWhiteSpace(movie.Episode_Total))
+                existing.SoTapP = movie.Episode_Total;
+
             existing.ThoiGianCapNhat = DateTime.UtcNow;
         }
 

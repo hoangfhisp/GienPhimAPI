@@ -171,7 +171,8 @@ using (var scope = app.Services.CreateScope())
             var trigger = TriggerBuilder.Create()
                 .ForJob(jobDetail)
                 .WithIdentity("SyncPhimJob-trigger")
-                .StartAt(DateTimeOffset.Now.AddHours(botConfig.IntervalHours))
+                //.StartNow() // Bắt đầu job ngay lập tức
+                .StartAt(DateTimeOffset.Now.AddHours(botConfig.IntervalHours)) // Bot khởi chạy theo sau giờ đã config
                 .WithSimpleSchedule(x => x
                     .WithIntervalInHours(botConfig.IntervalHours)
                     .RepeatForever())
