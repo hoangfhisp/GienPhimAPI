@@ -9,21 +9,20 @@
   <ItemGroup>
     <Compile Remove="MembershipService\Infrastructure\Data\Repositories\**" />
     <Compile Remove="MembershipService\Services\**" />
-    <Compile Remove="WalletService\Models\Entities\**" />
+    <Compile Remove="WalletService\Infrastructure\Data\Repositories\**" />
+    <Compile Remove="WalletService\Services\**" />
     <Content Remove="MembershipService\Infrastructure\Data\Repositories\**" />
     <Content Remove="MembershipService\Services\**" />
-    <Content Remove="WalletService\Models\Entities\**" />
+    <Content Remove="WalletService\Infrastructure\Data\Repositories\**" />
+    <Content Remove="WalletService\Services\**" />
     <EmbeddedResource Remove="MembershipService\Infrastructure\Data\Repositories\**" />
     <EmbeddedResource Remove="MembershipService\Services\**" />
-    <EmbeddedResource Remove="WalletService\Models\Entities\**" />
+    <EmbeddedResource Remove="WalletService\Infrastructure\Data\Repositories\**" />
+    <EmbeddedResource Remove="WalletService\Services\**" />
     <None Remove="MembershipService\Infrastructure\Data\Repositories\**" />
     <None Remove="MembershipService\Services\**" />
-    <None Remove="WalletService\Models\Entities\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="WalletService\Models\Entities\Wallet.cs" />
-    <Compile Include="WalletService\Models\Entities\WalletTransaction.cs" />
+    <None Remove="WalletService\Infrastructure\Data\Repositories\**" />
+    <None Remove="WalletService\Services\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -72,10 +71,7 @@
     <Folder Include="UserService\Domain\Exceptions\Failed\" />
     <Folder Include="UserService\Domain\Exceptions\NotFounds\" />
     <Folder Include="UserService\Domain\ValueObjects\" />
-    <Folder Include="WalletService\Data\Migrations\" />
-    <Folder Include="WalletService\Data\Repositories\Interfaces\" />
-    <Folder Include="WalletService\Models\DTOs\" />
-    <Folder Include="WalletService\Services\" />
+    <Folder Include="WalletService\Application\Exceptions\Invalid\" />
     <Folder Include="wwwroot\images\films\" />
     <Folder Include="wwwroot\images\logos\" />
     <Folder Include="wwwroot\images\banners\" />
