@@ -2,6 +2,7 @@
 using GienPhim_Services.FilmService.Domain.Entities;
 using GienPhim_Services.FilmService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Shared.FileStorage;
 
 namespace GienPhim_Services.FilmService.Infrastructure.Repositories
 {
@@ -54,6 +55,30 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         {
             _filmContext.DienVien.Remove(dienVien);
             await _filmContext.SaveChangesAsync(ct);
+        }
+
+        public async Task<List<DienVien>> SearchDienViensAsync(string keyword, CancellationToken cancellationToken = default)
+        {
+            // 🛡️ Kiểm tra input
+            if (string.IsNullOrWhiteSpace(keyword))
+                return new List<DienVien>();
+
+            // Chuẩn hóa từ khóa (bỏ dấu + lower)
+            var normalizedKeyword = SlugHelper.NormalizeSearchText(keyword);
+
+            // Lấy tất cả diễn viên
+            var allActors = await _filmContext.DienVien
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            // Lọc gần đúng (so sánh bỏ dấu)
+            var matched = allActors
+                .Where(dv => SlugHelper.NormalizeSearchText(dv.TenDV ?? "").Contains(normalizedKeyword)
+                          || SlugHelper.NormalizeSearchText(dv.MoTaDV ?? "").Contains(normalizedKeyword))
+                .OrderByDescending(dv => dv.DienVienId)
+                .ToList();
+
+            return matched;
         }
     }
 }

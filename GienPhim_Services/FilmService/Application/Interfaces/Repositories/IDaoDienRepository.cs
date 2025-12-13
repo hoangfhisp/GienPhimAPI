@@ -9,5 +9,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Repositories
         Task<DaoDien> CreateAsync(DaoDien daoDien, CancellationToken ct = default);
         Task<DaoDien> UpdateAsync(DaoDien daoDien, CancellationToken ct = default);
         Task DeleteAsync(DaoDien daoDien, CancellationToken ct = default);
+        Task<List<DaoDien>> SearchDaoDiensAsync(string keyword, CancellationToken cancellationToken = default);
     }
 }

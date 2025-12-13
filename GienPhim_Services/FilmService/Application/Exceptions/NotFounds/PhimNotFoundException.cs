@@ -11,5 +11,8 @@ namespace GienPhim_Services.FilmService.Application.Exceptions.NotFounds
 
         public PhimNotFoundException(int phimId)
             : base($"Không tìm thấy Phim với Id = {phimId}") { }
+
+        public PhimNotFoundException(string message)
+            : base(message) { }
     }
 }

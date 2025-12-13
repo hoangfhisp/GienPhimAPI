@@ -9,5 +9,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Repositories
         Task<TheTag> CreateAsync(TheTag theTag, CancellationToken ct = default);
         Task<TheTag> UpdateAsync(TheTag theTag, CancellationToken ct = default);
         Task DeleteAsync(TheTag theTag, CancellationToken ct = default);
+        Task<List<TheTag>> SearchTheTagsAsync(string keyword, CancellationToken cancellationToken = default);
     }
 }

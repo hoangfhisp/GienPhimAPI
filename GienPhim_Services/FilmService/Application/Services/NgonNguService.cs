@@ -6,6 +6,7 @@ using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
 using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.FilmService.Application.Interfaces.Services;
+using Microsoft.Extensions.Logging;
 
 namespace GienPhim_Services.FilmService.Application.Services
 {
@@ -31,6 +32,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             _logger = logger;
         }
 
+        // Lấy danh sách ngôn ngữ (có phân trang)
         public async Task<ResultListDTO<List<NgonNguResponseDTO>>> GetAllNgonNgusAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetAllNgonNgusAsync với page={Page}, limit={Limit}", page, limit);
@@ -52,6 +54,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultListDTO<List<NgonNguResponseDTO>>.Success(resultDtos, "Lấy danh sách ngôn ngữ thành công", pagination);
         }
 
+        // Xem chi tiết ngôn ngữ
         public async Task<ResultDTO<NgonNguResponseDTO>> GetDetailAsync(int ngonNguId, CancellationToken ct = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho NgonNguId={NgonNguId}", ngonNguId);
@@ -70,6 +73,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO<NgonNguResponseDTO>.Success(dto, "Lấy chi tiết ngôn ngữ thành công");
         }
 
+        // Tạo ngôn ngữ mới
         public async Task<ResultDTO> CreateNgonNguAsync(NgonNguCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreateNgonNguAsync với tên {TenNN}", createDto.TenNN);
@@ -91,6 +95,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO.Success($"Tạo ngôn ngữ {ngonNgu.TenNN} thành công");
         }
 
+        // Cập nhật ngôn ngữ
         public async Task<ResultDTO<UpdateNgonNguResponseDTO>> UpdateNgonNguAsync(NgonNguUpdateDTO updateDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu UpdateNgonNguAsync với Id={NgonNguId}", updateDto.NgonNguId);
@@ -117,6 +122,7 @@ namespace GienPhim_Services.FilmService.Application.Services
                 $"Cập nhật ngôn ngữ {ngonNgu.TenNN} thành công");
         }
 
+        // Xóa ngôn ngữ
         public async Task<ResultDTO> DeleteNgonNguAsync(NgonNguDeleteDTO deleteDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu DeleteNgonNguAsync với Id={NgonNguId}", deleteDto.NgonNguId);
@@ -137,6 +143,28 @@ namespace GienPhim_Services.FilmService.Application.Services
             await transaction.CommitAsync(cancellationToken);
             _logger.LogInformation("ApplicationService: Xóa NgonNgu {NgonNguId} thành công!", deleteDto.NgonNguId);
             return ResultDTO.Success($"Xóa ngôn ngữ {ngonNgu.TenNN} thành công");
+        }
+
+        // Tìm kiếm ngôn ngữ theo từ khóa (gần đúng)
+        public async Task<ResultListDTO<List<NgonNguResponseDTO>>> SearchNgonNgusAsync(string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu SearchNgonNgusAsync với keyword = {Keyword}", keyword);
+
+            // Gọi repository
+            var ngonNgus = await _unitOfWork.NgonNgus.SearchNgonNgusAsync(keyword, ct);
+
+            if (ngonNgus == null || !ngonNgus.Any())
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy ngôn ngữ nào phù hợp với keyword = {Keyword}", keyword);
+                throw new NgonNguNotFoundException();
+            }
+
+            // Map sang DTO
+            var resultDtos = _ngonNguResponseMapper.ToDtoList(ngonNgus);
+
+            _logger.LogInformation("ApplicationService: Tìm kiếm ngôn ngữ thành công, tổng={Count}", resultDtos.Count);
+
+            return ResultListDTO<List<NgonNguResponseDTO>>.Success(resultDtos, "Tìm kiếm ngôn ngữ thành công");
         }
     }
 }

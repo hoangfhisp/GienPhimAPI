@@ -31,6 +31,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             _logger = logger;
         }
 
+        // Lấy tất cả thẻ tag (có phân trang)
         public async Task<ResultListDTO<List<TheTagResponseDTO>>> GetAllTheTagsAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetAllTheTagsAsync với page={Page}, limit={Limit}", page, limit);
@@ -56,6 +57,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             );
         }
 
+        // Xem chi tiết thẻ tag
         public async Task<ResultDTO<TheTagResponseDTO>> GetDetailAsync(int theTagId, CancellationToken ct = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho TheTagId={TheTagId}", theTagId);
@@ -74,6 +76,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO<TheTagResponseDTO>.Success(dto, "Lấy chi tiết thẻ tag thành công");
         }
 
+        // Tạo thẻ tag
         public async Task<ResultDTO> CreateTheTagAsync(TheTagCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Service: Bắt đầu CreateTheTagAsync với tên {TenT}", createDto.TenT);
@@ -96,6 +99,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO.Success($"Tạo thẻ tag {tag.TenT} thành công");
         }
 
+        // Cập nhật thẻ tag
         public async Task<ResultDTO<UpdateTheTagResponseDTO>> UpdateTheTagAsync(TheTagUpdateDTO updateDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Service: Bắt đầu UpdateTheTagAsync với Id={TheTagId}", updateDto.TheTagId);
@@ -120,6 +124,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO<UpdateTheTagResponseDTO>.Success(response, $"Cập nhật thẻ tag {tag.TenT} thành công");
         }
 
+        // Xóa thẻ tag
         public async Task<ResultDTO> DeleteTheTagAsync(TheTagDeleteDTO deleteDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Service: Bắt đầu DeleteTheTagAsync với Id={TheTagId}", deleteDto.TheTagId);
@@ -141,6 +146,26 @@ namespace GienPhim_Services.FilmService.Application.Services
             _logger.LogInformation("Service: Xóa TheTag {TheTagId} thành công", deleteDto.TheTagId);
 
             return ResultDTO.Success($"Xóa thẻ tag {tag.TenT} thành công");
+        }
+
+        // Tìm kiếm thẻ tag theo từ khóa (gần đúng)
+        public async Task<ResultListDTO<List<TheTagResponseDTO>>> SearchTheTagsAsync(string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu SearchTheTagsAsync với keyword = {Keyword}", keyword);
+
+            var theTags = await _unitOfWork.TheTags.SearchTheTagsAsync(keyword, ct);
+
+            if (theTags == null || !theTags.Any())
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy thẻ tag nào phù hợp với keyword = {Keyword}", keyword);
+                throw new TheTagNotFoundException();
+            }
+
+            var resultDtos = _theTagResponseMapper.toDtoList(theTags);
+
+            _logger.LogInformation("ApplicationService: Tìm kiếm thẻ tag thành công, tổng={Count}", resultDtos.Count);
+
+            return ResultListDTO<List<TheTagResponseDTO>>.Success(resultDtos, "Tìm kiếm thẻ tag thành công");
         }
     }
 }

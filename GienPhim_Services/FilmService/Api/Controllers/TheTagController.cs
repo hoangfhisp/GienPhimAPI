@@ -35,7 +35,11 @@ namespace GienPhim_Services.FilmService.Api.Controllers
         public async Task<IActionResult> GetDetail(int theTagId, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: GetDetail TheTag Id={TheTagId}", theTagId);
+
             var result = await _theTagService.GetDetailAsync(theTagId, ct);
+
+            _logger.LogInformation("API Response: GetDetail TheTag Id={TheTagId} Status={Status}", theTagId, result.Status);
+
             return Ok(result);
         }
 
@@ -69,6 +73,20 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             _logger.LogInformation("API Request: DeleteTheTag Id={TheTagId}", deleteDto.TheTagId);
             var result = await _theTagService.DeleteTheTagAsync(deleteDto, ct);
             _logger.LogInformation("API Response: DeleteTheTag Id={TheTagId} Status={Status}", deleteDto.TheTagId, result.Status);
+            return Ok(result);
+        }
+
+        // Tìm kiếm thẻ tag theo từ khóa
+        [HttpGet("Search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromQuery] string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: SearchTheTags với từ khóa {Keyword}", keyword);
+
+            var result = await _theTagService.SearchTheTagsAsync(keyword, ct);
+
+            _logger.LogInformation("API Response: SearchTheTags Status={Status}, Tổng={Count}", result.Status, result.Data.Count);
+
             return Ok(result);
         }
     }

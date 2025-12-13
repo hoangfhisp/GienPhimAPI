@@ -31,6 +31,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             _logger = logger;
         }
 
+        // Lấy danh sách thể loại (có phân trang)
         public async Task<ResultListDTO<List<TheLoaiResponseDTO>>> GetAllTheLoaisAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetAllTheLoaisAsync với page={Page}, limit={Limit}", page, limit);
@@ -56,6 +57,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             );
         }
 
+        // Xem chi tiết thể loại theo Id
         public async Task<ResultDTO<TheLoaiResponseDTO>> GetDetailAsync(int theLoaiId, CancellationToken ct = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho TheLoaiId={TheLoaiId}", theLoaiId);
@@ -74,6 +76,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO<TheLoaiResponseDTO>.Success(dto, "Lấy chi tiết thể loại thành công");
         }
 
+        // Tạo thể loại
         public async Task<ResultDTO> CreateTheLoaiAsync(TheLoaiCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreateTheLoaiAsync với tên thể loại {TenTL}", createDto.TenTL);
@@ -95,6 +98,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO.Success($"Tạo thể loại {theLoai.TenTL} thành công");
         }
 
+        // Cập nhật thể loại
         public async Task<ResultDTO<UpdateTheLoaiResponseDTO>> UpdateTheLoaiAsync(TheLoaiUpdateDTO updateDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu UpdateTheLoaiAsync với Id={TheLoaiId}", updateDto.TheLoaiId);
@@ -121,6 +125,7 @@ namespace GienPhim_Services.FilmService.Application.Services
                 $"Cập nhật thể loại {theLoai.TenTL} thành công");
         }
 
+        // Xóa thể loại
         public async Task<ResultDTO> DeleteTheLoaiAsync(TheLoaiDeleteDTO deleteDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu DeleteTheLoaiAsync với Id={TheLoaiId}", deleteDto.TheLoaiId);
@@ -141,6 +146,26 @@ namespace GienPhim_Services.FilmService.Application.Services
             await transaction.CommitAsync(cancellationToken);
             _logger.LogInformation("ApplicationService: Xóa TheLoai {TheLoaiId} thành công!", deleteDto.TheLoaiId);
             return ResultDTO.Success($"Xóa thể loại {theLoai.TenTL} thành công");
+        }
+
+        // Tìm kiếm thể loại theo từ khóa (gần đúng)
+        public async Task<ResultListDTO<List<TheLoaiResponseDTO>>> SearchTheLoaisAsync(string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu SearchTheLoaisAsync với keyword = {Keyword}", keyword);
+
+            var theLoais = await _unitOfWork.TheLoais.SearchTheLoaisAsync(keyword, ct);
+
+            if (theLoais == null || !theLoais.Any())
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy thể loại nào phù hợp với keyword = {Keyword}", keyword);
+                throw new TheLoaiNotFoundException();
+            }
+
+            var resultDtos = _theLoaiResponseMapper.toDtoList(theLoais);
+
+            _logger.LogInformation("ApplicationService: Tìm kiếm thể loại thành công, tổng={Count}", resultDtos.Count);
+
+            return ResultListDTO<List<TheLoaiResponseDTO>>.Success(resultDtos, "Tìm kiếm thể loại thành công");
         }
     }
 }

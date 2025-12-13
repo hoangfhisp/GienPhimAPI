@@ -4,6 +4,7 @@ using GienPhim_Services.FilmService.Application.DTOs.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using GienPhim_Services.FilmService.Application.Services;
 
 namespace GienPhim_Services.FilmService.Api.Controllers
 {
@@ -84,6 +85,61 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             var result = await _phimService.DeletePhimAsync(dto, ct);
 
             _logger.LogInformation("API Response: DeletePhim Id={PhimId} Status={Status}", dto.PhimId, result.Status);
+
+            return Ok(result);
+        }
+
+        // Nhập phim từ API ngoài
+        [HttpPost("ImportFromApi")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ImportFromApi([FromQuery] string slug, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Request: ImportFromApi slug={Slug}", slug);
+
+            var result = await _phimService.ImportPhimFromApiAsync(slug, cancellationToken);
+
+            _logger.LogInformation("API Response: ImportFromApi slug={Slug} Status={Status}", slug, result.Status);
+
+            return Ok(result);
+        }
+
+        // Cập nhật phim từ API ngoài
+        [HttpPut("UpdateFromApi")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateFromApi([FromQuery] string slug, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Request: UpdateFromApi slug={Slug}", slug);
+
+            var result = await _phimService.UpdatePhimFromApiAsync(slug, cancellationToken);
+
+            _logger.LogInformation("API Response: UpdateFromApi slug={Slug} Status={Status}", slug, result.Status);
+
+            return Ok(result);
+        }
+
+        // Tìm kiếm phim theo từ khóa
+        [HttpGet("Search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromQuery] string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: SearchPhims với từ khóa {Keyword}", keyword);
+
+            var result = await _phimService.SearchPhimsAsync(keyword, ct);
+
+            _logger.LogInformation("API Response: SearchPhims Status={Status}, Total={Count}", result.Status, result.Data?.Count);
+
+            return Ok(result);
+        }
+
+        // Lọc phim theo nhiều tiêu chí
+        [HttpPost("FilterPhims")]
+        public async Task<IActionResult> FilterPhims([FromBody] FilterPhimDTO dto, int page = 1, int limit = 10, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Request: FilterPhims với filter {@Dto}", dto);
+
+            var result = await _phimService.FilterPhimsAsync(dto, page, limit, cancellationToken);
+
+            _logger.LogInformation("API Response: FilterPhims Status={Status}, Total={Total}", result.Status, result.pagination?.Total);
 
             return Ok(result);
         }

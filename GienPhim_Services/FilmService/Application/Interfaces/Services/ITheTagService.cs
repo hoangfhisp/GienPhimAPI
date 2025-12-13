@@ -10,5 +10,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Services
         Task<ResultDTO> CreateTheTagAsync(TheTagCreateDTO createDto, CancellationToken cancellationToken = default);
         Task<ResultDTO<UpdateTheTagResponseDTO>> UpdateTheTagAsync(TheTagUpdateDTO updateDto, CancellationToken cancellationToken = default);
         Task<ResultDTO> DeleteTheTagAsync(TheTagDeleteDTO deleteDto, CancellationToken cancellationToken = default);
+        Task<ResultListDTO<List<TheTagResponseDTO>>> SearchTheTagsAsync(string keyword, CancellationToken ct = default);
     }
 }

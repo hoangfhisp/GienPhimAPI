@@ -76,5 +76,26 @@ namespace GienPhim_Services.MembershipService.Infrastructure.Repositories
             _membershipContext.UserMemberships.Remove(userMembership);
             await _membershipContext.SaveChangesAsync(ct);
         }
+
+        // Kiểm tra trạng thái gói thành viên hiện tại của user
+        public async Task<UserMembership?> GetCurrentMembershipAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            return await _membershipContext.UserMemberships
+                .Include(um => um.PlanOption)
+                .Where(um => um.UserId == userId && um.TrangThai == "Đang sử dụng" && um.NgayKetThuc >= DateTime.UtcNow)
+                .OrderByDescending(um => um.NgayBatDau)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        // Kiểm tra user đang sử dụng gói thành viên nào
+        public async Task<bool> HasActiveMembershipAsync(string userId, string optionId, CancellationToken cancellationToken = default)
+        {
+            return await _membershipContext.UserMemberships.AnyAsync(
+                um => um.UserId == userId &&
+                      um.OptionId == optionId &&
+                      um.TrangThai == "Đang sử dụng" &&
+                      um.NgayKetThuc >= DateTime.UtcNow,
+                cancellationToken);
+        }
     }
 }

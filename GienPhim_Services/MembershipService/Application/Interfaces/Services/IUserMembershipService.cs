@@ -11,5 +11,7 @@ namespace GienPhim_Services.MembershipService.Application.Interfaces.Services
         Task<ResultDTO> CreateUserMembershipAsync(UserMembershipCreateDTO createDto, CancellationToken cancellationToken = default);
         Task<ResultDTO<UpdateUserMembershipResponseDTO>> UpdateUserMembershipAsync(UserMembershipUpdateDTO updateDto, CancellationToken cancellationToken = default);
         Task<ResultDTO> DeleteUserMembershipAsync(UserMembershipDeleteDTO deleteDto, CancellationToken cancellationToken = default);
+        Task<ResultDTO<UserMembershipResponseDTO>> GetCurrentMembershipAsync(string userId, CancellationToken cancellationToken = default);
+        Task<ResultDTO> CheckUserHasMembershipAsync(string userId, string optionId, CancellationToken cancellationToken = default);
     }
 }

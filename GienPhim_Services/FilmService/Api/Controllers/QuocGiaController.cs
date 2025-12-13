@@ -33,7 +33,11 @@ namespace GienPhim_Services.FilmService.Api.Controllers
         public async Task<IActionResult> GetDetail(int quocGiaId, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: GetDetail QuocGia Id={QuocGiaId}", quocGiaId);
+
             var result = await _quocGiaService.GetDetailAsync(quocGiaId, ct);
+
+            _logger.LogInformation("API Response: GetDetail QuocGia Id={QuocGiaId} Status={Status}", quocGiaId, result.Status);
+
             return Ok(result);
         }
 
@@ -67,6 +71,19 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             _logger.LogInformation("API Request: DeleteQuocGia Id={QuocGiaId}", deleteDto.QuocGiaId);
             var result = await _quocGiaService.DeleteQuocGiaAsync(deleteDto, ct);
             _logger.LogInformation("API Response: DeleteQuocGia Id={QuocGiaId} Status={Status}", deleteDto.QuocGiaId, result.Status);
+            return Ok(result);
+        }
+
+        [HttpGet("Search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromQuery] string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: SearchQuocGias với từ khóa {Keyword}", keyword);
+
+            var result = await _quocGiaService.SearchQuocGiasAsync(keyword, ct);
+
+            _logger.LogInformation("API Response: SearchQuocGias Status={Status}, Tổng={Count}", result.Status, result.Data.Count);
+
             return Ok(result);
         }
     }

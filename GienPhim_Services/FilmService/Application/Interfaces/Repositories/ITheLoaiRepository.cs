@@ -9,5 +9,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Repositories
         Task<TheLoai> CreateAsync(TheLoai theLoai, CancellationToken ct = default);
         Task<TheLoai> UpdateAsync(TheLoai theLoai, CancellationToken ct = default);
         Task DeleteAsync(TheLoai theLoai, CancellationToken ct = default);
+        Task<List<TheLoai>> SearchTheLoaisAsync(string keyword, CancellationToken cancellationToken = default);
     }
 }

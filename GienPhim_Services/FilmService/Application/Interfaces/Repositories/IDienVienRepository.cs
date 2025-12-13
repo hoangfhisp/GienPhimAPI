@@ -9,5 +9,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Repositories
         Task<DienVien> CreateAsync(DienVien dienVien, CancellationToken ct = default);
         Task<DienVien> UpdateAsync(DienVien dienVien, CancellationToken ct = default);
         Task DeleteAsync(DienVien dienVien, CancellationToken ct = default);
+        Task<List<DienVien>> SearchDienViensAsync(string keyword, CancellationToken cancellationToken = default);
     }
 }

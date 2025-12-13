@@ -6,6 +6,7 @@ using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
 using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.FilmService.Application.Interfaces.Services;
+using Microsoft.Extensions.Logging;
 
 namespace GienPhim_Services.FilmService.Application.Services
 {
@@ -31,6 +32,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             _logger = logger;
         }
 
+        // Lấy danh sách quốc gia (có phân trang)
         public async Task<ResultListDTO<List<QuocGiaResponseDTO>>> GetAllQuocGiasAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetAllQuocGiasAsync với page={Page}, limit={Limit}", page, limit);
@@ -52,6 +54,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultListDTO<List<QuocGiaResponseDTO>>.Success(resultDtos, "Lấy danh sách quốc gia thành công", pagination);
         }
 
+        // Xem chi tiết quốc gia
         public async Task<ResultDTO<QuocGiaResponseDTO>> GetDetailAsync(int quocGiaId, CancellationToken ct = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho QuocGiaId={QuocGiaId}", quocGiaId);
@@ -70,6 +73,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO<QuocGiaResponseDTO>.Success(dto, "Lấy chi tiết quốc gia thành công");
         }
 
+        // Tạo quốc gia
         public async Task<ResultDTO> CreateQuocGiaAsync(QuocGiaCreateDTO createDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreateQuocGiaAsync với tên {TenQG}", createDto.TenQG);
@@ -91,6 +95,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             return ResultDTO.Success($"Tạo quốc gia {quocGia.TenQG} thành công");
         }
 
+        // Cập nhật quốc gia
         public async Task<ResultDTO<UpdateQuocGiaResponseDTO>> UpdateQuocGiaAsync(QuocGiaUpdateDTO updateDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu UpdateQuocGiaAsync với Id={QuocGiaId}", updateDto.QuocGiaId);
@@ -118,6 +123,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             );
         }
 
+        // Xóa quốc gia
         public async Task<ResultDTO> DeleteQuocGiaAsync(QuocGiaDeleteDTO deleteDto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu DeleteQuocGiaAsync với Id={QuocGiaId}", deleteDto.QuocGiaId);
@@ -138,6 +144,29 @@ namespace GienPhim_Services.FilmService.Application.Services
             await transaction.CommitAsync(cancellationToken);
             _logger.LogInformation("ApplicationService: Xóa QuocGia {QuocGiaId} thành công!", deleteDto.QuocGiaId);
             return ResultDTO.Success($"Xóa quốc gia {quocGia.TenQG} thành công");
+        }
+
+        // Tìm kiếm quốc gia theo từ khóa (gần đúng)
+        public async Task<ResultListDTO<List<QuocGiaResponseDTO>>> SearchQuocGiasAsync(string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu SearchQuocGiasAsync với keyword = {Keyword}", keyword);
+
+            // Gọi repository
+            var quocGias = await _unitOfWork.QuocGias.SearchQuocGiasAsync(keyword, ct);
+
+            if (quocGias == null || !quocGias.Any())
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy quốc gia nào phù hợp với keyword = {Keyword}", keyword);
+                throw new QuocGiaNotFoundException();
+            }
+
+            // Map sang DTO
+            var resultDtos = _quocGiaResponseMapper.ToDtoList(quocGias);
+
+            _logger.LogInformation("ApplicationService: Tìm kiếm quốc gia thành công, tổng={Count}", resultDtos.Count);
+
+            // Trả kết quả
+            return ResultListDTO<List<QuocGiaResponseDTO>>.Success(resultDtos, "Tìm kiếm quốc gia thành công");
         }
     }
 }
