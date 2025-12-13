@@ -1,12 +1,16 @@
 ﻿using GienPhim_Services.UserService.Application.DTOs.Admin.User;
 using GienPhim_Services.UserService.Application.DTOs.Client.Login;
 using GienPhim_Services.UserService.Application.DTOs.Client.User;
+using GienPhim_Services.UserService.Application.DTOs.Common;
+using GienPhim_Services.UserService.Application.DTOs.Http;
+using GienPhim_Services.UserService.Application.Exceptions.Failed;
 using GienPhim_Services.UserService.Application.Interfaces.Factories;
 using GienPhim_Services.UserService.Application.Interfaces.Mappers;
 using GienPhim_Services.UserService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.UserService.Application.Interfaces.Validators;
 using GienPhim_Services.UserService.Domain.Entities;
 using GienPhim_Services.UserService.Domain.Services.Interfaces;
+using GienPhim_Services.UserService.Infrastructure.HttpClients.Interfaces;
 namespace GienPhim_Services.UserService.Application.Orchestrators
 {
     public class UserOrchestrator : IUserOrchestrator
@@ -14,20 +18,24 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
         private readonly IUserDomainService _userDomainService;
         private readonly IValidationService _validationService;
         private readonly IUserFactory _userFactory;
+        private readonly IWalletHttpFactory _walletHttpFactory;
         private readonly IUserResponseMapper _userResponseMapper;
         private readonly IGuidUserNameGenerator _guidUserNameGenerator;
-
+        private readonly IWalletServiceClient _walletServiceClient;
         private readonly ILogger<UserOrchestrator> _logger;
         public UserOrchestrator(IUserDomainService userDomainService, IValidationService validationService
-            , IUserFactory userFactory, IUserResponseMapper userResponseMapper
-            , IGuidUserNameGenerator guidUserNameGenerator
+            , IUserFactory userFactory, IWalletHttpFactory walletHttpFactory
+            , IUserResponseMapper userResponseMapper
+            , IGuidUserNameGenerator guidUserNameGenerator, IWalletServiceClient walletServiceClient
             , ILogger<UserOrchestrator> logger)
         {
             _userDomainService = userDomainService;
             _validationService = validationService;
             _userFactory = userFactory;
+            _walletHttpFactory = walletHttpFactory;
             _userResponseMapper = userResponseMapper;
             _guidUserNameGenerator = guidUserNameGenerator;
+            _walletServiceClient = walletServiceClient;
             _logger = logger;
         }
 
@@ -49,6 +57,12 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
 
             _logger.LogInformation("Orchestrator: Đăng ký user {Email} thành công!", registerUser.Email);
             return user;
+        }
+
+        public async Task CreateWalletAsync (string userId, CancellationToken cancellationToken = default)
+        {
+            var createWallet = _walletHttpFactory.toCreateWallet(userId);
+            await CallWalletServiceAsync(createWallet,cancellationToken);
         }
 
         // Login tài khoản từ bên ngoài nếu email chưa có đăng ký   
@@ -194,6 +208,27 @@ namespace GienPhim_Services.UserService.Application.Orchestrators
 
             return user;
         }
-        
+
+
+        // private methods
+        private async Task<ResultDTO<WalletHttpResponseDTO>> CallWalletServiceAsync(CreateWalletHttpRequestDTO request,CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu CreateWalletAsync với userId = {UserId}", request.UserId);
+            var createWallet = await _walletServiceClient.CreateWalletForUserAsync(request, cancellationToken);
+            if(createWallet?.Data == null)
+            {
+                _logger.LogError("Orchestrator: Không thể kết nối đến WalletService để tạo ví cho userId = {UserId}", request.UserId);
+                throw new ConnectServiceFailedException("WalletService");
+            }
+
+            if (!createWallet.Data.Status)
+            {
+                _logger.LogError("Orchestrator: Tạo ví không thành công cho userId = {UserId} với lý do: {Msg}", request.UserId, createWallet.Data.Msg);
+                throw new HttpResposeFailedException(createWallet.Data.Msg,createWallet.StatusCode);
+            }
+
+            return createWallet.Data;
+        }
+
     }
 }

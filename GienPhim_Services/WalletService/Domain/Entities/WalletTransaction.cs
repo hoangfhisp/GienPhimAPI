@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace GienPhim_Services.WalletService.Models.Entities
+namespace GienPhim_Services.WalletService.Domain.Entities
 {
     public class WalletTransaction
     {

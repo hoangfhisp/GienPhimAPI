@@ -6,7 +6,7 @@ using GienPhim_Services.MembershipService.Infrastructure.Data;
 using GienPhim_Services.OrderService.Data;
 using GienPhim_Services.PaymentService.Data;
 using GienPhim_Services.UserService;
-using GienPhim_Services.WalletService.Data;
+using GienPhim_Services.WalletService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Quartz;
@@ -83,9 +83,6 @@ builder.Services.AddDbContext<MembershipDbContext>(options =>
 // PaymentService
 builder.Services.AddDbContext<PaymentDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PaymentDb")));
-// WalletService
-builder.Services.AddDbContext<WalletDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("WalletDb")));
 // OrderService
 builder.Services.AddDbContext<OrderDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("OrderDb")));
@@ -124,6 +121,7 @@ builder.Services.AddQuartz(q =>
 
 builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
 
+builder.Services.AddWalletService(builder.Configuration); // WalletService
 var app = builder.Build();
 
 // Khi app khởi động: cấu hình lại Quartz dựa theo BotConfig trong DB
@@ -197,6 +195,7 @@ app.AuthAuthService(); // AuthService
 app.UseUserService(); // UserService
 app.FilmFilmService(); // FilmService
 app.MembershipService(); // MembershipService
+app.UserWalletService(); // WalletService
 app.InteractionService(); // InteractionService
 
 // Cho phép phục vụ file tĩnh từ wwwroot

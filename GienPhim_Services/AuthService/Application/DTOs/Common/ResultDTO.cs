@@ -13,7 +13,7 @@ namespace GienPhim_Services.AuthService.Application.DTOs.Common
             => new ResultDTO<T> { Status = true, Msg = msg ,Data = data};
 
         // Thất bại
-        public static ResultDTO<T> Fail(string msg , int statusCode = 0)
+        public static ResultDTO<T> Fail(string msg )
             => new ResultDTO<T> { Status = false, Msg = msg };
     }
 
