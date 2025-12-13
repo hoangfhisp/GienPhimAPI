@@ -7,7 +7,7 @@ using GienPhim_Services.MembershipService.Infrastructure.Data;
 using GienPhim_Services.OrderService.Data;
 using GienPhim_Services.PaymentService.Data;
 using GienPhim_Services.UserService;
-using GienPhim_Services.WalletService.Data;
+using GienPhim_Services.WalletService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -76,9 +76,6 @@ builder.Services.AddDbContext<MembershipDbContext>(options =>
 // PaymentService
 builder.Services.AddDbContext<PaymentDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PaymentDb")));
-// WalletService
-builder.Services.AddDbContext<WalletDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("WalletDb")));
 // OrderService
 builder.Services.AddDbContext<OrderDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("OrderDb")));
@@ -89,7 +86,7 @@ builder.Services.AddUserService(builder.Configuration); // UserService
 builder.Services.AddAuthService(builder.Configuration); // AuthService
 builder.Services.AddFilmService(builder.Configuration); // FilmService
 builder.Services.AddMembershipService(builder.Configuration); // MembershipService
-
+builder.Services.AddWalletService(builder.Configuration); // WalletService
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -105,6 +102,7 @@ app.AuthAuthService(); // AuthService
 app.UseUserService(); // UserService
 app.FilmFilmService(); // FilmService
 app.MembershipService(); // MembershipService
+app.UserWalletService(); // WalletService
 
 // Cho phép phục vụ file tĩnh từ wwwroot
 app.UseStaticFiles();

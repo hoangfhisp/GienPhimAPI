@@ -104,7 +104,7 @@ namespace GienPhim_Services.AuthService
             services.AddScoped<IHttpUserContextAccessor, HttpUserContextAccessor>(); // Quản lý token bị thu hồi
 
             // HTTP Client
-            services.AddHttpClient<IUserServiceClient, UserServiceClient>((sp, client) =>
+            services.AddHttpClient<IUserServiceClient, UserServiceClient>("AuthService_UserClient",(sp, client) =>
             {
                 var config = sp.GetRequiredService<IConfiguration>();// URL của UserService
                 var userServiceUrl = config["ServiceUrls:UserService"];

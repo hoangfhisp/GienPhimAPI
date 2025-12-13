@@ -78,6 +78,21 @@ namespace GienPhim_Services.UserService.Application.Services
             }
 
             await transaction.CommitAsync(cancellationToken);
+
+            try{
+                await _userOrchestrator.CreateWalletAsync(user.Id, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ApplicationSerVice: Tạo ví cho user {Email} thất bại!", user.Email);
+                var delete = await _unitOfWork.Users.DeleteUserAsync(user);
+                if (!delete.Succeeded)
+                {
+                    _logger.LogError("ApplicationSerVice: Xóa user {Email} thất bại sau khi tạo ví không thành công!", user.Email);
+                    throw new DeleteUserFailedException(user.Email);
+                }
+                throw new CreateUserFailedException(user.Email);
+            }
             _logger.LogInformation("ApplicationSerVice: Đăng ký user {Email} thành công!", user.Email);
 
             return ResultDTO.Success($"Đăng ký tài khoản {user.Email} thành công");
@@ -227,7 +242,6 @@ namespace GienPhim_Services.UserService.Application.Services
             await transaction.CommitAsync(cancellationToken);
             _logger.LogInformation("ApplicationSerVice: Cập nhật thông tin người dùng {UserName} thành công!", user.UserName);
             return ResultDTO<UpdateInfoUserResponseDTO>.Success(_userResponseMapper.ToUpdate(user), $"Cập nhật thông tin người dùng '{user.Email}' thành công.");
-
 
         }
 

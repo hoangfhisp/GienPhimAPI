@@ -16,6 +16,10 @@ using GienPhim_Services.UserService.Application.Orchestrators;
 using GienPhim_Services.UserService.Api.Middlewares;
 using GienPhim_Services.UserService.Application.Interfaces.Mappers;
 using GienPhim_Services.UserService.Application.Mappers;
+using GienPhim_Services.UserService.Infrastructure.HttpClients.Interfaces;
+using GienPhim_Services.UserService.Infrastructure.HttpClients;
+using GienPhim_Services.UserService.Application.Interfaces.Factories;
+using GienPhim_Services.UserService.Application.Factories;
 
 namespace GienPhim_Services.UserService
 {
@@ -39,7 +43,8 @@ namespace GienPhim_Services.UserService
 
             // FACTORIES    
             services.AddScoped<Application.Interfaces.Factories.IUserFactory,Application.Factories.UserFactory>(); 
-            services.AddScoped<Application.Interfaces.Factories.IRoleFactory, Application.Factories.RoleFactory>(); 
+            services.AddScoped<Application.Interfaces.Factories.IRoleFactory, Application.Factories.RoleFactory>();
+            services.AddScoped<IWalletHttpFactory, WalletHttpFactory>();
 
             // MAPPERS
             services.AddScoped<IUserResponseMapper, UserResponseMapper>(); // User Mapper
@@ -85,6 +90,14 @@ namespace GienPhim_Services.UserService
             services.AddScoped<IRoleRepository, RoleRepository>(); // Role Repository
             services.AddScoped<IUserRepository, UserRepository>(); // User Repository
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Base Repository
+
+            services.AddHttpClient<IWalletServiceClient, WalletServiceClient>("UserService_WalletClient", (sp, client) =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();// URL của UserService
+                var userServiceUrl = config["ServiceUrls:WalletService"];
+
+                client.BaseAddress = new Uri(userServiceUrl);
+            });
 
             return services;
         }

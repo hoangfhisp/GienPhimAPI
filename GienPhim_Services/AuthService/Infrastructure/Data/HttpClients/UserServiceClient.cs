@@ -72,6 +72,7 @@ namespace GienPhim_Services.AuthService.Infrastructure.Data.HttpClients
             };
         }
 
+        // Tìm User theo userId
         public async Task<ApiResponse<ResultDTO<UserResponseDTO>>?> FindUserByUserIdAsync(string userId, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("UserServiceClient: Gọi API UserService để lấy thông tin user với UserId: {UserId}", userId);

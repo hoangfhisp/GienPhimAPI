@@ -8,6 +8,7 @@ namespace GienPhim_Services.UserService.Application.Interfaces.Orchestrators
     public interface IUserOrchestrator
     {
         Task<User> RegisterUserAsync(UserRegisterDTO registerUser, CancellationToken cancellationToken = default); // Đăng ký User mới với vai trò mặc định
+        Task CreateWalletAsync(string userId, CancellationToken cancellationToken = default); // Tạo ví mới cho User
         Task<User> ProviderRegisterUserAsync(ExternalLoginUserInfoDTO request, CancellationToken cancellationToken = default); // Đăng ký User mới từ bên ngoài với vai trò mặc định
         User ProviderLoginUser(ExternalLoginUserInfoDTO request); // Đăng nhập User từ bên ngoài
         Task<User> UpdateInfoUserAsync(InfoUserUpdateRequestDTO update, string userId ,CancellationToken cancellationToken = default); // Cập nhật thông tin User

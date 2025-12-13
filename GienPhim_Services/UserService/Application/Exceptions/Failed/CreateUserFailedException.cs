@@ -7,6 +7,6 @@ namespace GienPhim_Services.UserService.Application.Exceptions.Failed
     {
         public override int StatusCode => 500;
         public CreateUserFailedException(string email) 
-            : base($"Cập nhật thông tin người dùng {email} thất bại") { }
+            : base($"Tạo thông tin người dùng {email} thất bại") { }
     }
 }
