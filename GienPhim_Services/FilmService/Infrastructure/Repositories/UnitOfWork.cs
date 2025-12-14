@@ -25,7 +25,8 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             IPhanLoaiTheTagRepository phanLoaiTheTags,
             ITapPhimRepository tapPhims,
             IFilmViewRepository filmViews,
-            IBotConfigRepository botConfig)
+            IBotConfigRepository botConfig,
+            IBotSyncLogRepository botSyncLog)
         {
             _context = context;
             DaoDiens = daoDien;
@@ -42,6 +43,7 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             TapPhims = tapPhims;
             FilmViews = filmViews;
             BotConfigs = botConfig;
+            BotSyncLogs = botSyncLog;
         }
 
         public IDaoDienRepository DaoDiens { get; }
@@ -59,6 +61,7 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         public IFilmViewRepository FilmViews { get; }
         public IExternalApiClient ExternalApiClients { get; }
         public IBotConfigRepository BotConfigs { get; }
+        public IBotSyncLogRepository BotSyncLogs { get; }
 
         public async Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
         {

@@ -2,6 +2,8 @@
 using GienPhim_Services.FilmService.Application.Interfaces.Services;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.FilmService.Application.Interfaces.HttpClients;
+using GienPhim_Services.FilmService.Application.DTOs.Client.BotSyncLogs;
+using GienPhim_Services.FilmService.Domain.Entities;
 
 namespace GienPhim_Services.FilmService.Application.Jobs
 {
@@ -12,19 +14,22 @@ namespace GienPhim_Services.FilmService.Application.Jobs
         private readonly IUnitOfWork _unitOfWork;
         private readonly IExternalApiClient _externalApiClient;
         private readonly IBotConfigService _botConfigService;
+        private readonly IBotSyncLogService _botSyncLogService;
 
         public SyncPhimJob(
             IPhimService phimService,
             ILogger<SyncPhimJob> logger,
             IUnitOfWork unitOfWork,
             IExternalApiClient externalApiClient,
-            IBotConfigService botConfigService)
+            IBotConfigService botConfigService,
+            IBotSyncLogService botSyncLogService)
         {
             _phimService = phimService;
             _logger = logger;
             _unitOfWork = unitOfWork;
             _externalApiClient = externalApiClient;
             _botConfigService = botConfigService;
+            _botSyncLogService = botSyncLogService;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -32,7 +37,7 @@ namespace GienPhim_Services.FilmService.Application.Jobs
             _logger.LogInformation("Bắt đầu tiến trình đồng bộ phim theo cấu hình bot...");
 
             // Lấy cấu hình bot hiện tại
-            var configResult = await _botConfigService.GetBotConfigAsync();
+            var configResult = await _botConfigService.GetBotConfigAsync(context.CancellationToken);
             var config = configResult.Data;
 
             if (config == null)
@@ -73,21 +78,63 @@ namespace GienPhim_Services.FilmService.Application.Jobs
                         if (existing == null)
                         {
                             await _phimService.ImportPhimFromApiAsync(item.Slug);
-                            _logger.LogInformation($"Đã import phim mới: {item.Name}");
+
+                            await _botSyncLogService.CreateAsync(new BotSyncLogCreateDTO
+                            {
+                                PhimName = item.Name,
+                                PhimSlug = item.Slug,
+                                Action = BotSyncAction.Import,
+                                Message = "Import phim mới từ API"
+                            }, context.CancellationToken);
+
+                            _logger.LogInformation("Đã import phim mới: {Name}", item.Name);
                         }
                         else if (item.Modified?.Time > existing.ThoiGianCapNhat)
                         {
                             await _phimService.UpdatePhimFromApiAsync(item.Slug);
-                            _logger.LogInformation($"Đã cập nhật phim: {item.Name}");
+
+                            await _botSyncLogService.CreateAsync(new BotSyncLogCreateDTO
+                            {
+                                PhimName = item.Name,
+                                PhimSlug = item.Slug,
+                                Action = BotSyncAction.Update,
+                                Message = "Cập nhật phim do có thay đổi từ API"
+                            }, context.CancellationToken);
+
+                            _logger.LogInformation("Đã cập nhật phim: {Name}", item.Name);
                         }
                         else
                         {
-                            _logger.LogInformation($"Bỏ qua {item.Slug} (không có thay đổi)");
+                            await _botSyncLogService.CreateAsync(new BotSyncLogCreateDTO
+                            {
+                                PhimName = item.Name,
+                                PhimSlug = item.Slug,
+                                Action = BotSyncAction.Skip,
+                                Message = "Không có thay đổi"
+                            }, context.CancellationToken);
+
+                            _logger.LogInformation("Bỏ qua {Slug} (không có thay đổi)", item.Slug);
                         }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, $"Lỗi khi xử lý phim {item.Slug}");
+                        // cố gắng ghi log lỗi vào DB (đừng để lỗi log làm crash job)
+                        try
+                        {
+                            await _botSyncLogService.CreateAsync(new BotSyncLogCreateDTO
+                            {
+                                PhimName = item.Name,
+                                PhimSlug = item.Slug,
+                                Action = BotSyncAction.Error,
+                                Message = ex.Message
+                            }, context.CancellationToken);
+                        }
+                        catch (Exception logEx)
+                        {
+                            _logger.LogError(logEx, "Không thể ghi BotSyncLog cho phim {Slug}", item.Slug);
+                        }
+
+                        _logger.LogError(ex, "Lỗi khi xử lý phim {Slug}", item.Slug);
                     }
                 }
             }

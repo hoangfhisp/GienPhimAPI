@@ -47,6 +47,7 @@ namespace GienPhim_Services.FilmService.Infrastructure.Data
         public DbSet<LichSuXem> LichSuXem { get; set; }
         public DbSet<FilmView> FilmView { get; set; }
         public DbSet<BotConfig> BotConfigs { get; set; }
+        public DbSet<BotSyncLog> BotSyncLogs { get; set; }
 
     }
 }

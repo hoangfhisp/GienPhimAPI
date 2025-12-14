@@ -48,6 +48,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<ITapPhimService, TapPhimService>(); // Tập phim Service
             services.AddScoped<IFilmViewService, FilmViewService>(); // Lượt xem phim Service
             services.AddScoped<IBotConfigService, BotConfigService>(); // Bot Config Service
+            services.AddScoped<IBotSyncLogService, BotSyncLogService>(); // Bot Sync Log Service
 
             // Đạo diễn
             services.AddScoped<IValidator<DaoDienCreateDTO>, CreateDaoDienValidator>(); // Validator tạo đạo diễn
@@ -191,6 +192,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<ITapPhimRepository, TapPhimRepository>(); // Tập Phim
             services.AddScoped<IFilmViewRepository, FilmViewRepository>(); // Lượt Xem Phim
             services.AddScoped<IBotConfigRepository, BotConfigRepository>(); // Bot Config
+            services.AddScoped<IBotSyncLogRepository, BotSyncLogRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Unit of Work
             return services;
         }
