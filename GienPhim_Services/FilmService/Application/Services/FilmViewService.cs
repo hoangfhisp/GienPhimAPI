@@ -4,6 +4,7 @@ using GienPhim_Services.FilmService.Application.Exceptions.Failed;
 using GienPhim_Services.FilmService.Application.Exceptions.Invalids;
 using GienPhim_Services.FilmService.Application.Exceptions.NotFounds;
 using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
+using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.FilmService.Application.Interfaces.Services;
 using GienPhim_Services.FilmService.Domain.Entities;
@@ -15,17 +16,19 @@ namespace GienPhim_Services.FilmService.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFilmViewResponseMapper _mapper;
+        private readonly IFilmViewOrchestrator _filmViewOrchestrator;
         private readonly IFilmViewDomainService _domainService;
         private readonly ILogger<FilmViewService> _logger;
 
         public FilmViewService(
             IUnitOfWork unitOfWork,
-            IFilmViewResponseMapper mapper,
+            IFilmViewResponseMapper mapper, IFilmViewOrchestrator filmViewOrchestrator,
             IFilmViewDomainService domainService,
             ILogger<FilmViewService> logger)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _filmViewOrchestrator = filmViewOrchestrator;
             _domainService = domainService;
             _logger = logger;
         }
@@ -54,15 +57,7 @@ namespace GienPhim_Services.FilmService.Application.Services
             }
 
             // 3. Tạo FilmView mới
-            var filmView = new FilmView
-            {
-                FilmViewId = Guid.NewGuid().ToString("N"),
-                PhimId = dto.PhimId,
-                UserId = dto.UserId,
-                ThoiGianXem = DateTime.UtcNow
-            };
-
-            _domainService.EnsureCanCreate(filmView);
+            var filmView = await _filmViewOrchestrator.CreateAsync(dto);
 
             await using var transaction = await _unitOfWork.BeginTransactionAsync(ct);
 
@@ -134,26 +129,54 @@ namespace GienPhim_Services.FilmService.Application.Services
         }
 
         // ---------------------- HELPER ----------------------
-        private int ParseThoiLuongToMinutes(string thuoiLuong)
+        //private int ParseThoiLuongToMinutes(string thuoiLuong)
+        //{
+        //    if (string.IsNullOrWhiteSpace(thuoiLuong)) return 0;
+
+        //    thuoiLuong = thuoiLuong.ToLower();
+
+        //    if (thuoiLuong.EndsWith("p"))
+        //        return int.Parse(thuoiLuong.Replace("p", "").Trim());
+
+        //    if (thuoiLuong.Contains("h"))
+        //    {
+        //        var parts = thuoiLuong.Split('h');
+        //        int hours = int.Parse(parts[0].Trim());
+        //        int minutes = parts.Length > 1 && parts[1].Contains("m")
+        //            ? int.Parse(parts[1].Replace("m", "").Trim())
+        //            : 0;
+        //        return hours * 60 + minutes;
+        //    }
+
+        //    return int.TryParse(thuoiLuong, out var result) ? result : 0;
+        //}
+
+        private int ParseThoiLuongToMinutes(string thoiLuong)
         {
-            if (string.IsNullOrWhiteSpace(thuoiLuong)) return 0;
+            if (string.IsNullOrWhiteSpace(thoiLuong))
+                return 0;
 
-            thuoiLuong = thuoiLuong.ToLower();
+            thoiLuong = thoiLuong.ToLower();
 
-            if (thuoiLuong.EndsWith("p"))
-                return int.Parse(thuoiLuong.Replace("p", "").Trim());
-
-            if (thuoiLuong.Contains("h"))
+            // Trường hợp có giờ (1h30, 1h 30m, 1h)
+            if (thoiLuong.Contains("h"))
             {
-                var parts = thuoiLuong.Split('h');
-                int hours = int.Parse(parts[0].Trim());
-                int minutes = parts.Length > 1 && parts[1].Contains("m")
-                    ? int.Parse(parts[1].Replace("m", "").Trim())
-                    : 0;
+                var parts = thoiLuong.Split('h', StringSplitOptions.RemoveEmptyEntries);
+
+                int hours = ExtractNumber(parts[0]);
+                int minutes = parts.Length > 1 ? ExtractNumber(parts[1]) : 0;
+
                 return hours * 60 + minutes;
             }
 
-            return int.TryParse(thuoiLuong, out var result) ? result : 0;
+            // Các trường hợp còn lại: "37 phút", "37 hút/tậ", "45 phút/tập"
+            return ExtractNumber(thoiLuong);
         }
+        private int ExtractNumber(string input)
+        {
+            var digits = new string(input.Where(char.IsDigit).ToArray());
+            return int.TryParse(digits, out var result) ? result : 0;
+        }
+
     }
 }

@@ -47,6 +47,11 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<TapPhim> FindByTapSugAndPhimId(string tapSlug,int phimId, CancellationToken cancellationToken = default)
+        {
+            return await _context.TapPhim.FirstOrDefaultAsync(t => t.SlugTap == tapSlug && t.PhimId == phimId,cancellationToken);
+        }
+
         public async Task<TapPhim> CreateAsync(TapPhim tapPhim, CancellationToken cancellationToken = default)
         {
             await _context.TapPhim.AddAsync(tapPhim, cancellationToken);

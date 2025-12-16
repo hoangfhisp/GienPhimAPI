@@ -34,6 +34,26 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
+        // Lấy danh sách new phim
+        [HttpGet("GetNewPhims")]
+        public async Task<IActionResult> GetNewPhims(int page = 1, int limit = 10, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Request: GetNewPhimsAsync.");
+            var result = await _phimService.GetNewPhimsAsync(page,limit, cancellationToken);
+            _logger.LogInformation("API Response: GetNewPhimsAsync Status={Status}, Total={Total}", result.Status, result.Data?.Count);
+            return Ok(result);
+        }
+
+        // Lấy danh sách top view phim
+        [HttpGet("GetTopViewPhims")]
+        public async Task<IActionResult> GetTopViewPhims(int page = 1, int limit = 10, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Request: GetTopViewPhimsAsync.");
+            var result = await _phimService.GetTopViewPhimsAsync(page, limit, cancellationToken);
+            _logger.LogInformation("API Response: GetTopViewPhimsAsync Status={Status}, Total={Total}", result.Status, result.Data?.Count);
+            return Ok(result);
+        }
+
         // Xem chi tiết phim
         [HttpGet("GetById/{id}")]
         public async Task<IActionResult> GetById(int id, CancellationToken ct = default)
@@ -120,11 +140,11 @@ namespace GienPhim_Services.FilmService.Api.Controllers
         // Tìm kiếm phim theo từ khóa
         [HttpGet("Search")]
         [AllowAnonymous]
-        public async Task<IActionResult> Search([FromQuery] string keyword, CancellationToken ct = default)
+        public async Task<IActionResult> Search([FromQuery] string keyword,int page = 1, int limit = 10, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: SearchPhims với từ khóa {Keyword}", keyword);
 
-            var result = await _phimService.SearchPhimsAsync(keyword, ct);
+            var result = await _phimService.SearchPhimsAsync(keyword, page, limit, ct);
 
             _logger.LogInformation("API Response: SearchPhims Status={Status}, Total={Count}", result.Status, result.Data?.Count);
 
