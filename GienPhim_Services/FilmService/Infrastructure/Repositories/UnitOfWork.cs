@@ -25,6 +25,7 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             IPhanLoaiTheTagRepository phanLoaiTheTags,
             ITapPhimRepository tapPhims,
             IFilmViewRepository filmViews,
+            ILichSuXemRepository lichSuXem,
             IBotConfigRepository botConfig)
         {
             _context = context;
@@ -41,6 +42,7 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             PhanLoaiTheTags = phanLoaiTheTags;
             TapPhims = tapPhims;
             FilmViews = filmViews;
+            LichSuXem = lichSuXem;
             BotConfigs = botConfig;
         }
 
@@ -58,6 +60,7 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         public ITapPhimRepository TapPhims { get; }
         public IFilmViewRepository FilmViews { get; }
         public IExternalApiClient ExternalApiClients { get; }
+        public ILichSuXemRepository LichSuXem { get; }
         public IBotConfigRepository BotConfigs { get; }
 
         public async Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

@@ -79,25 +79,28 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
             { typeof(DienVienCuaPhimNotFoundException), StatusCodes.Status500InternalServerError },
 
             // Phân loại thể loại
-            { typeof(DuplicatePhanLoaiTheLoaiException), StatusCodes.Status500InternalServerError },
-            { typeof(PhanLoaiTheLoaiFailedException), StatusCodes.Status500InternalServerError },
-            { typeof(InvalidPhanLoaiTheLoaiException), StatusCodes.Status500InternalServerError },
-            { typeof(PhanLoaiTheLoaiNotFoundException), StatusCodes.Status500InternalServerError },
+            { typeof(DuplicatePhanLoaiTheLoaiException), StatusCodes.Status409Conflict },
+            { typeof(PhanLoaiTheLoaiFailedException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidPhanLoaiTheLoaiException), StatusCodes.Status400BadRequest },
+            { typeof(PhanLoaiTheLoaiNotFoundException), StatusCodes.Status404NotFound },
 
             // Phân loại thẻ tag
-            { typeof(DuplicatePhanLoaiTheTagException), StatusCodes.Status500InternalServerError },
-            { typeof(PhanLoaiTheTagFailedException), StatusCodes.Status500InternalServerError },
-            { typeof(InvalidPhanLoaiTheTagException), StatusCodes.Status500InternalServerError },
-            { typeof(PhanLoaiTheTagNotFoundException), StatusCodes.Status500InternalServerError },
+            { typeof(DuplicatePhanLoaiTheTagException), StatusCodes.Status409Conflict },
+            { typeof(PhanLoaiTheTagFailedException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidPhanLoaiTheTagException), StatusCodes.Status400BadRequest },
+            { typeof(PhanLoaiTheTagNotFoundException), StatusCodes.Status404NotFound },
 
             // Tập phim
-            { typeof(DuplicateTapPhimException), StatusCodes.Status500InternalServerError },
-            { typeof(TapPhimFailedException), StatusCodes.Status500InternalServerError },
-            { typeof(InvalidTapPhimException), StatusCodes.Status500InternalServerError },
-            { typeof(TapPhimNotFoundException), StatusCodes.Status500InternalServerError },
+            { typeof(DuplicateTapPhimException), StatusCodes.Status409Conflict },
+            { typeof(TapPhimFailedException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidTapPhimException), StatusCodes.Status400BadRequest },
+            { typeof(TapPhimNotFoundException), StatusCodes.Status404NotFound },
 
             // Lượt xem phim
-            { typeof(FilmViewNotFoundException), StatusCodes.Status500InternalServerError },
+            { typeof(FilmViewNotFoundException), StatusCodes.Status404NotFound },
+
+            // Lịc sử xem phim
+            { typeof(InvalidLichXuXemException), StatusCodes.Status400BadRequest },
         };
 
 
@@ -115,7 +118,8 @@ namespace GienPhim_Services.FilmService.Api.Middlewares
                 !context.Request.Path.StartsWithSegments("/api/PhanLoaiTheLoai") &&
                 !context.Request.Path.StartsWithSegments("/api/PhanLoaiTheTag") &&
                 !context.Request.Path.StartsWithSegments("/api/TapPhim") &&
-                !context.Request.Path.StartsWithSegments("/api/FilmView"))
+                !context.Request.Path.StartsWithSegments("/api/FilmView") &&
+                !context.Request.Path.StartsWithSegments("/api/LichSuXem"))
             {
                 await _next(context);
                 return;

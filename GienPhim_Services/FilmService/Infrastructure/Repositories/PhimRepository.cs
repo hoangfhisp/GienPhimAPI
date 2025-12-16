@@ -1,8 +1,8 @@
-﻿using GienPhim_Services.FilmService.Application.DTOs.Client.Phim;
-using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
+﻿using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.FilmService.Domain.Entities;
 using GienPhim_Services.FilmService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Quartz.Util;
 using Shared.FileStorage;
 
 namespace GienPhim_Services.FilmService.Infrastructure.Repositories
@@ -60,6 +60,62 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(p => p.PhimId == id, cancellationToken);
         }
 
+        // Lấy list new phim mới thêm
+        public async Task<(List<Phim> phims, int total,int last )>GetNewPhimAsync(int page, int limit, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Phim
+                .Include(p => p.QuocGia)
+                .Include(p => p.NgonNgu)
+                .Include(p => p.PhanLoaiTheLoais)
+                    .ThenInclude(pl => pl.TheLoai)
+                .Include(p => p.DaoDienCuaPhims)
+                    .ThenInclude(dp => dp.DaoDien)
+                .Include(p => p.DienVienCuaPhims)
+                    .ThenInclude(dv => dv.DienVien)
+                .Include(p => p.PhanLoaiTheTags)
+                    .ThenInclude(pt => pt.TheTag)
+                 .OrderByDescending(p => p.ThoiGianTao)
+                .AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var last = (int)Math.Ceiling((double)total / limit);
+
+            var phims = await query
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            return (phims, total, last);
+        }
+
+        // Lấy list Top view phim mới thêm
+        public async Task<(List<Phim> phims, int total, int last)> GetTopViewPhimAsync(int page, int limit, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Phim
+                .Include(p => p.QuocGia)
+                .Include(p => p.NgonNgu)
+                .Include(p => p.PhanLoaiTheLoais)
+                    .ThenInclude(pl => pl.TheLoai)
+                .Include(p => p.DaoDienCuaPhims)
+                    .ThenInclude(dp => dp.DaoDien)
+                .Include(p => p.DienVienCuaPhims)
+                    .ThenInclude(dv => dv.DienVien)
+                .Include(p => p.PhanLoaiTheTags)
+                    .ThenInclude(pt => pt.TheTag)
+                 .OrderByDescending(p => p.LuotXemP)
+                .AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var last = (int)Math.Ceiling((double)total / limit);
+
+            var phims = await query
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            return (phims, total, last);
+        }
+
         public async Task<Phim?> GetBySlugAsync(string slug, CancellationToken ct = default)
         {
             return await _context.Phim
@@ -87,12 +143,8 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         }
 
         // Tìm kiếm phim theo từ khóa (gần đúng)
-        public async Task<List<Phim>> SearchPhimsAsync(string keyword, CancellationToken cancellationToken = default)
+        public async Task<(List<Phim> phims, int total, int last)> SearchPhimsAsync(string keyword,int page, int limit, CancellationToken cancellationToken = default)
         {
-            // 🛡️ Bảo vệ input
-            if (string.IsNullOrWhiteSpace(keyword))
-                return new List<Phim>();
-
             // Chuẩn hóa từ khóa: bỏ dấu, lower, trim
             var key = SlugHelper.NormalizeSearchText(keyword);
 
@@ -114,6 +166,7 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
                 })
                 .ToListAsync(cancellationToken);
 
+
             // So sánh bỏ dấu (ở tầng C#)
             var matched = phims
                 .Where(p =>
@@ -124,30 +177,63 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
                 .OrderByDescending(p => p.PhimId)
                 .ToList();
 
-            return matched;
+
+            var total = matched.Count();
+            var last = (int)Math.Ceiling((double)total / limit);
+
+            var result = matched
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToList();
+
+            return (result,total,last);
         }
 
         // Lọc phim theo nhiều tiêu chí với phân trang
-        public async Task<(List<Phim> phims, int total, int last)> FilterPhimsAsync(int? ngonNguId, int? quocGiaId, int? dienVienId, int? daoDienId, int page, int limit, CancellationToken cancellationToken = default)
+        public async Task<(List<Phim> phims, int total, int last)> FilterPhimsAsync(string? ngonNguSlug, string? quocGiaSlug, string? theLoaiSlug, string? tenDienVien, string? tenDaoDien, int page, int limit, CancellationToken cancellationToken = default)
         {
             var query = _context.Phim
                 .Include(p => p.NgonNgu)
                 .Include(p => p.QuocGia)
+                .Include(p => p.PhanLoaiTheLoais).ThenInclude(tl => tl.TheLoai)
                 .Include(p => p.DienVienCuaPhims).ThenInclude(dv => dv.DienVien)
                 .Include(p => p.DaoDienCuaPhims).ThenInclude(dd => dd.DaoDien)
                 .AsQueryable();
 
-            if (ngonNguId.HasValue)
-                query = query.Where(p => p.NgonNguId == ngonNguId);
+            // Ngôn ngữ
+            if (!string.IsNullOrWhiteSpace(ngonNguSlug))
+            {
+                query = query.Where(p => p.NgonNgu != null &&
+                                         p.NgonNgu.TenNN == ngonNguSlug);
+            }
 
-            if (quocGiaId.HasValue)
-                query = query.Where(p => p.QuocGiaId == quocGiaId);
+            // Quốc gia
+            if (!string.IsNullOrWhiteSpace(quocGiaSlug))
+            {
+                query = query.Where(p => p.QuocGia != null &&
+                                         p.QuocGia.MoTaQG == quocGiaSlug);
+            }
 
-            if (dienVienId.HasValue)
-                query = query.Where(p => p.DienVienCuaPhims.Any(dv => dv.DienVienId == dienVienId));
+            // Thể loại
+            if (!string.IsNullOrWhiteSpace(theLoaiSlug))
+            {
+                query = query.Where(p =>
+                    p.PhanLoaiTheLoais.Any(tl => tl.TheLoai.MoTa == theLoaiSlug));
+            }
 
-            if (daoDienId.HasValue)
-                query = query.Where(p => p.DaoDienCuaPhims.Any(dd => dd.DaoDienId == daoDienId));
+            // Diễn viên
+            if (!string.IsNullOrWhiteSpace(tenDienVien))
+            {
+                query = query.Where(p =>
+                    p.DienVienCuaPhims.Any(dv => dv.DienVien.TenDV == tenDienVien));
+            }
+
+            // Đạo diễn
+            if (!string.IsNullOrWhiteSpace(tenDaoDien))
+            {
+                query = query.Where(p =>
+                    p.DaoDienCuaPhims.Any(dd => dd.DaoDien.TenDD == tenDaoDien));
+            }
 
             var total = await query.CountAsync(cancellationToken);
             var last = (int)Math.Ceiling((double)total / limit);
@@ -160,6 +246,7 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
 
             return (phims, total, last);
         }
+
 
     }
 }

@@ -50,7 +50,10 @@ namespace GienPhim_Services.FilmService.Application.Mappers
                     .Where(t => t.TheTag != null)
                     .Select(t => t.TheTag.TenT)
                     .Distinct()
-                    .ToList() ?? new List<string>()
+                    .ToList() ?? new List<string>(),
+
+                ThoiGianTao = phim.ThoiGianTao,
+                ThoiGianCapNhat = phim.ThoiGianCapNhat
             };
         }
 

@@ -2,9 +2,10 @@
 {
     public class FilterPhimDTO
     {
-        public int? NgonNguId { get; set; }
-        public int? QuocGiaId { get; set; }
-        public int? DienVienId { get; set; }
-        public int? DaoDienId { get; set; }
+        public string? NgonNguSlug { get; set; }
+        public string? QuocGiaSlug { get; set; }
+        public string? TheLoaiSlug { get; set; }
+        public string? TenDienVien { get; set; }
+        public string? TenDaoDien { get; set; }
     }
 }

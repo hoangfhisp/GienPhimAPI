@@ -9,7 +9,6 @@ using GienPhim_Services.FilmService.Application.Interfaces.Factories;
 using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.FilmService.Domain.Services.Interfaces;
 using Shared.FileStorage;
-using GienPhim_Services.FilmService.Domain.Entities;
 
 namespace GienPhim_Services.FilmService.Application.Services
 {
@@ -64,6 +63,40 @@ namespace GienPhim_Services.FilmService.Application.Services
             _logger.LogInformation("ApplicationService: Lấy danh sách phim thành công, tổng={Total}", total);
 
             return ResultListDTO<List<PhimResponseDTO>>.Success(resultDtos, "Lấy danh sách phim thành công", pagination);
+        }
+
+        // Lấy phim mới nhất với phân trang
+        public async Task<ResultListDTO<List<PhimResponseDTO>>> GetNewPhimsAsync(int page, int limit, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetNewPhimsAsync với page={Page}, limit={Limit}", page, limit);
+            var (phims, total, last) = await _unitOfWork.Phims.GetNewPhimAsync(page, limit, cancellationToken);
+            if (total == 0)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy phim mới nào");
+                throw new PhimNotFoundException();
+            }
+
+            var resultDtos = _phimResponseMapper.ToDtoList(phims);
+            var pagination = _paginationMapper.ToDto(page, limit, total, last);
+            _logger.LogInformation("ApplicationService: Lấy danh sách phim mới thành công, tổng={Total}", total);
+            return ResultListDTO<List<PhimResponseDTO>>.Success(resultDtos, "Lấy danh sách phim mới thành công", pagination);
+        }
+
+        // Lấy phim top view 
+        public async Task<ResultListDTO<List<PhimResponseDTO>>> GetTopViewPhimsAsync(int page, int limit, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetTopViewPhimsAsync với page={Page}, limit={Limit}", page, limit);
+            var (phims, total, last) = await _unitOfWork.Phims.GetTopViewPhimAsync(page, limit, cancellationToken);
+            if (total == 0)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy phim top view nào");
+                throw new PhimNotFoundException();
+            }
+
+            var resultDtos = _phimResponseMapper.ToDtoList(phims);
+            var pagination = _paginationMapper.ToDto(page, limit, total, last);
+            _logger.LogInformation("ApplicationService: Lấy danh sách phim top view thành công, tổng={Total}", total);
+            return ResultListDTO<List<PhimResponseDTO>>.Success(resultDtos, "Lấy danh sách phim top view thành công", pagination);
         }
 
         // Lấy chi tiết phim theo Id
@@ -314,14 +347,14 @@ namespace GienPhim_Services.FilmService.Application.Services
         }
 
         // Tìm kiếm phim theo từ khóa
-        public async Task<ResultDTO<List<PhimResponseDTO>>> SearchPhimsAsync(string keyword, CancellationToken cancellationToken = default)
+        public async Task<ResultDTO<List<PhimResponseDTO>>> SearchPhimsAsync(string keyword,int page, int limit, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("ApplicationService: Bắt đầu SearchPhimsAsync với từ khóa {Keyword}", keyword);
 
             // 1️ Gọi repository
-            var phims = await _unitOfWork.Phims.SearchPhimsAsync(keyword, cancellationToken);
+            var (phims,total,last) = await _unitOfWork.Phims.SearchPhimsAsync(keyword,page,limit,cancellationToken);
 
-            if (phims == null || !phims.Any())
+            if (phims == null || !phims.Any() || total == 0)
             {
                 _logger.LogWarning("ApplicationService: Không tìm thấy phim nào với từ khóa {Keyword}", keyword);
                 throw new PhimNotFoundException();
@@ -341,7 +374,7 @@ namespace GienPhim_Services.FilmService.Application.Services
         {
             _logger.LogInformation("ApplicationService: Bắt đầu FilterPhimsAsync với filter {@Dto}, page={Page}, limit={Limit}", dto, page, limit);
 
-            var (phims, total, last) = await _unitOfWork.Phims.FilterPhimsAsync(dto.NgonNguId, dto.QuocGiaId, dto.DienVienId, dto.DaoDienId, page, limit, cancellationToken);
+            var (phims, total, last) = await _unitOfWork.Phims.FilterPhimsAsync(dto.NgonNguSlug, dto.QuocGiaSlug, dto.TheLoaiSlug,dto.TenDienVien, dto.TenDaoDien, page, limit, cancellationToken);
 
             if (total == 0)
             {
