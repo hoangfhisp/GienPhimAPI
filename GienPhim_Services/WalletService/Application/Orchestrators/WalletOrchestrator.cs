@@ -17,16 +17,19 @@ namespace GienPhim_Services.WalletService.Application.Orchestrators
         private readonly IValidationService _validationService;
         private readonly IWalletDomainService _walletDomainService;
         private readonly IWalletFactory _walletFactory;
+        private readonly IWalletTransactionFactory _walletTransactionFactory;
         private readonly IUserServiceClient _userServiceClient;
         private readonly ILogger<WalletOrchestrator> _logger;
 
         public WalletOrchestrator(IValidationService validationService, IWalletDomainService walletDomainService
-            , IWalletFactory walletFactory, IUserServiceClient userServiceClient
+            , IWalletFactory walletFactory, IWalletTransactionFactory walletTransactionFactory
+            , IUserServiceClient userServiceClient
             , ILogger<WalletOrchestrator> logger)
         {
             _validationService = validationService;
             _walletDomainService = walletDomainService;
             _walletFactory = walletFactory;
+            _walletTransactionFactory = walletTransactionFactory;
             _userServiceClient = userServiceClient;
             _logger = logger;
         }
@@ -37,7 +40,7 @@ namespace GienPhim_Services.WalletService.Application.Orchestrators
             _logger.LogInformation("Orchestrator: Bắt đầu CreateWalletAsync với userId = {UserId}", dto.UserId);
 
             // Check userId có tồn tại không
-            await FindUserById(dto.UserId, cancellationToken);
+            await FindUserByIdAsync(dto.UserId, cancellationToken);
 
             // Validate
             await _validationService.ValidateAsync(dto,dto.UserId, cancellationToken);
@@ -51,9 +54,45 @@ namespace GienPhim_Services.WalletService.Application.Orchestrators
 
         }
 
+        public async Task<Wallet> UpdateWalletAsync(UpdateWalletRequestDTO dto, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu UpdateWalletAsync với userId = {UserId}", dto.UserId);
+
+            // Check userId có tồn tại không
+            await FindUserByIdAsync(dto.UserId, cancellationToken);
+
+            // Validate
+            await _validationService.ValidateAsync(dto, cancellationToken);
+
+            var walletFactory = _walletFactory.UpdateWallet(dto);
+
+            _walletDomainService.EnsureCanUpdate(walletFactory);
+
+            _logger.LogInformation("Orchestrator: Update ví thành công cho userId = {UserId}", dto.UserId);
+            return walletFactory;
+
+        }
+
+        // Tạo ví mới
+        public async Task<WalletTransaction> CreateWalletTransactionAsync(CreateWalletTransactionRequestDTO dto, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Orchestrator: Bắt đầu CreateWalletTransactionAsync với walletId = {WalletId}", dto.WalletId);
+
+            // Validate
+            var soDuSauGiaoDich = await _validationService.ValidateAsync<CreateWalletTransactionRequestDTO,decimal>(dto, cancellationToken);
+
+            var walletTransactionFactory = _walletTransactionFactory.Create(dto,soDuSauGiaoDich);
+
+            _walletDomainService.EnsureCanCreateTransaction(walletTransactionFactory);
+
+            _logger.LogInformation("Orchestrator: Tạo giao dịch ví thành công cho walletId = {WalletId}", dto.WalletId);
+            return walletTransactionFactory;
+
+        }
+
         //private methods
         // Tìm user theo id bằng UserService
-        private async Task<ResultDTO<UserHttpResponseDTO>?> FindUserById (string userId, CancellationToken cancellationToken = default)
+        public async Task<ResultDTO<UserHttpResponseDTO>?> FindUserByIdAsync (string userId, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Orchestrator: Bắt đầu FindUserById với userId = {UserId}", userId);
             var user = await _userServiceClient.FindUserByUserIdAsync(userId, cancellationToken);

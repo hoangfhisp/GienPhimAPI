@@ -19,5 +19,15 @@ namespace GienPhim_Services.WalletService.Application.Factories
 
             };
         }
+        public Wallet UpdateWallet(UpdateWalletRequestDTO dto)
+        {
+            return new Wallet
+            {
+                UserId = dto.UserId,
+                SoDu = dto.SoDu,
+                NgayCapNhat = DateTime.UtcNow
+
+            };
+        }
     }
 }

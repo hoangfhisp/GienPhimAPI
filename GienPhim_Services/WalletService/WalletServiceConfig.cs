@@ -31,12 +31,14 @@ namespace GienPhim_Services.WalletService
 
             // FACTORIES
             services.AddScoped<IWalletFactory, WalletFactory>(); // Wallet Factory 
+            services.AddScoped<IWalletTransactionFactory, WalletTransactionFactory>(); // Wallet Transaction Factory
 
             // ORCHESTRATOR
             services.AddScoped<IWalletOrchestrator, WalletOrchestrator>(); // Wallet Orchestrator
 
             // MAPPERS
             services.AddScoped<IWalletResponseMapper, WalletResponseMapper>(); // Wallet Mapper
+            services.AddScoped<IPaginationMapper, PaginationMapper>(); // Pagination Mapper
 
             // Đăng ký tất cả validators tự động
             //AuthService

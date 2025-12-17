@@ -20,5 +20,37 @@ namespace GienPhim_Services.WalletService.Domain.Services
             if (wallet.SoDu > 0 || wallet.SoDu < 0)
                 throw new InvalidCreateBalanceException(wallet.UserId);
         }
+
+        public void EnsureCanUpdate(Wallet wallet)
+        {
+            if (wallet == null)
+            {
+                throw new InvalidWalletException(wallet.WalletId);
+            }
+            if (string.IsNullOrWhiteSpace(wallet.UserId))
+            {
+                throw new InvalidUserIdException();
+            }
+            if(wallet.SoDu < 0)
+            {
+                throw new InvalidUpdateBalanceException(wallet.UserId);
+            }
+            if (wallet.IsActive())
+            {
+                throw new InvalidWalletStatusException(wallet.WalletId);
+            }
+        }
+
+        public void EnsureCanCreateTransaction(WalletTransaction walletTransaction)
+        {
+            if(walletTransaction.WalletTransactionId == null || walletTransaction.WalletId == null)
+            {
+                throw new InvalidWalletTransactionException(walletTransaction.WalletTransactionId);
+            }
+            if(walletTransaction.SoDuSauGiaoDich < 0)
+            {
+                throw new InvalidWalletTransactionBalanceException(walletTransaction.WalletTransactionId);
+            }
+        }
     }
 }

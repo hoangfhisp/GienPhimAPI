@@ -27,5 +27,7 @@
         public List<string>? DaoDiens { get; set; }
         public List<string>? DienViens { get; set; }
         public List<string>? TheTags { get; set; }
+        public DateTime ThoiGianTao { get; set; }
+        public DateTime ThoiGianCapNhat { get; set; }
     }
 }

@@ -15,11 +15,16 @@ namespace GienPhim_Services.WalletService.Infrastructure.Repositories
         }
 
         // Lấy ví theo UserId
-        public async Task<Wallet?> FindWalletByUserId (string userId, CancellationToken cancellationToken = default)
+        public async Task<Wallet?> FindWalletByUserIdAsync(string userId, CancellationToken cancellationToken = default)
         {
             return await _context.Wallet.FirstOrDefaultAsync(w => w.UserId == userId, cancellationToken);
         }
 
+        // Lấy ví theo walletId
+        public async Task<Wallet?> FindWalletByWalletIdAsync(string walletId, CancellationToken cancellationToken = default)
+        {
+            return await _context.Wallet.FirstOrDefaultAsync(w => w.WalletId == walletId, cancellationToken);
+        }
 
         // Thêm mới ví
         public async Task<Wallet> AddAsync(Wallet wallet, CancellationToken cancellationToken = default)

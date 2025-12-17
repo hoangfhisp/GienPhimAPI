@@ -25,6 +25,7 @@ using GienPhim_Services.FilmService.Application.Validators.TheTag;
 using GienPhim_Services.FilmService.Infrastructure.Data.HttpClients.Interfaces;
 using GienPhim_Services.FilmService.Infrastructure.Data.HttpClients;
 using GienPhim_Services.FilmService.Application.Interfaces.HttpClients;
+using GienPhim_Services.FilmService.Application.Validators.LichSuXem;
 
 namespace GienPhim_Services.FilmService
 {
@@ -47,6 +48,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhanLoaiTheTagService, PhanLoaiTheTagService>(); // Phân loại thẻ tag Service
             services.AddScoped<ITapPhimService, TapPhimService>(); // Tập phim Service
             services.AddScoped<IFilmViewService, FilmViewService>(); // Lượt xem phim Service
+            services.AddScoped<ILichSuXemService, LichSuXemService>(); // Lịch sử xem Service
             services.AddScoped<IBotConfigService, BotConfigService>(); // Bot Config Service
             services.AddScoped<IBotSyncLogService, BotSyncLogService>(); // Bot Sync Log Service
 
@@ -72,6 +74,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IFilmViewFactory, FilmViewFactory>(); // Lượt xem phim Factory
             services.AddScoped<IApiPhimFactory, ApiPhimFactory>(); // Factory xử lý dữ liệu từ API
             services.AddScoped<IBotConfigFactory, BotConfigFactory>(); // Factory Bot Config
+            services.AddScoped<ILichSuXemFactory,LichSuXemFactory>(); //
 
             // MAPPERS
             services.AddScoped<IDaoDienResponseMapper, DaoDienResponseMapper>(); // Đạo diễn Mapper
@@ -88,6 +91,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<ITapPhimResponseMapper, TapPhimResponseMapper>(); // Tập phim Mapper
             services.AddScoped<IFilmViewResponseMapper, FilmViewResponseMapper>(); // Lượt xem phim Mapper
             services.AddScoped<IApiPhimMapper, ApiPhimMapper>(); // Mapper xử lý dữ liệu từ API
+            services.AddScoped<ILichSuXemResponseMapper, LichSuXemResponseMapper>(); // Mapper Lịch sử xem
             services.AddScoped<IBotConfigMapper, BotConfigMapper>(); // Mapper Bot Config
 
             // ORCHESTRATORS
@@ -106,17 +110,18 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IFilmViewOrchestrator, FilmViewOrchestrator>(); // Lượt xem phim Orchestrator
             services.AddScoped<IApiPhimOrchestrator, ApiPhimOrchestrator>(); // Orchestrator xử lý nhập phim từ API
             services.AddScoped<IBotConfigOrchestrator, BotConfigOrchestrator>(); // Orchestrator cấu hình bot
+            services.AddScoped<ILichSuXemOrchestrator, LichSuXemOrchestrator>(); // Lịch sử xem Orchestrator
 
             // VALIRATORS
             // Dịch vụ validation chung
             services.AddScoped<IValidationService, ValidationService>(); // UserService
 
-            // Đăng ký tất cả validators tự động
-            //services.Scan(scan => scan
-            //    .FromAssemblies(typeof(RegisterUserValidator).Assembly) // Quét tất cả các lớp trong assembly chứa RegisterUserValidator 
-            //    .AddClasses(classes => classes.AssignableTo(typeof(IValidator<>)))// Đăng ký tất cả các lớp triển khai IValidator<>
-            //    .AsImplementedInterfaces()// Đăng ký chúng theo giao diện mà chúng triển khai
-            //    .WithScopedLifetime()); // Sử dụng phạm vi Scoped cho các dịch vụ này
+            //Đăng ký tất cả validators tự động
+            services.Scan(scan => scan
+                .FromAssemblies(typeof(CreateLichSuXemValidator).Assembly) // Quét tất cả các lớp trong assembly chứa RegisterUserValidator 
+                .AddClasses(classes => classes.AssignableTo(typeof(IValidator<>)))// Đăng ký tất cả các lớp triển khai IValidator<>
+                .AsImplementedInterfaces()// Đăng ký chúng theo giao diện mà chúng triển khai
+                .WithScopedLifetime()); // Sử dụng phạm vi Scoped cho các dịch vụ này
 
             /*-----------------------------------------DOMAIN--------------------------------------------*/
             // DOMAIN SERVICES
@@ -133,6 +138,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IPhanLoaiTheTagDomainService, PhanLoaiTheTagDomainService>();
             services.AddScoped<ITapPhimDomainService, TapPhimDomainService>();
             services.AddScoped<IFilmViewDomainService, FilmViewDomainService>();
+            services.AddScoped<ILichSuXemDomainService, LichSuXemDomainService>();
 
             //MAPPERS
             services.AddScoped<IPaginationMapper,PaginationMapper>();
@@ -179,6 +185,15 @@ namespace GienPhim_Services.FilmService
                     System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate,
             });
 
+            services.AddHttpClient<IUserServiceClient, UserServiceClient>("FilmService_UserClient", (sp, client) =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();// URL của UserService
+                var userServiceUrl = config["ServiceUrls:UserService"];
+
+                client.BaseAddress = new Uri(userServiceUrl);
+            });
+
+
             // REPOSITORIES
             services.AddScoped<IDaoDienRepository, DaoDienRepository>(); // Đạo Diễn
             services.AddScoped<IDienVienRepository, DienVienRepository>(); // Diễn Viên
@@ -194,6 +209,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<ITapPhimRepository, TapPhimRepository>(); // Tập Phim
             services.AddScoped<IFilmViewRepository, FilmViewRepository>(); // Lượt Xem Phim
             services.AddScoped<IBotConfigRepository, BotConfigRepository>(); // Bot Config
+            services.AddScoped<ILichSuXemRepository, LichSuXemRepository>(); // Phim - read only
             services.AddScoped<IBotSyncLogRepository, BotSyncLogRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Unit of Work
             return services;
