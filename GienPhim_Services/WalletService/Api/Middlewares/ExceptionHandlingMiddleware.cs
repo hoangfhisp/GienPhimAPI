@@ -28,6 +28,10 @@ namespace GienPhim_Services.WalletService.Api.Middlewares
             { typeof(InvalidUserIdException), StatusCodes.Status400BadRequest },
             { typeof(InvalidWalletException), StatusCodes.Status400BadRequest },
             { typeof(InvalidCreateBalanceException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidWalletTransactionException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidWalletTransactionBalanceException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidUpdateBalanceException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidWalletStatusException), StatusCodes.Status400BadRequest },
             //NotFounds
 
             // Failed

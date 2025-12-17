@@ -20,7 +20,7 @@ namespace GienPhim_Services.WalletService.Application.Validators.Wallets
 
         public async Task ValidateAsync(CreateWalletRequestDTO dto,string userId, CancellationToken cancellationToken = default)
         {
-            var existingWallet = await _walletRepository.FindWalletByUserId(userId, cancellationToken);
+            var existingWallet = await _walletRepository.FindWalletByUserIdAsync(userId, cancellationToken);
 
             if (existingWallet != null)
             {

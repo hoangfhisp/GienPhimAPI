@@ -18,5 +18,19 @@ namespace GienPhim_Services.WalletService.Application.Mappers
                 NgayCapNhat = wallet.NgayCapNhat
             };
         }
+
+        public WalletTransactionResponseDTO ToTransactionDTO(WalletTransaction walletTransaction)
+        {
+            return new WalletTransactionResponseDTO
+            {
+                WalletTransactionId = walletTransaction.WalletTransactionId,
+                LoaiGiaoDich = walletTransaction.LoaiGiaoDich,
+                SoTienThayDoi = walletTransaction.SoTienThayDoi,
+                SoDuSauGiaoDich = walletTransaction.SoDuSauGiaoDich,
+                MoTa = walletTransaction.MoTa,
+                NgayGiaoDich = walletTransaction.NgayGiaoDich,
+                TrangThai = walletTransaction.TrangThai,
+            };
+        }
     }
 }
