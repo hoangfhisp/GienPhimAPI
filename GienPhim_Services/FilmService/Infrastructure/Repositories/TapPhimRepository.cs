@@ -2,6 +2,7 @@
 using GienPhim_Services.FilmService.Domain.Entities;
 using GienPhim_Services.FilmService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Shared.FileStorage;
 
 namespace GienPhim_Services.FilmService.Infrastructure.Repositories
 {
@@ -42,8 +43,10 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         public async Task<List<TapPhim>> GetByPhimIdAsync(int phimId, CancellationToken cancellationToken = default)
         {
             return await _context.TapPhim
-                .Where(t => t.PhimId == phimId)
-                .OrderBy(t => t.TenTap)
+                .AsNoTracking()
+                .Include(tp => tp.Phim)
+                .Where(tp => tp.PhimId == phimId)
+                .OrderBy(tp => tp.TenTap)
                 .ToListAsync(cancellationToken);
         }
 
@@ -70,6 +73,59 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         {
             _context.TapPhim.Remove(tapPhim);
             await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<(List<TapPhim> tapPhims, int total, int last)>SearchTapPhimAsync(string keyword, int page, int limit, CancellationToken ct = default)
+        {
+            page = page <= 0 ? 1 : page;
+            limit = limit <= 0 ? 10 : limit;
+
+            var key = SlugHelper.NormalizeSearchText(keyword);
+
+            var all = await _context.TapPhim
+                .AsNoTracking()
+                .Include(tp => tp.Phim)
+                .Select(tp => new TapPhim
+                {
+                    TapId = tp.TapId,
+                    TenTap = tp.TenTap,
+                    SlugTap = tp.SlugTap,
+                    TenFile = tp.TenFile,
+                    PhimId = tp.PhimId,
+
+                    // BỔ SUNG 2 field này
+                    LinkChinh = tp.LinkChinh,
+                    LinkPhu = tp.LinkPhu,
+
+                    ThoiGianCapNhat = tp.ThoiGianCapNhat,
+
+                    Phim = tp.Phim == null ? null : new Phim
+                    {
+                        PhimId = tp.Phim.PhimId,
+                        TenP = tp.Phim.TenP
+                    }
+                })
+                .ToListAsync(ct);
+
+            var matched = all
+                .Where(tp =>
+                    SlugHelper.NormalizeSearchText(tp.TenTap ?? "").Contains(key) ||
+                    SlugHelper.NormalizeSearchText(tp.SlugTap ?? "").Contains(key) ||
+                    SlugHelper.NormalizeSearchText(tp.TenFile ?? "").Contains(key) ||
+                    SlugHelper.NormalizeSearchText(tp.Phim?.TenP ?? "").Contains(key)
+                )
+                .OrderByDescending(tp => tp.ThoiGianCapNhat)
+                .ToList();
+
+            var total = matched.Count;
+            var last = (int)Math.Ceiling((double)total / limit);
+
+            var result = matched
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToList();
+
+            return (result, total, last);
         }
     }
 }

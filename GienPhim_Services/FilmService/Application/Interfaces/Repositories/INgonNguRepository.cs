@@ -10,5 +10,7 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Repositories
         Task<NgonNgu> UpdateAsync(NgonNgu ngonNgu, CancellationToken ct = default);
         Task DeleteAsync(NgonNgu ngonNgu, CancellationToken ct = default);
         Task<List<NgonNgu>> SearchNgonNgusAsync(string keyword, CancellationToken cancellationToken = default);
+        Task<NgonNgu?> GetByMoTaNNAsync(string moTaNN, CancellationToken ct = default);
+        Task<List<NgonNgu>> GetByMoTaNNsAsync(List<string> moTaNNs, CancellationToken ct = default);
     }
 }

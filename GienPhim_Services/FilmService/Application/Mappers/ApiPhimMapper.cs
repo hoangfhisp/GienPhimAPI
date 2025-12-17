@@ -1,6 +1,7 @@
 ﻿using GienPhim_Services.FilmService.Application.DTOs.Client.Phim;
 using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
 using GienPhim_Services.FilmService.Domain.Entities;
+using Shared.FileStorage;
 
 namespace GienPhim_Services.FilmService.Application.Mappers
 {
@@ -34,10 +35,11 @@ namespace GienPhim_Services.FilmService.Application.Mappers
         public NgonNgu ToNgonNguEntity(ApiPhimDTO dto)
         {
             var lang = dto.Movie?.Lang ?? "Không rõ";
+            var langSlug = SlugHelper.GenerateSlug(lang);
             return new NgonNgu
             {
                 TenNN = lang,
-                MoTaNN = $"Ngôn ngữ phim: {lang}",
+                MoTaNN = $"ngon-ngu-phim-{langSlug}",
                 ThoiGianTao = DateTime.UtcNow,
                 ThoiGianCapNhat = DateTime.UtcNow
             };
@@ -159,6 +161,7 @@ namespace GienPhim_Services.FilmService.Application.Mappers
 
                 foreach (var tap in server.Server_Data)
                 {
+                    if (tap == null) continue;
                     list.Add(new TapPhim
                     {
                         TapId = Guid.NewGuid().ToString(),
@@ -167,7 +170,8 @@ namespace GienPhim_Services.FilmService.Application.Mappers
                         SlugTap = tap.Slug ?? "khong-ro",
                         TenFile = tap.Filename ?? "khong-ro",
                         LinkPhu = tap.Link_Embed ?? "",
-                        LinkChinh = tap.Link_M3u8 ?? "",
+                        //LinkChinh = tap.Link_M3u8 ?? "",
+                        LinkChinh = null,
                         ThoiGianTao = DateTime.UtcNow,
                         ThoiGianCapNhat = DateTime.UtcNow
                     });
@@ -225,8 +229,11 @@ namespace GienPhim_Services.FilmService.Application.Mappers
                 {
                     if (tap == null) continue; // đề phòng phần tử null trong mảng
 
+                    var tapSlug = string.IsNullOrWhiteSpace(tap.Slug) ? null : tap.Slug.Trim();
+                    if (tapSlug == null) continue;
+
                     var existingTap = existing.TapPhims
-                        .FirstOrDefault(t => t.SlugTap == tap.Slug);
+                            .FirstOrDefault(t => t.SlugTap == tapSlug);
 
                     if (existingTap == null)
                     {
@@ -235,10 +242,11 @@ namespace GienPhim_Services.FilmService.Application.Mappers
                             TapId = Guid.NewGuid().ToString(),
                             PhimId = existing.PhimId,
                             TenTap = tap.Name ?? "Tập ?",
-                            SlugTap = tap.Slug ?? $"slug-{Guid.NewGuid()}",
+                            SlugTap = tapSlug,
                             TenFile = tap.Filename ?? "khong-ro",
                             LinkPhu = tap.Link_Embed ?? "",
-                            LinkChinh = tap.Link_M3u8 ?? "",
+                            //LinkChinh = tap.Link_M3u8 ?? "",
+                            LinkChinh = null,
                             ThoiGianTao = DateTime.UtcNow,
                             ThoiGianCapNhat = DateTime.UtcNow
                         });
@@ -249,11 +257,11 @@ namespace GienPhim_Services.FilmService.Application.Mappers
                     {
                         bool changed = false;
 
-                        if (!string.IsNullOrWhiteSpace(tap.Link_M3u8) && existingTap.LinkChinh != tap.Link_M3u8)
-                        {
-                            existingTap.LinkChinh = tap.Link_M3u8;
-                            changed = true;
-                        }
+                        //if (!string.IsNullOrWhiteSpace(tap.Link_M3u8) && existingTap.LinkChinh != tap.Link_M3u8)
+                        //{
+                        //    existingTap.LinkChinh = tap.Link_M3u8;
+                        //    changed = true;
+                        //}
                         if (!string.IsNullOrWhiteSpace(tap.Link_Embed) && existingTap.LinkPhu != tap.Link_Embed)
                         {
                             existingTap.LinkPhu = tap.Link_Embed;

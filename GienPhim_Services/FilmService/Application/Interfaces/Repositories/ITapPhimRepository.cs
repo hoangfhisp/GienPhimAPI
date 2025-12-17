@@ -11,5 +11,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Repositories
         Task<TapPhim> CreateAsync(TapPhim tapPhim, CancellationToken cancellationToken = default);
         Task<TapPhim> UpdateAsync(TapPhim tapPhim, CancellationToken cancellationToken = default);
         Task DeleteAsync(TapPhim tapPhim, CancellationToken cancellationToken = default);
+        Task<(List<TapPhim> tapPhims, int total, int last)> SearchTapPhimAsync(string keyword, int page, int limit, CancellationToken ct = default);
     }
 }

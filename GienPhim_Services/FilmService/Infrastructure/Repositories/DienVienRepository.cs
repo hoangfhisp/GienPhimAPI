@@ -80,5 +80,32 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
 
             return matched;
         }
+
+        public async Task<DienVien?> GetByMoTaDVAsync(string moTaDV, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(moTaDV)) return null;
+
+            var key = SlugHelper.NormalizeSearchText(moTaDV);
+            var all = await _filmContext.DienVien.AsNoTracking().ToListAsync(ct);
+
+            return all.FirstOrDefault(x => SlugHelper.NormalizeSearchText(x.MoTaDV ?? x.TenDV ?? "") == key);
+        }
+
+        public async Task<List<DienVien>> GetByMoTaDVsAsync(List<string> moTaDVs, CancellationToken ct = default)
+        {
+            if (moTaDVs == null || moTaDVs.Count == 0) return new List<DienVien>();
+
+            var keys = moTaDVs
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(SlugHelper.NormalizeSearchText)
+                .Distinct()
+                .ToList();
+
+            var all = await _filmContext.DienVien.AsNoTracking().ToListAsync(ct);
+
+            return all
+                .Where(x => keys.Contains(SlugHelper.NormalizeSearchText(x.MoTaDV ?? x.TenDV ?? "")))
+                .ToList();
+        }
     }
 }

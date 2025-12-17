@@ -200,5 +200,23 @@ namespace GienPhim_Services.FilmService.Application.Services
 
             return ResultDTO.Success($"Xoá tập phim {entity.TenTap} thành công");
         }
+
+        public async Task<ResultListDTO<List<TapPhimResponseDTO>>> SearchAsync(string keyword, int page, int limit, CancellationToken ct = default)
+        {
+            _logger.LogInformation("Search TapPhim keyword={Keyword}", keyword);
+
+            var (list, total, last) =
+                await _unitOfWork.TapPhims.SearchTapPhimAsync(keyword, page, limit, ct);
+
+            if (total == 0)
+                throw new TapPhimNotFoundException();
+
+            var dtos = _mapper.ToDtoList(list);
+            var pagination = _paginationMapper.ToDto(page, limit, total, last);
+
+            return ResultListDTO<List<TapPhimResponseDTO>>
+                .Success(dtos, "Tìm kiếm tập phim thành công", pagination);
+        }
+
     }
 }
