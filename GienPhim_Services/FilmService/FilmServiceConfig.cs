@@ -144,6 +144,8 @@ namespace GienPhim_Services.FilmService
             services.AddDbContext<FilmDbContext>(options =>
                 options.UseSqlServer(config.GetConnectionString("FilmDb")));
 
+            services.AddHttpContextAccessor();
+
             services.AddHttpClient<IApiPhimServiceClient, ApiPhimServiceClient>((sp, client) =>
             {
                 var config = sp.GetRequiredService<IConfiguration>();
