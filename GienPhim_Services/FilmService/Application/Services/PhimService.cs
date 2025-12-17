@@ -9,6 +9,7 @@ using GienPhim_Services.FilmService.Application.Interfaces.Factories;
 using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.FilmService.Domain.Services.Interfaces;
 using Shared.FileStorage;
+using GienPhim_Services.FilmService.Domain.Entities;
 
 namespace GienPhim_Services.FilmService.Application.Services
 {
@@ -123,23 +124,69 @@ namespace GienPhim_Services.FilmService.Application.Services
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreatePhimAsync với tên {TenP}", createDto.TenP);
 
-            // 1. Xử lý avatar & poster (sử dụng FileHelper)
-            string avatarFileName = string.Empty;
-            string posterFileName = string.Empty;
+            // 1. Xử lý avatar & poster (lưu path tương đối vào DB)
+            string avatarPath = string.Empty;
+            string posterPath = string.Empty;
 
-            if (createDto.AvatarP != null)
+            // thư mục vật lý để lưu file
+            var filmsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "films");
+            var bannersFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "banners");
+
+            if (createDto.AvatarP != null && createDto.AvatarP.Length > 0)
             {
-                avatarFileName = await FileHelper.SaveImageAsync(createDto.AvatarP, Path.Combine("wwwroot", "images", "films"));
+                var fileName = await FileHelper.SaveImageAsync(createDto.AvatarP, filmsFolder);
+
+                // ✅ lưu đường dẫn tương đối (URL path) vào DB
+                avatarPath = Path.Combine("images", "films", fileName).Replace("\\", "/");
             }
 
-            if (createDto.AvatarPoster != null)
+            if (createDto.AvatarPoster != null && createDto.AvatarPoster.Length > 0)
             {
-                posterFileName = await FileHelper.SaveImageAsync(createDto.AvatarPoster, Path.Combine("wwwroot", "images", "banners"));
+                var fileName = await FileHelper.SaveImageAsync(createDto.AvatarPoster, bannersFolder);
+
+                // ✅ lưu đường dẫn tương đối (URL path) vào DB
+                posterPath = Path.Combine("images", "banners", fileName).Replace("\\", "/");
             }
 
-            // 2. Gọi orchestrator để build entity + validate
-            var phim = _phimFactory.CreatePhim(createDto, avatarFileName, posterFileName);
-            _phimDomainService.EnsureCanCreate(phim, avatarFileName, posterFileName);
+            // 2. build entity
+            var phim = _phimFactory.CreatePhim(createDto, avatarPath, posterPath);
+
+            // GẮN QUAN HỆ N–N (PHẦN BỊ THIẾU)
+            phim.PhanLoaiTheLoais = createDto.TheLoaiIds?
+                .Distinct()
+                .Select(id => new PhanLoaiTheLoai
+                {
+                    TheLoaiId = id
+                })
+                .ToList();
+
+            phim.DaoDienCuaPhims = createDto.DaoDienIds?
+                .Distinct()
+                .Select(id => new DaoDienCuaPhim
+                {
+                    DaoDienId = id,
+                    VaiTroDG = "Đạo diễn chính",  
+                    ThoiGianTao = DateTime.UtcNow,
+                    ThoiGianCapNhat = DateTime.UtcNow
+                })
+                .ToList();
+
+            phim.DienVienCuaPhims = createDto.DienVienIds?
+                .Distinct()
+                .Select(id => new DienVienCuaPhim
+                {
+                    DienVienId = id
+                })
+                .ToList();
+
+            phim.PhanLoaiTheTags = createDto.TheTagIds?
+                .Distinct()
+                .Select(id => new PhanLoaiTheTag
+                {
+                    TheTagId = id
+                })
+                .ToList();
+            _phimDomainService.EnsureCanCreate(phim, avatarPath, posterPath);
 
             // 3. Transaction + lưu vào DB
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
@@ -164,56 +211,137 @@ namespace GienPhim_Services.FilmService.Application.Services
         {
             _logger.LogInformation("ApplicationService: Bắt đầu UpdatePhimAsync với Id={PhimId}", updateDto.PhimId);
 
-            // 1. Lấy phim hiện tại
-            var existingPhim = await _unitOfWork.Phims.GetByIdAsync(updateDto.PhimId, cancellationToken);
-            if (existingPhim is null)
+            var phim = await _unitOfWork.Phims.GetByIdWithRelationsAsync(updateDto.PhimId, cancellationToken);
+            if (phim is null) throw new PhimNotFoundException(updateDto.PhimId);
+
+            // folder vật lý
+            var filmsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "films");
+            var bannersFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "banners");
+
+            // path DB hiện tại (relative)
+            var avatarPath = phim.AvatarP;         // ví dụ: "images/films/xxx.jpg"
+            var posterPath = phim.AvatarPoster;    // ví dụ: "images/banners/yyy.png"
+
+            // 1) Nếu upload avatar mới -> xóa ảnh cũ theo đường dẫn vật lý + lưu ảnh mới và set relative path
+            if (updateDto.AvatarP != null && updateDto.AvatarP.Length > 0)
             {
-                _logger.LogWarning("ApplicationService: Không tìm thấy Phim với Id={PhimId}", updateDto.PhimId);
-                throw new PhimNotFoundException(updateDto.PhimId);
+                if (!string.IsNullOrWhiteSpace(phim.AvatarP))
+                {
+                    var oldAvatarPhysical = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", phim.AvatarP);
+                    FileHelper.DeleteImage(oldAvatarPhysical);
+                }
+
+                var fileName = await FileHelper.SaveImageAsync(updateDto.AvatarP, filmsFolder);
+                avatarPath = Path.Combine("images", "films", fileName).Replace("\\", "/");
             }
 
-            // 2. Xử lý avatar & poster (nếu có update)
-            string avatarFileName = existingPhim.AvatarP;
-            string posterFileName = existingPhim.AvatarPoster;
-
-            if (updateDto.AvatarP != null)
+            // 2) Nếu upload poster mới
+            if (updateDto.AvatarPoster != null && updateDto.AvatarPoster.Length > 0)
             {
-                // Xoá ảnh cũ
-                FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "films", existingPhim.AvatarP));
-                avatarFileName = await FileHelper.SaveImageAsync(updateDto.AvatarP, Path.Combine("wwwroot", "images", "films"));
+                if (!string.IsNullOrWhiteSpace(phim.AvatarPoster))
+                {
+                    var oldPosterPhysical = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", phim.AvatarPoster);
+                    FileHelper.DeleteImage(oldPosterPhysical);
+                }
+
+                var fileName = await FileHelper.SaveImageAsync(updateDto.AvatarPoster, bannersFolder);
+                posterPath = Path.Combine("images", "banners", fileName).Replace("\\", "/");
             }
 
-            if (updateDto.AvatarPoster != null)
+            // 3. UPDATE FIELD ĐƠN
+            phim.TenP = updateDto.TenP.Trim();
+            phim.MoTaP = string.IsNullOrWhiteSpace(updateDto.MoTaP) ? null : updateDto.MoTaP.Trim();
+            phim.QuocGiaId = updateDto.QuocGiaId;
+            phim.NgonNguId = updateDto.NgonNguId;
+            phim.TenCTSXP = updateDto.TenCTSXP.Trim();
+            phim.NgayPhatHanhP = updateDto.NgayPhatHanhP;
+            phim.ThuoiLuongP = updateDto.ThuoiLuongP;
+            phim.NguonP = updateDto.NguonP;
+            phim.SoTapP = updateDto.SoTapP;
+            phim.TraiLerP = updateDto.TraiLerP;
+            phim.AvatarP = avatarPath;
+            phim.AvatarPoster = posterPath;
+            phim.ThoiGianCapNhat = DateTime.UtcNow;
+
+            // 4. UPDATE QUAN HỆ N–N (CLEAR + REBUILD)
+
+            // Thể loại
+            phim.PhanLoaiTheLoais ??= new List<PhanLoaiTheLoai>();
+            phim.PhanLoaiTheLoais.Clear();
+            if (updateDto.TheLoaiIds != null)
             {
-                FileHelper.DeleteImage(Path.Combine("wwwroot", "images", "banners", existingPhim.AvatarPoster));
-                posterFileName = await FileHelper.SaveImageAsync(updateDto.AvatarPoster, Path.Combine("wwwroot", "images", "banners"));
+                foreach (var id in updateDto.TheLoaiIds.Distinct())
+                {
+                    phim.PhanLoaiTheLoais.Add(new PhanLoaiTheLoai
+                    {
+                        TheLoaiId = id,
+                        ThoiGianTao = DateTime.UtcNow,
+                        ThoiGianCapNhat = DateTime.UtcNow
+                    });
+                }
             }
 
-            // 3. Factory dựng lại entity mới
-            var updatedPhim = _phimFactory.UpdatePhim(updateDto, avatarFileName, posterFileName);
+            // Đạo diễn
+            phim.DaoDienCuaPhims ??= new List<DaoDienCuaPhim>();
+            phim.DaoDienCuaPhims.Clear();
+            if (updateDto.DaoDienIds != null)
+            {
+                foreach (var id in updateDto.DaoDienIds.Distinct())
+                {
+                    phim.DaoDienCuaPhims.Add(new DaoDienCuaPhim
+                    {
+                        DaoDienId = id,
+                        VaiTroDG = "Đạo diễn chính",
+                        ThoiGianTao = DateTime.UtcNow,
+                        ThoiGianCapNhat = DateTime.UtcNow
+                    });
+                }
+            }
 
-            // 4. Domain validate rule
-            _phimDomainService.EnsureCanUpdate(updatedPhim, avatarFileName, posterFileName);
+            // Diễn viên
+            phim.DienVienCuaPhims.Clear();
+            phim.DienVienCuaPhims ??= new List<DienVienCuaPhim>();
+            if (updateDto.DienVienIds != null)
+            {
+                foreach (var id in updateDto.DienVienIds.Distinct())
+                {
+                    phim.DienVienCuaPhims.Add(new DienVienCuaPhim
+                    {
+                        DienVienId = id,
+                        ThoiGianTao = DateTime.UtcNow,
+                        ThoiGianCapNhat = DateTime.UtcNow
+                    });
+                }
+            }
 
-            // 5. Transaction + update DB
+            // Thẻ tag
+            phim.PhanLoaiTheTags.Clear();
+            phim.PhanLoaiTheTags ??= new List<PhanLoaiTheTag>();
+            if (updateDto.TheTagIds != null)
+            {
+                foreach (var id in updateDto.TheTagIds.Distinct())
+                {
+                    phim.PhanLoaiTheTags.Add(new PhanLoaiTheTag
+                    {
+                        TheTagId = id,
+                        ThoiGianTao = DateTime.UtcNow,
+                        ThoiGianCapNhat = DateTime.UtcNow
+                    });
+                }
+            }
+
+            // 5. Domain validate
+            _phimDomainService.EnsureCanUpdate(phim, avatarPath, posterPath);
+            // 6. Save
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
-
-            var result = await _unitOfWork.Phims.UpdateAsync(updatedPhim, cancellationToken);
-            if (result is null)
-            {
-                _logger.LogError("ApplicationService: Cập nhật Phim {PhimId} thất bại!", updateDto.PhimId);
-                await transaction.RollbackAsync(cancellationToken);
-                throw new UpdatePhimFailedException(updatedPhim.TenP);
-            }
-
+            await _unitOfWork.Phims.UpdateAsync(phim, cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            _logger.LogInformation("ApplicationService: Cập nhật Phim {PhimId} thành công!", updatedPhim.PhimId);
+            _logger.LogInformation("ApplicationService: Cập nhật Phim {PhimId} thành công!", phim.PhimId);
 
-            // Map sang response
-            var response = _phimResponseMapper.ToUpdateDto(updatedPhim);
+            var response = _phimResponseMapper.ToUpdateDto(phim);
 
-            return ResultDTO<UpdatePhimResponseDTO>.Success(response, $"Cập nhật phim {updatedPhim.TenP} thành công");
+            return ResultDTO<UpdatePhimResponseDTO>.Success(response, $"Cập nhật phim {phim.TenP} thành công");
         }
 
         // Xoá phim

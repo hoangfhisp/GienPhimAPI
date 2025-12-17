@@ -60,6 +60,24 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(p => p.PhimId == id, cancellationToken);
         }
 
+        public async Task<Phim?> GetByIdWithRelationsAsync(int id, CancellationToken cancellationToken = default)
+        {
+            return await _context.Phim
+                .Include(p => p.PhanLoaiTheLoais)
+                    .ThenInclude(pl => pl.TheLoai)
+
+                .Include(p => p.DaoDienCuaPhims)
+                    .ThenInclude(dp => dp.DaoDien)
+
+                .Include(p => p.DienVienCuaPhims)
+                    .ThenInclude(dv => dv.DienVien)
+
+                .Include(p => p.PhanLoaiTheTags)
+                    .ThenInclude(pt => pt.TheTag)
+
+                .FirstOrDefaultAsync(p => p.PhimId == id, cancellationToken);
+        }
+
         // Lấy list new phim mới thêm
         public async Task<(List<Phim> phims, int total,int last )>GetNewPhimAsync(int page, int limit, CancellationToken cancellationToken = default)
         {

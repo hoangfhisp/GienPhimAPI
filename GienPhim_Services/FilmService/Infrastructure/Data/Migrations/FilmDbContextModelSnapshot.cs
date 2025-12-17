@@ -47,6 +47,37 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("BotConfigs");
                 });
 
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.BotSyncLog", b =>
+                {
+                    b.Property<Guid>("BotSyncLogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Action")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("PhimName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("PhimSlug")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("SyncedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("BotSyncLogId");
+
+                    b.ToTable("BotSyncLogs");
+                });
+
             modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.DaoDien", b =>
                 {
                     b.Property<int>("DaoDienId")

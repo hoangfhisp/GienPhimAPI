@@ -69,7 +69,8 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
         // Tạo phim mới
         [HttpPost("Create")]
-        [Authorize(Roles = "Admin")]
+        [Consumes("multipart/form-data")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromForm] PhimCreateDTO dto, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: CreatePhim với tên {TenP}", dto.TenP);
@@ -83,7 +84,8 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
         // Cập nhật phim
         [HttpPut("Update")]
-        [Authorize(Roles = "Admin")]
+        [Consumes("multipart/form-data")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromForm] PhimUpdateDTO dto, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: UpdatePhim Id={PhimId}", dto.PhimId);
@@ -97,7 +99,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
         // Xóa phim
         [HttpDelete("Delete")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromQuery] PhimDeleteDTO dto, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: DeletePhim Id={PhimId}", dto.PhimId);

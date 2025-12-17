@@ -32,5 +32,9 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Shared.FileStorage\Shared.FileStorage.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="wwwroot\images\banners\" />
+	  <Folder Include="wwwroot\images\films\" />
+	</ItemGroup>
 
 </Project>

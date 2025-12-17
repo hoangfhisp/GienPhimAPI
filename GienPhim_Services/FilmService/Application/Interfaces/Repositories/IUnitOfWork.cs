@@ -20,6 +20,7 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Repositories
         IExternalApiClient ExternalApiClients { get; } // External API Client
         ILichSuXemRepository LichSuXem { get; } // Repository
         IBotConfigRepository BotConfigs { get; } // Repository
+        IBotSyncLogRepository BotSyncLogs { get; } // Repository
         Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default); // Transaction
         Task<int> CommitAsync(CancellationToken cancellationToken = default); // Commit changes
     }

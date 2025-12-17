@@ -50,6 +50,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IFilmViewService, FilmViewService>(); // Lượt xem phim Service
             services.AddScoped<ILichSuXemService, LichSuXemService>(); // Lịch sử xem Service
             services.AddScoped<IBotConfigService, BotConfigService>(); // Bot Config Service
+            services.AddScoped<IBotSyncLogService, BotSyncLogService>(); // Bot Sync Log Service
 
             // Đạo diễn
             services.AddScoped<IValidator<DaoDienCreateDTO>, CreateDaoDienValidator>(); // Validator tạo đạo diễn
@@ -149,6 +150,8 @@ namespace GienPhim_Services.FilmService
             services.AddDbContext<FilmDbContext>(options =>
                 options.UseSqlServer(config.GetConnectionString("FilmDb")));
 
+            services.AddHttpContextAccessor();
+
             services.AddHttpClient<IApiPhimServiceClient, ApiPhimServiceClient>((sp, client) =>
             {
                 var config = sp.GetRequiredService<IConfiguration>();
@@ -207,6 +210,7 @@ namespace GienPhim_Services.FilmService
             services.AddScoped<IFilmViewRepository, FilmViewRepository>(); // Lượt Xem Phim
             services.AddScoped<IBotConfigRepository, BotConfigRepository>(); // Bot Config
             services.AddScoped<ILichSuXemRepository, LichSuXemRepository>(); // Phim - read only
+            services.AddScoped<IBotSyncLogRepository, BotSyncLogRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Unit of Work
             return services;
         }
