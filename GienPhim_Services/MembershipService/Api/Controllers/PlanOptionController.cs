@@ -28,6 +28,15 @@ namespace GienPhim_Services.MembershipService.Api.Controllers
             return Ok(result);
         }
 
+        [HttpGet("GetPlanOptionsByPlanIdAnDay")]
+        public async Task<IActionResult> GetPlanOptionsByPlanIdAnDay([FromQuery] string planId, int day, int page = 1, int limit = 10, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: GetPlanOptionsByPlanIdAnDay PlanId={PlanId}", planId);
+            var result = await _planOptionService.GetPlanOptionsByPlanIdAnDayAsync(planId,day,page,limit,ct);
+            _logger.LogInformation("API Response: GetPlanOptionsByPlanIdAnDay PlanId={PlanId} Status={Status}", planId, result.Status);
+            return Ok(result);
+        }
+
         // Lấy chi tiết PlanOption theo Id
         [HttpGet("Detail/{optionId}")]
         public async Task<IActionResult> GetDetail(string optionId, CancellationToken ct = default)

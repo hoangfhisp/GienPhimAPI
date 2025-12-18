@@ -1,6 +1,7 @@
 ﻿using GienPhim_Services.WalletService.Application.DTOs.Wallets;
 using GienPhim_Services.WalletService.Application.Interfaces.Factories;
 using GienPhim_Services.WalletService.Domain.Entities;
+using Quartz.Util;
 
 namespace GienPhim_Services.WalletService.Application.Factories
 {
@@ -17,7 +18,7 @@ namespace GienPhim_Services.WalletService.Application.Factories
                 SoDuSauGiaoDich = soDuSauGiaoDich,
                 MoTa = dto.MoTa,
                 NgayGiaoDich = DateTime.UtcNow,
-                TrangThai = "Thành công" // Mặc định trạng thái là thành công
+                TrangThai = string.IsNullOrWhiteSpace(dto.TrangThai)? "Thành công" : dto.TrangThai // Mặc định trạng thái là thành công
             };
         }
     }

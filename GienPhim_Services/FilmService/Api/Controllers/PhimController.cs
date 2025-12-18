@@ -125,6 +125,15 @@ namespace GienPhim_Services.FilmService.Api.Controllers
             return Ok(result);
         }
 
+        [HttpPost("UpdatePhimByLuotLikeDisLike")]
+        public async Task<IActionResult> UpdatePhimByLuotLikeDisLike(UpdatePhimLikeDisLikeRequestDTO request, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("API Request: UpdatePhimByLuotLikeDisLike phimId={PhimId}, isLike={IsLike}, isDislike={IsDislike}, oldIsLike={OldIsLike}, oldIsDislike={OldIsDislike}", request.PhimId, request.IsLike, request.IsDislike, request.OldIsLike, request.OldIsDislike);
+            var result = await _phimService.UpdatePhimByLuotLikeDisLikeAsync(request.PhimId,request.IsLike,request.IsDislike,request.OldIsLike,request.OldIsDislike, cancellationToken);
+            _logger.LogInformation("API Response: UpdatePhimByLuotLikeDisLike phimId={PhimId} Status={Status}", request.PhimId, result.Status);
+            return Ok(result);
+        }
+
         // Cập nhật phim từ API ngoài
         [HttpPut("UpdateFromApi")]
         [Authorize(Roles = "Admin")]

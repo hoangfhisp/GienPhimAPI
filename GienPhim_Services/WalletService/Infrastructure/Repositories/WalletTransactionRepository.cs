@@ -37,6 +37,12 @@ namespace GienPhim_Services.WalletService.Infrastructure.Repositories
             return await _context.WalletTransaction.FirstOrDefaultAsync(wt => wt.WalletTransactionId == walletTransactionId, cancellationToken);
         }
 
+        // Lấy giao dịch ví tiền từ Mô Tả
+        public async Task<WalletTransaction?> GetByMoTaAsync(string mota, CancellationToken cancellationToken = default)
+        {
+            return await _context.WalletTransaction.FirstOrDefaultAsync(wt => wt.MoTa == mota, cancellationToken);
+        }
+
         // Thêm mới giao dịch ví tiền
         public async Task<WalletTransaction?> CreateAsync(WalletTransaction walletTransaction, CancellationToken cancellationToken = default)
         {

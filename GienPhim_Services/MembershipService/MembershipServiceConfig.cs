@@ -15,6 +15,8 @@ using GienPhim_Services.MembershipService.Application.Interfaces.Mappers;
 using GienPhim_Services.MembershipService.Application.Mappers;
 using GienPhim_Services.MembershipService.Application.Factories;
 using GienPhim_Services.MembershipService.Application.Interfaces.Factories;
+using GienPhim_Services.MembershipService.Infrastructure.HttpClients.Interfaces;
+using GienPhim_Services.MembershipService.Infrastructure.HttpClients;
 
 
 namespace GienPhim_Services.MembershipService
@@ -74,6 +76,14 @@ namespace GienPhim_Services.MembershipService
                 var config = sp.GetRequiredService<IConfiguration>();
                 var userServiceUrl = config["ServiceUrls:UserService"];
                 client.BaseAddress = new Uri(userServiceUrl);
+            });
+
+            services.AddHttpClient<IWalletServiceClient, WalletServiceClient>("Membership_WalletClient", (sp, client) =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();// URL của UserService
+                var walletServiceUrl = config["ServiceUrls:WalletService"];
+
+                client.BaseAddress = new Uri(walletServiceUrl);
             });
 
             // Configure database contexts

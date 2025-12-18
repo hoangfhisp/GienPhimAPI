@@ -474,6 +474,48 @@ namespace GienPhim_Services.FilmService.Application.Services
             }
         }
 
+        public async Task<ResultDTO> UpdatePhimByLuotLikeDisLikeAsync(int phimId, bool isLike, bool isDislike, bool? oldIsLike, bool? oldIsDislike, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Update lượt like/dislike cho PhimId={PhimId}", phimId);
+
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            var phim = await _unitOfWork.Phims.GetByIdAsync(phimId, cancellationToken);
+            if (phim is null)
+            {
+                _logger.LogWarning("Không tìm thấy Phim với Id={PhimId}", phimId);
+                throw new PhimNotFoundException(phimId);
+            }
+
+            // HỦY TRẠNG THÁI CŨ
+            if (oldIsLike == true)
+                phim.LuotThichP = Math.Max(0, phim.LuotThichP - 1);
+
+            if (oldIsDislike == true)
+                phim.LuotDislikeP = Math.Max(0, phim.LuotDislikeP - 1);
+
+            // ÁP DỤNG TRẠNG THÁI MỚI
+            if (isLike)
+                phim.LuotThichP += 1;
+
+            if (isDislike)
+                phim.LuotDislikeP += 1;
+
+            phim.ThoiGianCapNhat = DateTime.UtcNow;
+
+            var update = await _unitOfWork.Phims.UpdateAsync(phim, cancellationToken);
+            if (update == null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.LogError("Cập nhật lượt like/dislike thất bại cho PhimId={PhimId}", phimId);
+                throw new UpdatePhimLikeDislikeFailedException(phimId);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation("Update lượt like/dislike thành công cho PhimId={PhimId}", phimId);
+            return ResultDTO.Success("Cập nhật lượt like/dislike cho phim thành công");
+        }
+
         // Tìm kiếm phim theo từ khóa
         public async Task<ResultDTO<List<PhimResponseDTO>>> SearchPhimsAsync(string keyword,int page, int limit, CancellationToken cancellationToken = default)
         {

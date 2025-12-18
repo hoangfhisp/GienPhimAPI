@@ -14,13 +14,15 @@ namespace GienPhim_Services.InteractionService.Infrastructure.Repositories
             IChatGroupRepository chatGroups,
             IGroupMemberRepository groupMembers,
             IJoinRequestRepository joinRequests,
-            IChatMessageRepository chatMessages)
+            IChatMessageRepository chatMessages,
+            IFeedBackRepository feedBacks)
         {
             _context = context;
             ChatGroups = chatGroups;
             GroupMembers = groupMembers;
             JoinRequests = joinRequests;
             ChatMessages = chatMessages;
+            FeedBacks = feedBacks;
         }
 
         public IChatGroupRepository ChatGroups { get; }
@@ -28,7 +30,7 @@ namespace GienPhim_Services.InteractionService.Infrastructure.Repositories
         public IJoinRequestRepository JoinRequests { get; }
 
         public IChatMessageRepository ChatMessages { get; }
-
+        public IFeedBackRepository FeedBacks { get; }
         public async Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
         {
             var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);

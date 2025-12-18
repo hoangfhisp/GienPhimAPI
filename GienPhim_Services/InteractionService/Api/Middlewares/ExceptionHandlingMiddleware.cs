@@ -34,20 +34,23 @@ namespace GienPhim_Services.InteractionService.Api.Middlewares
 
             // GroupMember
             { typeof(DuplicateGroupMemberException), StatusCodes.Status409Conflict },
-            { typeof(InvalidGroupMemberException), StatusCodes.Status500InternalServerError },
-            { typeof(InvalidGroupMemberException), StatusCodes.Status500InternalServerError },
-            { typeof(InvalidGroupMemberException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidGroupMemberException), StatusCodes.Status400BadRequest },
 
             // JoinRequest
             { typeof(DuplicateJoinRequestException), StatusCodes.Status409Conflict },
             { typeof(JoinRequestStateException), StatusCodes.Status500InternalServerError },
-            { typeof(InvalidJoinRequestException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidJoinRequestException), StatusCodes.Status400BadRequest },
             { typeof(JoinRequestPermissionException), StatusCodes.Status500InternalServerError },
-            { typeof(NotChatGroupOwnerException), StatusCodes.Status500InternalServerError },
 
             // ChatMessage
-            { typeof(InvalidChatMessageException), StatusCodes.Status500InternalServerError },
+            { typeof(InvalidChatMessageException), StatusCodes.Status400BadRequest },
             { typeof(ChatMessagePermissionException), StatusCodes.Status500InternalServerError },
+
+            //FeedBack
+            { typeof(InvalidFeedBackNullException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidUserIdNullException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidPhimIdException), StatusCodes.Status400BadRequest },
+            { typeof(InvalidLikeDislikeException), StatusCodes.Status400BadRequest },
 
         };
 
@@ -56,6 +59,7 @@ namespace GienPhim_Services.InteractionService.Api.Middlewares
             if (!context.Request.Path.StartsWithSegments("/api/ChatGroup") &&
                 !context.Request.Path.StartsWithSegments("/api/GroupMember") &&
                 !context.Request.Path.StartsWithSegments("/api/JoinRequest") &&
+                !context.Request.Path.StartsWithSegments("/api/FeedBack") &&
                 !context.Request.Path.StartsWithSegments("/api/ChatMessage"))
             {
                 await _next(context);
@@ -77,8 +81,8 @@ namespace GienPhim_Services.InteractionService.Api.Middlewares
                 context.Response.StatusCode = statusCode;
                 await context.Response.WriteAsJsonAsync(new
                 {
-                    success = false,
-                    message = ex.Message,
+                    Status = false,
+                    Msg = ex.Message,
                 });
             }
             catch (BusinessException ex) // lỗi nghiệp vụ

@@ -4,6 +4,7 @@ using GienPhim_Services.WalletService.Application.Factories;
 using GienPhim_Services.WalletService.Application.Interfaces.Factories;
 using GienPhim_Services.WalletService.Application.Interfaces.Mappers;
 using GienPhim_Services.WalletService.Application.Interfaces.Orchestrators;
+using GienPhim_Services.WalletService.Application.Interfaces.Payments;
 using GienPhim_Services.WalletService.Application.Interfaces.Repositories;
 using GienPhim_Services.WalletService.Application.Interfaces.Services;
 using GienPhim_Services.WalletService.Application.Interfaces.Validators;
@@ -15,6 +16,7 @@ using GienPhim_Services.WalletService.Domain.Services;
 using GienPhim_Services.WalletService.Infrastructure.Data;
 using GienPhim_Services.WalletService.Infrastructure.HttpClients;
 using GienPhim_Services.WalletService.Infrastructure.HttpClients.Interfaces;
+using GienPhim_Services.WalletService.Infrastructure.Payments.VnPay;
 using GienPhim_Services.WalletService.Infrastructure.Repositories;
 using GienPhim_Services.WalletService.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -57,9 +59,12 @@ namespace GienPhim_Services.WalletService
             // Config DbContext
             services.AddDbContext<WalletDbContext>(options =>
                 options.UseSqlServer(config.GetConnectionString("WalletDb")));
+            services.Configure<VnPaySettings>(config.GetSection("Vnpay"));
 
             //Service
             services.AddScoped<IHttpUserContextAccessor, HttpUserContextAccessor>();
+            services.AddScoped<IPaymentGateway, VnPayPaymentGateway>();
+
 
             // REPOSITORIES
             services.AddScoped<IWalletRepository, WalletRepository>(); // Wallet Repository

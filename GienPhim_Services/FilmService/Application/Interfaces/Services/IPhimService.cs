@@ -11,6 +11,7 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Services
         Task<ResultDTO<PhimResponseDTO>> GetByIdAsync(int id, CancellationToken ct = default);
         Task<ResultDTO> CreatePhimAsync(PhimCreateDTO createDto, CancellationToken cancellationToken = default);
         Task<ResultDTO<UpdatePhimResponseDTO>> UpdatePhimAsync(PhimUpdateDTO updateDto, CancellationToken cancellationToken = default);
+        Task<ResultDTO> UpdatePhimByLuotLikeDisLikeAsync(int phimId, bool isLike, bool isDislike, bool? oldIsLike, bool? oldIsDislike, CancellationToken cancellationToken = default); //  Cập nhật phim theo lượt like dislike
         Task<ResultDTO> DeletePhimAsync(PhimDeleteDTO deleteDto, CancellationToken cancellationToken = default);
         Task<ResultDTO<PhimResponseDTO>> ImportPhimFromApiAsync(string slug, CancellationToken cancellationToken = default);
         Task<ResultDTO<PhimResponseDTO>> UpdatePhimFromApiAsync(string slug, CancellationToken cancellationToken = default);

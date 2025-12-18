@@ -5,6 +5,7 @@ namespace GienPhim_Services.MembershipService.Application.Interfaces.Repositorie
     public interface IPlanOptionRepository
     {
         Task<(List<PlanOption> options, int total, int last)> GetAllPlanOptionsAsync(int page, int limit, CancellationToken cancellationToken = default);
+        Task<(List<PlanOption> options, int total, int last)> GetPlanOptionsByPlanIdAndDayAsync(string plainId, int day, int page, int limit, CancellationToken cancellationToken = default);
         Task<PlanOption?> GetByIdAsync(string optionId, CancellationToken ct = default);
         Task<PlanOption> CreateAsync(PlanOption option, CancellationToken ct = default);
         Task<PlanOption> UpdateAsync(PlanOption option, CancellationToken ct = default);
