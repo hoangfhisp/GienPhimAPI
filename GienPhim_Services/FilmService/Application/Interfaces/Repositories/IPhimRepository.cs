@@ -15,6 +15,6 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Repositories
         Task DeleteAsync(Phim phim, CancellationToken cancellationToken = default);
         Task<(List<Phim> phims, int total, int last)> SearchPhimsAsync(string keyword, int page, int limit, CancellationToken ct = default); // Tìm kiếm phim theo từ khóa (gần đúng)
         Task<(List<Phim> phims, int total, int last)> FilterPhimsAsync(string? ngonNguSlug, string? quocGiaSlug, string? theLoaiSlug, string? tenDienVien, string? tenDaoDien, int page, int limit, CancellationToken cancellationToken = default);
-
+        Task<Phim?> GetBySlugForUpdateAsync(string slug, CancellationToken ct = default);
     }
 }

@@ -13,5 +13,6 @@ namespace GienPhim_Services.InteractionService.Application.Interfaces.Repositori
         Task<ChatGroup> CreateAsync(ChatGroup group, CancellationToken cancellationToken = default);
 
         Task<ChatGroup> UpdateAsync(ChatGroup group, CancellationToken cancellationToken = default);
+        Task<bool> ExistsActiveGroupByOwnerAndFilmAsync(string ownerUserId, int phimId, DateTime nowUtc, CancellationToken cancellationToken = default);
     }
 }

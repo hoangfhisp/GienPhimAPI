@@ -45,7 +45,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
         // Tạo mới thẻ tag
         [HttpPost("Create")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] TheTagCreateDTO dto, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: CreateTheTag với tên {TenT}", dto.TenT);
@@ -56,7 +56,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
         // Cập nhật thẻ tag
         [HttpPut("Update")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromBody] TheTagUpdateDTO dto, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: UpdateTheTag Id={TheTagId}", dto.TheTagId);

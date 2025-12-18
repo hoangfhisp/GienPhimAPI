@@ -138,5 +138,15 @@ namespace GienPhim_Services.InteractionService.Infrastructure.Repositories
             await _context.SaveChangesAsync(cancellationToken);
             return group;
         }
+
+        public async Task<bool> ExistsActiveGroupByOwnerAndFilmAsync(string ownerUserId, int phimId, DateTime nowUtc, CancellationToken cancellationToken = default)
+        {
+            return await _context.ChatGroups.AnyAsync(g =>
+                g.CreatedByUserId == ownerUserId &&
+                g.PhimId == phimId &&
+                !g.IsDeleted &&
+                g.ShowEndTime >= nowUtc,
+                cancellationToken);
+        }
     }
 }

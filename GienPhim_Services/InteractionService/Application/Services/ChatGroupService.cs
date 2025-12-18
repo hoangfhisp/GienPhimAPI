@@ -5,8 +5,7 @@ using GienPhim_Services.InteractionService.Application.Interfaces.Repositories;
 using GienPhim_Services.InteractionService.Application.Interfaces.Services;
 using GienPhim_Services.InteractionService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.InteractionService.Application.Exceptions.NotFounds;
-using GienPhim_Services.InteractionService.Application.Exceptions.Failed;
-using Microsoft.Extensions.Logging;
+using GienPhim_Services.InteractionService.Application.Exceptions.Duplicate;
 
 namespace GienPhim_Services.InteractionService.Application.Services
 {
@@ -121,43 +120,40 @@ namespace GienPhim_Services.InteractionService.Application.Services
         }
 
         // ================== COMMANDS ==================
-
-        public async Task<ResultDTO<ChatGroupResponseDTO>> CreateChatGroupAsync(
-            ChatGroupCreateDTO dto,
-            CancellationToken cancellationToken = default)
+        public async Task<ResultDTO<ChatGroupResponseDTO>> CreateChatGroupAsync(ChatGroupCreateDTO dto, CancellationToken cancellationToken = default)
         {
             var userId = _currentUser.UserId;
             var now = _clock.UtcNow;
 
-            _logger.LogInformation(
-                "ChatGroupService: Bắt đầu CreateChatGroupAsync PhimId={PhimId} bởi UserId={UserId}",
-                dto.PhimId, userId);
+            _logger.LogInformation("ChatGroupService: Bắt đầu CreateChatGroupAsync PhimId={PhimId} bởi UserId={UserId}", dto.PhimId, userId);
 
-            // TODO: sau này check user đã mua phim ở TransactionService
+            // RULE NGHIỆP VỤ SENIOR YÊU CẦU
+            // 1 user chỉ được tạo 1 phòng xem chung cho 1 phim tại 1 thời điểm
+            var hasActiveGroup = await _unitOfWork.ChatGroups
+                .ExistsActiveGroupByOwnerAndFilmAsync(
+                    userId,
+                    dto.PhimId,
+                    now,
+                    cancellationToken);
 
-            // Orchestrator: dựng + validate entity (bên trong nó gọi DomainService)
+            if (hasActiveGroup)
+            {
+                _logger.LogWarning("ChatGroupService: UserId={UserId} đã có phòng chat đang hoạt động cho PhimId={PhimId}", userId, dto.PhimId);
+
+                throw new ChatGroupAlreadyExistsException("Bạn đã có một phòng xem chung cho phim này đang hoạt động.");
+            }
+
+            // Orchestrator: dựng entity + domain validation
             var group = await _orchestrator.CreateChatGroupAsync(dto, userId, now, cancellationToken);
 
-            // UnitOfWork transaction
-            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+            await using var transaction =
+                await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
-            var result = await _unitOfWork.ChatGroups.CreateAsync(group, cancellationToken);
-
-            if (result is null)
-            {
-                _logger.LogError(
-                    "ChatGroupService: Tạo phòng chat cho phim {PhimId} thất bại!",
-                    dto.PhimId);
-
-                await transaction.RollbackAsync(cancellationToken);
-                throw new CreateChatGroupFailedException(dto.PhimId);
-            }
+            await _unitOfWork.ChatGroups.CreateAsync(group, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
 
-            _logger.LogInformation(
-                "ChatGroupService: Tạo phòng chat {GroupId} thành công!",
-                group.GroupId);
+            _logger.LogInformation("ChatGroupService: Tạo phòng chat {GroupId} thành công!", group.GroupId);
 
             var response = _mapper.ToResponseDto(group);
             return ResultDTO<ChatGroupResponseDTO>.Success(response, "Tạo phòng chat thành công");

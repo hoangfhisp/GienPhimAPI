@@ -157,6 +157,13 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
             return entity;
         }
 
+        public async Task<Phim?> GetBySlugForUpdateAsync(string slug, CancellationToken ct = default)
+        {
+            return await _context.Phim
+                .Include(p => p.TapPhims)
+                .FirstOrDefaultAsync(p => p.NguonP == slug, ct);
+        }
+
         public async Task<Phim> CreateAsync(Phim phim, CancellationToken cancellationToken = default)
         {
             // ===== Guard null list =====

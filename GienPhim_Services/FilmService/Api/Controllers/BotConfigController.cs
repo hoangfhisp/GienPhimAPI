@@ -20,7 +20,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
         // Lấy cấu hình Bot
         [HttpGet("GetConfig")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetConfig(CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("API Request: GetBotConfig");
@@ -34,7 +34,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
         // Cập nhật cấu hình Bot
         [HttpPut("Update")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromBody] BotConfigUpdateDTO dto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("API Request: UpdateBotConfig với dữ liệu {@Dto}", dto);

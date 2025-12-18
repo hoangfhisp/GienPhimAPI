@@ -70,7 +70,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
         // Tạo phim mới
         [HttpPost("Create")]
         [Consumes("multipart/form-data")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromForm] PhimCreateDTO dto, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: CreatePhim với tên {TenP}", dto.TenP);
@@ -85,7 +85,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
         // Cập nhật phim
         [HttpPut("Update")]
         [Consumes("multipart/form-data")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromForm] PhimUpdateDTO dto, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: UpdatePhim Id={PhimId}", dto.PhimId);
@@ -99,7 +99,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
         // Xóa phim
         [HttpDelete("Delete")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromQuery] PhimDeleteDTO dto, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: DeletePhim Id={PhimId}", dto.PhimId);
@@ -113,7 +113,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
         // Nhập phim từ API ngoài
         [HttpPost("ImportFromApi")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ImportFromApi([FromQuery] string slug, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("API Request: ImportFromApi slug={Slug}", slug);
@@ -136,7 +136,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
         // Cập nhật phim từ API ngoài
         [HttpPut("UpdateFromApi")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateFromApi([FromQuery] string slug, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("API Request: UpdateFromApi slug={Slug}", slug);
