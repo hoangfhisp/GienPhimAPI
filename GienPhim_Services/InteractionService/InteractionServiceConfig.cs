@@ -18,6 +18,7 @@ using GienPhim_Services.InteractionService.Application.Interfaces.Factories;
 using GienPhim_Services.InteractionService.Infrastructure.Services;
 using GienPhim_Services.InteractionService.Infrastructure.Data.HttpClients.Interfaces;
 using GienPhim_Services.InteractionService.Infrastructure.Data.HttpClients;
+using GienPhim_Services.InteractionService.Api.Hubs;
 
 namespace GienPhim_Services.InteractionService
 {
@@ -108,6 +109,11 @@ namespace GienPhim_Services.InteractionService
         {
             // Đăng ký middleware riêng của UserService
             app.UseMiddleware<ExceptionHandlingMiddleware>();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHub<WatchPartyHub  >("/watchPartyHub"); // <-- đường dẫn hub
+            });
+
             return app;
         }
     }
