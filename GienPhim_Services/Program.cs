@@ -15,6 +15,7 @@ using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
 using GienPhim_Services.InteractionService.Infrastructure.Data;
 using GienPhim_Services.InteractionService;
 using GienPhim_Services.Hubs;
+using GienPhim_Services.InteractionService.Api.Hubs;
 
 System.Net.ServicePointManager.SecurityProtocol =
     System.Net.SecurityProtocolType.Tls12 |
@@ -122,6 +123,17 @@ builder.Services.AddQuartz(q =>
 builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
 
 builder.Services.AddWalletService(builder.Configuration); // WalletService
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000") // React dev
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // bắt buộc SignalR
+    });
+});
 var app = builder.Build();
 
 // Khi app khởi động: cấu hình lại Quartz dựa theo BotConfig trong DB
@@ -189,7 +201,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 // Cho phép FE gọi api
+
+app.UseRouting();
 app.UseCors("AllowFrontend");
+app.UseStaticFiles();
+app.UseHttpsRedirection();
+// Cho phép phục vụ file tĩnh từ wwwroot
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.AuthAuthService(); // AuthService
 app.UseUserService(); // UserService
@@ -198,17 +218,7 @@ app.MembershipService(); // MembershipService
 app.UserWalletService(); // WalletService
 app.InteractionService(); // InteractionService
 
-// Cho phép phục vụ file tĩnh từ wwwroot
-app.UseStaticFiles();
-
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-
-app.UseAuthorization();
-
 app.MapHub<ChatGroupHub>("/hubs/chat-group");
-
 app.MapControllers();
 
 app.Run();
