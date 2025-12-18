@@ -62,7 +62,7 @@ namespace GienPhim_Services.FilmService.Application.Factories
 
         public async Task<Phim?> GetExistingPhimAsync(string slug, CancellationToken ct = default)
         {
-            return await _unitOfWork.Phims.GetBySlugAsync(slug, ct);
+            return await _unitOfWork.Phims.GetBySlugForUpdateAsync(slug, ct);
         }
     }
 }

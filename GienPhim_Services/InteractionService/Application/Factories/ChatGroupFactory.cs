@@ -53,7 +53,7 @@ namespace GienPhim_Services.InteractionService.Application.Factories
                 JoinRequests = new List<JoinRequest>()
             };
 
-            // 🔥 ADD OWNER MEMBER
+            // ADD OWNER MEMBER
             var ownerMember = new GroupMember
             {
                 GroupMemberId = Guid.NewGuid(),

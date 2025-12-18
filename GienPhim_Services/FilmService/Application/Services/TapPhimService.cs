@@ -80,7 +80,7 @@ namespace GienPhim_Services.FilmService.Application.Services
         {
             _logger.LogInformation("ApplicationService: Bắt đầu Create TapPhim cho PhimId={PhimId}", dto.PhimId);
 
-            string videoFileName = string.Empty;
+            string videoPath = string.Empty;
 
             // Lấy phim để tạo tên file chuẩn
             var phim = await _unitOfWork.Phims.GetByIdAsync(dto.PhimId, ct);
@@ -92,12 +92,19 @@ namespace GienPhim_Services.FilmService.Application.Services
 
             if (dto.LinkChinh != null)
             {
-                // Tên file: slug-phim + slug-tap
                 var fileNameWithoutExt = $"{SlugHelper.GenerateSlug(phim.TenP)}-{SlugHelper.GenerateSlug(dto.TenTap)}";
-                videoFileName = await FileHelper.SaveVideoAsync(dto.LinkChinh, Path.Combine("wwwroot", "videos", "episodes"), fileNameWithoutExt);
+
+                // folder vật lý
+                var physicalFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos", "episodes");
+
+                // SaveVideoAsync thường trả về filename: xxx.mp4
+                var fileName = await FileHelper.SaveVideoAsync(dto.LinkChinh, physicalFolder, fileNameWithoutExt);
+
+                // lưu DB dạng đường dẫn tương đối
+                videoPath = Path.Combine("videos", "episodes", fileName).Replace("\\", "/");
             }
 
-            var entity = _factory.Create(dto, videoFileName);
+            var entity = _factory.Create(dto, videoPath);
 
             // Lấy danh sách tập phim hiện có của phim này để check duplicate
             var existing = await _unitOfWork.TapPhims.GetByPhimIdAsync(dto.PhimId, ct);
@@ -133,12 +140,25 @@ namespace GienPhim_Services.FilmService.Application.Services
                 throw new TapPhimNotFoundException(dto.TapId);
             }
 
-            string videoFileName = existingEntity.LinkChinh ?? string.Empty;
+            string videoPath = existingEntity.LinkChinh ?? string.Empty;
 
             if (dto.LinkChinh != null)
             {
-                // Xóa file cũ nếu có
-                FileHelper.DeleteVideo(Path.Combine("wwwroot", "videos", "episodes", existingEntity.LinkChinh));
+                // Xóa file cũ nếu có (tương thích cả dữ liệu cũ chỉ lưu filename)
+                if (!string.IsNullOrWhiteSpace(existingEntity.LinkChinh))
+                {
+                    var oldRel = existingEntity.LinkChinh.Contains("/")
+                        ? existingEntity.LinkChinh
+                        : Path.Combine("videos", "episodes", existingEntity.LinkChinh).Replace("\\", "/");
+
+                    var oldPhysical = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        oldRel.Replace("/", "\\")
+                    );
+
+                    FileHelper.DeleteVideo(oldPhysical);
+                }
 
                 // Lấy phim để đặt lại tên file
                 var phim = await _unitOfWork.Phims.GetByIdAsync(dto.PhimId, ct);
@@ -149,10 +169,17 @@ namespace GienPhim_Services.FilmService.Application.Services
                 }
 
                 var fileNameWithoutExt = $"{SlugHelper.GenerateSlug(phim.TenP)}-{SlugHelper.GenerateSlug(dto.TenTap)}";
-                videoFileName = await FileHelper.SaveVideoAsync(dto.LinkChinh, Path.Combine("wwwroot", "videos", "episodes"), fileNameWithoutExt);
-            }
 
-            var updated = _factory.Update(dto, videoFileName);
+                // folder vật lý
+                var physicalFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos", "episodes");
+
+                // SaveVideoAsync trả về filename: xxx.mp4
+                var fileName = await FileHelper.SaveVideoAsync(dto.LinkChinh, physicalFolder, fileNameWithoutExt);
+
+                // Lưu DB dạng đường dẫn tương đối
+                videoPath = Path.Combine("videos", "episodes", fileName).Replace("\\", "/");
+            }
+            var updated = _factory.Update(dto, videoPath);
 
             _domainService.EnsureCanUpdate(updated, existingEntity);
 
