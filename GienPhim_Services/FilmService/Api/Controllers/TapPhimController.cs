@@ -1,5 +1,6 @@
 ﻿using GienPhim_Services.FilmService.Application.DTOs.Client.TapPhim;
 using GienPhim_Services.FilmService.Application.Interfaces.Services;
+using GienPhim_Services.FilmService.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -85,5 +86,21 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
             return Ok(result);
         }
+
+        // Tìm kiếm phim theo từ khóa
+        // Tìm kiếm tập phim theo từ khóa (tên tập + tên phim)
+        [HttpGet("Search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromQuery] string keyword,int page = 1,int limit = 10,CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: SearchTapPhims với từ khóa {Keyword}", keyword);
+
+            var result = await _service.SearchAsync(keyword, page, limit, ct);
+
+            _logger.LogInformation("API Response: SearchTapPhims Status={Status}, Total={Count}", result.Status, result.Data?.Count);
+
+            return Ok(result);
+        }
+
     }
 }

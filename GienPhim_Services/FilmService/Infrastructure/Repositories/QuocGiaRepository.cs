@@ -79,5 +79,33 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
 
             return matched;
         }
+
+        public async Task<QuocGia?> GetByMoTaQGAsync(string moTaQG, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(moTaQG)) return null;
+
+            var key = moTaQG.Trim();
+            return await _filmContext.QuocGia
+                .FirstOrDefaultAsync(qg => qg.MoTaQG == key, ct);
+        }
+
+        public async Task<List<QuocGia>> GetByMoTaQGsAsync(List<string> moTaQGs, CancellationToken ct = default)
+        {
+            if (moTaQGs == null || moTaQGs.Count == 0) return new List<QuocGia>();
+
+            var keys = moTaQGs
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim())
+                .Distinct()
+                .ToList();
+
+            var result = new List<QuocGia>();
+            foreach (var key in keys)
+            {
+                var item = await _filmContext.QuocGia.FirstOrDefaultAsync(x => x.MoTaQG == key, ct);
+                if (item != null) result.Add(item);
+            }
+            return result;
+        }
     }
 }

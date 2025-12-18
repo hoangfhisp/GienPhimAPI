@@ -113,7 +113,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
         // Nhập phim từ API ngoài
         [HttpPost("ImportFromApi")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> ImportFromApi([FromQuery] string slug, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("API Request: ImportFromApi slug={Slug}", slug);
@@ -136,7 +136,7 @@ namespace GienPhim_Services.FilmService.Api.Controllers
 
         // Cập nhật phim từ API ngoài
         [HttpPut("UpdateFromApi")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateFromApi([FromQuery] string slug, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("API Request: UpdateFromApi slug={Slug}", slug);

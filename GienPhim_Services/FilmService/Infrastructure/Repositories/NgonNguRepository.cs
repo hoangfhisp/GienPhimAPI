@@ -78,5 +78,30 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
 
             return matched;
         }
+
+        public async Task<NgonNgu?> GetByMoTaNNAsync(string moTaNN, CancellationToken ct = default)
+        {
+            return await _filmContext.NgonNgu
+                .FirstOrDefaultAsync(x => x.MoTaNN == moTaNN, ct);
+        }
+
+        public async Task<List<NgonNgu>> GetByMoTaNNsAsync(List<string> moTaNNs, CancellationToken ct = default)
+        {
+            if (moTaNNs == null || moTaNNs.Count == 0) return new List<NgonNgu>();
+
+            var keys = moTaNNs
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim())
+                .Distinct()
+                .ToList();
+
+            var result = new List<NgonNgu>();
+            foreach (var key in keys)
+            {
+                var item = await _filmContext.NgonNgu.FirstOrDefaultAsync(x => x.MoTaNN == key, ct);
+                if (item != null) result.Add(item);
+            }
+            return result;
+        }
     }
 }

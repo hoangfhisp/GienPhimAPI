@@ -10,5 +10,7 @@ namespace GienPhim_Services.FilmService.Application.Interfaces.Repositories
         Task<DienVien> UpdateAsync(DienVien dienVien, CancellationToken ct = default);
         Task DeleteAsync(DienVien dienVien, CancellationToken ct = default);
         Task<List<DienVien>> SearchDienViensAsync(string keyword, CancellationToken cancellationToken = default);
+        Task<DienVien?> GetByMoTaDVAsync(string moTaDV, CancellationToken ct = default);
+        Task<List<DienVien>> GetByMoTaDVsAsync(List<string> moTaDVs, CancellationToken ct = default);
     }
 }

@@ -82,5 +82,34 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
 
             return matched;
         }
+
+        public async Task<DaoDien?> GetByMoTaDDAsync(string moTaDD, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(moTaDD)) return null;
+
+            // normalize để chống "Trần A" vs "  trần  a "
+            var key = SlugHelper.NormalizeSearchText(moTaDD);
+
+            var all = await _filmContext.DaoDien.AsNoTracking().ToListAsync(ct);
+
+            return all.FirstOrDefault(x => SlugHelper.NormalizeSearchText(x.MoTaDD ?? x.TenDD ?? "") == key);
+        }
+
+        public async Task<List<DaoDien>> GetByMoTaDDsAsync(List<string> moTaDDs, CancellationToken ct = default)
+        {
+            if (moTaDDs == null || moTaDDs.Count == 0) return new List<DaoDien>();
+
+            var keys = moTaDDs
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(SlugHelper.NormalizeSearchText)
+                .Distinct()
+                .ToList();
+
+            var all = await _filmContext.DaoDien.AsNoTracking().ToListAsync(ct);
+
+            return all
+                .Where(x => keys.Contains(SlugHelper.NormalizeSearchText(x.MoTaDD ?? x.TenDD ?? "")))
+                .ToList();
+        }
     }
 }

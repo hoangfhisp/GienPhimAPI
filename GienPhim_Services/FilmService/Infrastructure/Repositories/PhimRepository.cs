@@ -140,9 +140,85 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(p => p.NguonP == slug, ct);
         }
 
+        private T? AttachOrGetTracked<T>(T? entity, Func<T, int> getId) where T : class
+        {
+            if (entity == null) return null;
+
+            var id = getId(entity);
+            if (id <= 0) return entity; // entity mới (identity) -> để EF tự Add theo graph
+
+            var tracked = _context.ChangeTracker.Entries<T>()
+                .Select(e => e.Entity)
+                .FirstOrDefault(e => getId(e) == id);
+
+            if (tracked != null) return tracked;
+
+            _context.Attach(entity);
+            return entity;
+        }
+
         public async Task<Phim> CreateAsync(Phim phim, CancellationToken cancellationToken = default)
         {
-            await _context.Phim.AddAsync(phim, cancellationToken);
+            // ===== Guard null list =====
+            phim.PhanLoaiTheLoais ??= new List<PhanLoaiTheLoai>();
+            phim.DienVienCuaPhims ??= new List<DienVienCuaPhim>();
+            phim.DaoDienCuaPhims ??= new List<DaoDienCuaPhim>();
+
+            // ===== Ngôn ngữ / quốc gia =====
+            phim.NgonNgu = AttachOrGetTracked(phim.NgonNgu, x => x.NgonNguId);
+            phim.QuocGia = AttachOrGetTracked(phim.QuocGia, x => x.QuocGiaId);
+
+            // ===== Thể loại (join) =====
+            foreach (var pl in phim.PhanLoaiTheLoais)
+            {
+                pl.TheLoai = AttachOrGetTracked(pl.TheLoai, x => x.TheLoaiId);
+                if (pl.TheLoai != null) pl.TheLoaiId = pl.TheLoai.TheLoaiId; //  set FK
+            }
+
+            // ===== Diễn viên (join) =====
+            foreach (var link in phim.DienVienCuaPhims)
+            {
+                link.DienVien = AttachOrGetTracked(link.DienVien, x => x.DienVienId);
+                if (link.DienVien != null) link.DienVienId = link.DienVien.DienVienId; // set FK
+            }
+
+            // ===== Đạo diễn (join) =====
+            foreach (var link in phim.DaoDienCuaPhims)
+            {
+                link.DaoDien = AttachOrGetTracked(link.DaoDien, x => x.DaoDienId);
+                if (link.DaoDien != null) link.DaoDienId = link.DaoDien.DaoDienId; // ✅ set FK
+            }
+
+            // ===== Dedup join lists (tránh trùng key composite) =====
+            phim.PhanLoaiTheLoais = phim.PhanLoaiTheLoais
+                .GroupBy(x =>
+                    x.TheLoaiId > 0
+                        ? $"ID:{x.TheLoaiId}"
+                        : $"KEY:{SlugHelper.NormalizeSearchText(x.TheLoai?.MoTa ?? x.TheLoai?.TenTL ?? "")}"
+                )
+                .Select(g => g.First())
+                .ToList();
+
+            phim.DienVienCuaPhims = phim.DienVienCuaPhims
+                .GroupBy(x =>
+                    x.DienVienId > 0
+                        ? $"ID:{x.DienVienId}"
+                        : $"KEY:{SlugHelper.NormalizeSearchText(x.DienVien?.MoTaDV ?? x.DienVien?.TenDV ?? "")}"
+                )
+                .Select(g => g.First())
+                .ToList();
+
+            phim.DaoDienCuaPhims = phim.DaoDienCuaPhims
+                .GroupBy(x =>
+                    x.DaoDienId > 0
+                        ? $"ID:{x.DaoDienId}"
+                        : $"KEY:{SlugHelper.NormalizeSearchText(x.DaoDien?.MoTaDD ?? x.DaoDien?.TenDD ?? "")}"
+                )
+                .Select(g => g.First())
+                .ToList();
+
+            // ===== Save =====
+            _context.Phim.Add(phim);
             await _context.SaveChangesAsync(cancellationToken);
             return phim;
         }
@@ -161,50 +237,41 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         }
 
         // Tìm kiếm phim theo từ khóa (gần đúng)
-        public async Task<(List<Phim> phims, int total, int last)> SearchPhimsAsync(string keyword,int page, int limit, CancellationToken cancellationToken = default)
+        public async Task<(List<Phim> phims, int total, int last)> SearchPhimsAsync(string keyword, int page, int limit, CancellationToken ct = default)
         {
-            // Chuẩn hóa từ khóa: bỏ dấu, lower, trim
-            var key = SlugHelper.NormalizeSearchText(keyword);
+            page = page <= 0 ? 1 : page;
+            limit = limit <= 0 ? 10 : limit;
 
-            // Lấy tất cả phim (chỉ lấy những field cần)
-            var phims = await _context.Phim
+            var k = (keyword ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(k))
+                return (new List<Phim>(), 0, 0);
+
+            // NOTE: chọn collation phù hợp DB bạn, thường dùng Latin1_General_CI_AI
+            // CI = case-insensitive, AI = accent-insensitive (bỏ dấu)
+            var query = _context.Phim
                 .AsNoTracking()
-                .Select(p => new Phim
-                {
-                    PhimId = p.PhimId,
-                    TenP = p.TenP,
-                    MoTaP = p.MoTaP,
-                    AvatarP = p.AvatarP,
-                    AvatarPoster = p.AvatarPoster,
-                    NguonP = p.NguonP,
-                    ThuoiLuongP = p.ThuoiLuongP,
-                    NgonNguId = p.NgonNguId,
-                    QuocGiaId = p.QuocGiaId,
-                    TenCTSXP = p.TenCTSXP
-                })
-                .ToListAsync(cancellationToken);
-
-
-            // So sánh bỏ dấu (ở tầng C#)
-            var matched = phims
                 .Where(p =>
-                    SlugHelper.NormalizeSearchText(p.TenP ?? "").Contains(key) ||
-                    SlugHelper.NormalizeSearchText(p.TenCTSXP ?? "").Contains(key) ||
-                    SlugHelper.NormalizeSearchText(p.NguonP ?? "").Contains(key)
+                    EF.Functions.Like(EF.Functions.Collate(p.TenP ?? "", "Latin1_General_CI_AI"), $"%{k}%")
+                    || EF.Functions.Like(EF.Functions.Collate(p.TenCTSXP ?? "", "Latin1_General_CI_AI"), $"%{k}%")
+                    || EF.Functions.Like(EF.Functions.Collate(p.NguonP ?? "", "Latin1_General_CI_AI"), $"%{k}%")
                 )
-                .OrderByDescending(p => p.PhimId)
-                .ToList();
+                .Include(p => p.QuocGia)
+                .Include(p => p.NgonNgu)
+                .Include(p => p.PhanLoaiTheLoais).ThenInclude(pl => pl.TheLoai)
+                .Include(p => p.DaoDienCuaPhims).ThenInclude(dp => dp.DaoDien)
+                .Include(p => p.DienVienCuaPhims).ThenInclude(dv => dv.DienVien)
+                .Include(p => p.PhanLoaiTheTags).ThenInclude(pt => pt.TheTag);
 
-
-            var total = matched.Count();
+            var total = await query.CountAsync(ct);
             var last = (int)Math.Ceiling((double)total / limit);
 
-            var result = matched
+            var result = await query
+                .OrderByDescending(p => p.PhimId)
                 .Skip((page - 1) * limit)
                 .Take(limit)
-                .ToList();
+                .ToListAsync(ct);
 
-            return (result,total,last);
+            return (result, total, last);
         }
 
         // Lọc phim theo nhiều tiêu chí với phân trang
