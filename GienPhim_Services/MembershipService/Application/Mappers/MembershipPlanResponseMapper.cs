@@ -14,7 +14,13 @@ namespace GienPhim_Services.MembershipService.Application.Mappers
                 PlanId = plan.PlanId,
                 TenPlan = plan.TenPlan,
                 PlanSlug = plan.PlanSlug,
-                MoTaPlan = plan.MoTaPlan
+                MoTaPlan = plan.MoTaPlan,
+                Options = plan.PlanOptions.Select(option => new PlanOptionResponseDTO
+                {
+                    OptionId = option.OptionId,
+                    GiaOption = option.GiaOption,
+                    ThoiGianSuDung = option.ThoiGianSuDung
+                }).ToList()
             };
         }
 

@@ -6,7 +6,7 @@
         IGroupMemberRepository GroupMembers { get; }
         IJoinRequestRepository JoinRequests { get; }
         IChatMessageRepository ChatMessages { get; }
-
+        IFeedBackRepository FeedBacks { get; }
         Task<IEfTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default); // Transaction
     }
 }

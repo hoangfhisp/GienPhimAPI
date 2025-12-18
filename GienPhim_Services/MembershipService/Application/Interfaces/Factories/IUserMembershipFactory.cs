@@ -5,7 +5,7 @@ namespace GienPhim_Services.MembershipService.Application.Interfaces.Factories
 {
     public interface IUserMembershipFactory
     {
-        UserMembership CreateUserMembership(UserMembershipCreateDTO dto);
+        UserMembership CreateUserMembership(UserMembershipCreateDTO dto, int day);
         UserMembership UpdateUserMembership(UserMembershipUpdateDTO dto);
         UserMembership DeleteUserMembership(UserMembershipDeleteDTO dto);
     }

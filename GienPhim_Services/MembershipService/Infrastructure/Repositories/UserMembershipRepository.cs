@@ -82,9 +82,15 @@ namespace GienPhim_Services.MembershipService.Infrastructure.Repositories
         {
             return await _membershipContext.UserMemberships
                 .Include(um => um.PlanOption)
-                .Where(um => um.UserId == userId && um.TrangThai == "Đang sử dụng" && um.NgayKetThuc >= DateTime.UtcNow)
+                .ThenInclude(po => po.MembershipPlan)
+                .Where(um => um.UserId == userId && um.TrangThai == "Đang hoạt động" && um.NgayKetThuc >= DateTime.UtcNow)
                 .OrderByDescending(um => um.NgayBatDau)
                 .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<List<UserMembership>> GetUserMemberByUserIdAndOptionId(string userId,string optionId, CancellationToken cancellationToken = default)
+        {
+            return await _membershipContext.UserMemberships.Where(u => u.UserId == userId && u.OptionId == optionId && u.TrangThai == "Đang hoạt động").ToListAsync();
         }
 
         // Kiểm tra user đang sử dụng gói thành viên nào
@@ -93,7 +99,7 @@ namespace GienPhim_Services.MembershipService.Infrastructure.Repositories
             return await _membershipContext.UserMemberships.AnyAsync(
                 um => um.UserId == userId &&
                       um.OptionId == optionId &&
-                      um.TrangThai == "Đang sử dụng" &&
+                      um.TrangThai == "Đang hoạt động" &&
                       um.NgayKetThuc >= DateTime.UtcNow,
                 cancellationToken);
         }

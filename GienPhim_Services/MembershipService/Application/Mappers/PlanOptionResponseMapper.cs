@@ -13,7 +13,14 @@ namespace GienPhim_Services.MembershipService.Application.Mappers
                 OptionId = option.OptionId,
                 PlanId = option.PlanId,
                 ThoiGianSuDung = option.ThoiGianSuDung,
-                GiaOption = option.GiaOption
+                GiaOption = option.GiaOption,
+                MembershipPlans = new MembershipPlanResponseDTO
+                {
+                    TenPlan = option.MembershipPlan.TenPlan,
+                    PlanSlug = option.MembershipPlan.PlanSlug,
+                    MoTaPlan = option.MembershipPlan.MoTaPlan
+                }
+
             };
         }
 

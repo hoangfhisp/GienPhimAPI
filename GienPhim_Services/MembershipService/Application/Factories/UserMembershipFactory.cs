@@ -6,16 +6,16 @@ namespace GienPhim_Services.MembershipService.Application.Factories
 {
     public class UserMembershipFactory : IUserMembershipFactory
     {
-        public UserMembership CreateUserMembership(UserMembershipCreateDTO dto)
+        public UserMembership CreateUserMembership(UserMembershipCreateDTO dto,int day)
         {
             return new UserMembership
             {
                 UserMembershipId = Guid.NewGuid().ToString(),
                 OptionId = dto.OptionId.Trim(),
                 UserId = dto.UserId.Trim(),
-                NgayBatDau = dto.NgayBatDau,
-                NgayKetThuc = dto.NgayKetThuc,
-                TrangThai = dto.TrangThai.Trim()
+                NgayBatDau = DateTime.UtcNow,
+                NgayKetThuc = DateTime.UtcNow.AddDays(day),
+                TrangThai = "Đang hoạt động"
             };
         }
 

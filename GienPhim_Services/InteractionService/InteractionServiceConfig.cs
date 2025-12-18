@@ -16,6 +16,8 @@ using GienPhim_Services.InteractionService.Application.Mappers;
 using GienPhim_Services.InteractionService.Application.Factories;
 using GienPhim_Services.InteractionService.Application.Interfaces.Factories;
 using GienPhim_Services.InteractionService.Infrastructure.Services;
+using GienPhim_Services.InteractionService.Infrastructure.Data.HttpClients.Interfaces;
+using GienPhim_Services.InteractionService.Infrastructure.Data.HttpClients;
 
 namespace GienPhim_Services.InteractionService
 {
@@ -29,24 +31,28 @@ namespace GienPhim_Services.InteractionService
             services.AddScoped<IGroupMemberService, GroupMemberService>();
             services.AddScoped<IJoinRequestService, JoinRequestService>();
             services.AddScoped<IChatMessageService, ChatMessageService>();
+            services.AddScoped<IFeedBackService, FeedBackService>();
 
             // FACTORIES
             services.AddScoped<IChatGroupFactory, ChatGroupFactory>();
             services.AddScoped<IGroupMemberFactory, GroupMemberFactory>();
             services.AddScoped<IJoinRequestFactory, JoinRequestFactory>();
             services.AddScoped<IChatMessageFactory, ChatMessageFactory>();
+            services.AddScoped<IFeedBackFactory, FeedBackFactory>();
 
             // MAPPERS
             services.AddScoped<IChatGroupResponseMapper, ChatGroupResponseMapper>();
             services.AddScoped<IGroupMemberResponseMapper, GroupMemberResponseMapper>();
             services.AddScoped<IJoinRequestResponseMapper, JoinRequestResponseMapper>();
             services.AddScoped<IChatMessageResponseMapper, ChatMessageResponseMapper>();
-
+            services.AddScoped<IFeedBackResponseMapper, FeedBackResponseMapper>();
+            services.AddScoped<IPaginationMapper, PaginationMapper>();
             // ORCHESTRATORS
             services.AddScoped<IChatGroupOrchestrator, ChatGroupOrchestrator>();
             services.AddScoped<IGroupMemberOrchestrator, GroupMemberOrchestrator>();
             services.AddScoped<IJoinRequestOrchestrator, JoinRequestOrchestrator>();
             services.AddScoped<IChatMessageOrchestrator, ChatMessageOrchestrator>();
+            services.AddScoped<IFeedBackOrchestrator, FeedBackOrchestrator>();
 
             /*-----------------------------------------DOMAIN--------------------------------------------*/
             // DOMAIN SERVICES
@@ -54,14 +60,29 @@ namespace GienPhim_Services.InteractionService
             services.AddScoped<IGroupMemberDomainService, GroupMemberDomainService>();
             services.AddScoped<IJoinRequestDomainService, JoinRequestDomainService>();
             services.AddScoped<IChatMessageDomainService, ChatMessageDomainService>();
-
-            //MAPPERS
-            services.AddScoped<IPaginationMapper, PaginationMapper>();
+            services.AddScoped<IFeedBackDomainService, FeedBackDomainService>();
+ 
+            
 
             /*-----------------------------------------INFRASTRUCTURE--------------------------------------------*/
             //CONFIG
 
             // HTTP Client
+            services.AddHttpClient<IUserServiceClient, UserServiceClient>("Interaction_UserClient", (sp, client) =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();// URL của UserService
+                var userServiceUrl = config["ServiceUrls:UserService"];
+
+                client.BaseAddress = new Uri(userServiceUrl);
+            });
+
+            services.AddHttpClient<IPhimServiceClient, PhimServiceClient>("Interaction_FilmClient", (sp, client) =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();// URL của UserService
+                var FilmService = config["ServiceUrls:FilmService"];
+
+                client.BaseAddress = new Uri(FilmService);
+            });
 
             // Configure database contexts
             services.AddDbContext<InteractionDbContext>(options =>
@@ -77,6 +98,7 @@ namespace GienPhim_Services.InteractionService
             services.AddScoped<IGroupMemberRepository, GroupMemberRepository>();
             services.AddScoped<IJoinRequestRepository, JoinRequestRepository>();
             services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+            services.AddScoped<IFeedBackRepository, FeedBackRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Unit of Work
             return services;

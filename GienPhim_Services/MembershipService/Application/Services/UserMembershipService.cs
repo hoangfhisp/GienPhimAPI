@@ -1,5 +1,6 @@
 ﻿using GienPhim_Services.MembershipService.Application.DTOs.Client.UserMembership;
 using GienPhim_Services.MembershipService.Application.DTOs.Common;
+using GienPhim_Services.MembershipService.Application.DTOs.Wallets;
 using GienPhim_Services.MembershipService.Application.Exceptions.Duplicates;
 using GienPhim_Services.MembershipService.Application.Exceptions.Failed;
 using GienPhim_Services.MembershipService.Application.Exceptions.NotFounds;
@@ -85,6 +86,7 @@ namespace GienPhim_Services.MembershipService.Application.Services
         {
             _logger.LogInformation("ApplicationService: Bắt đầu CreateUserMembershipAsync cho UserId={UserId}, OptionId={OptionId}", createDto.UserId, createDto.OptionId);
 
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
             // Kiểm tra PlanOption tồn tại
             var existingOption = await _unitOfWork.PlanOptions.GetByIdAsync(createDto.OptionId, cancellationToken);
             if (existingOption is null)
@@ -94,9 +96,7 @@ namespace GienPhim_Services.MembershipService.Application.Services
             }
 
             // Tạo entity qua orchestrator
-            var userMembership = await _userMembershipOrchestrator.CreateUserMembershipAsync(createDto, cancellationToken);
-
-            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+            var (userMembership,walletId) = await _userMembershipOrchestrator.CreateUserMembershipAsync(createDto,existingOption.GiaOption,existingOption.ThoiGianSuDung, cancellationToken);
 
             var result = await _unitOfWork.UserMemberships.CreateAsync(userMembership, cancellationToken);
             if (result is null)
@@ -105,6 +105,28 @@ namespace GienPhim_Services.MembershipService.Application.Services
                 await transaction.RollbackAsync(cancellationToken);
                 throw new CreateUserMembershipFailedException(createDto.UserId);
             }
+            
+            var um = await _unitOfWork.UserMemberships.GetUserMemberByUserIdAndOptionId(result.UserId,result.OptionId, cancellationToken);
+            if(um.Count > 1)
+            {
+                foreach (var item in um)
+                {
+                    if (item.UserMembershipId != result.UserMembershipId)
+                    {
+                        item.TrangThai = "Đã hủy";
+                        await _unitOfWork.UserMemberships.UpdateAsync(item, cancellationToken);
+                    }
+                }
+            }
+            var walletTransaction = new CreateWalletTransactionRequestDTO
+            {
+                WalletId = walletId,
+                SoTienThayDoi = -existingOption.GiaOption,
+                LoaiGiaoDich = "Mua GTV",
+                MoTa = $"Trừ tiền mua gói thành viên {existingOption.MembershipPlan.TenPlan} {existingOption.ThoiGianSuDung} ngày."
+            };
+
+            await _userMembershipOrchestrator.CreateWalletTransactionAsync(walletTransaction, cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
             _logger.LogInformation("ApplicationService: Tạo UserMembership thành công cho UserId={UserId}", createDto.UserId);

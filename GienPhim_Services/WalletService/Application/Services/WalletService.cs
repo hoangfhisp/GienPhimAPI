@@ -1,11 +1,15 @@
 ﻿using GienPhim_Services.WalletService.Application.DTOs.Common;
+using GienPhim_Services.WalletService.Application.DTOs.Payments;
 using GienPhim_Services.WalletService.Application.DTOs.Wallets;
 using GienPhim_Services.WalletService.Application.Exceptions.Failed;
 using GienPhim_Services.WalletService.Application.Exceptions.NotFounds;
+using GienPhim_Services.WalletService.Application.Interfaces.Factories;
 using GienPhim_Services.WalletService.Application.Interfaces.Mappers;
 using GienPhim_Services.WalletService.Application.Interfaces.Orchestrators;
+using GienPhim_Services.WalletService.Application.Interfaces.Payments;
 using GienPhim_Services.WalletService.Application.Interfaces.Repositories;
 using GienPhim_Services.WalletService.Application.Interfaces.Services;
+using GienPhim_Services.WalletService.Domain.Entities;
 
 
 namespace GienPhim_Services.WalletService.Application.Services
@@ -17,17 +21,23 @@ namespace GienPhim_Services.WalletService.Application.Services
         private readonly IHttpUserContextAccessor _httpUserContextAccessor;
         private readonly IWalletResponseMapper _walletResponseMapper;
         private readonly IPaginationMapper _paginationMapper;
+        private readonly IPaymentGateway _paymentGateway;
+        private readonly IWalletTransactionFactory _walletTransactionFactory;
         private readonly ILogger<WalletService> _logger;
 
         public WalletService(IWalletOrchestrator walletOrchestrator,IUnitOfWork unitOfWork
             , IHttpUserContextAccessor httpUserContextAccessor, IWalletResponseMapper walletResponseMapper
-            ,IPaginationMapper paginationMapper, ILogger<WalletService> logger)
+            ,IPaginationMapper paginationMapper, IPaymentGateway paymentGateway
+            , IWalletTransactionFactory walletTransactionFactory
+            , ILogger<WalletService> logger)
         {
             _walletOrchestrator = walletOrchestrator;
             _unitOfWork = unitOfWork;
             _httpUserContextAccessor = httpUserContextAccessor;
             _walletResponseMapper = walletResponseMapper;
             _paginationMapper = paginationMapper;
+            _paymentGateway = paymentGateway;
+            _walletTransactionFactory = walletTransactionFactory;
             _logger = logger;
         }
 
@@ -121,6 +131,93 @@ namespace GienPhim_Services.WalletService.Application.Services
             await transaction.CommitAsync(cancellationToken);
             _logger.LogInformation("Service: Tạo giao dịch ví thành công cho walletId = {WalletId}", request.WalletId);
             return ResultDTO.Success("Tạo giao dịch ví thành công số dư còn: " + updateWallet.SoDu);
+        }
+
+        // Tạo link thanh toán VnPay
+        public async Task<ResultDTO<string>> CreateVnPayPayment( PaymentRequestDTO model, string ipAddress,CancellationToken cancellationToken = default)
+        {
+            var orderId = "GienPhim_" + Guid.NewGuid().ToString("N")[..8];
+
+            var paymentUrl = await _paymentGateway.CreatePaymentUrl(
+                model,
+                ipAddress,
+                orderId
+            );
+
+            var wl = await GetWalletByUserIdAsync(model.UserId);
+
+            var request = new CreateWalletTransactionRequestDTO
+            {
+
+                WalletId = wl.Data.WalletId,
+                SoTienThayDoi = model.SoTien,
+                LoaiGiaoDich = "Nạp tiền VnPay",
+                MoTa = orderId,
+                TrangThai = "Chờ xử lý"
+
+            };
+            var walletTransaction = await _walletOrchestrator.CreateWalletTransactionAsync(request, cancellationToken);
+
+            var update = _unitOfWork.WalletTransaction.CreateAsync(walletTransaction,cancellationToken);
+
+            return ResultDTO<string>.Success(paymentUrl,"Tạp link nạp tiền bằng Vnpay thành công.");
+        }
+
+        public async Task<ResultDTO<PaymentCallbackResultDTO>> HandleVnPayCallback(IQueryCollection query, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Service: Bắt đầu HandleVnPayCallback ");
+            await using var transaction = await _unitOfWork.BeginTransactionAsync();
+            var result = await _paymentGateway.HandleCallback(query);
+
+            string trangThai;
+
+            if (result.IsSuccess)
+            {
+                trangThai = "Thành công";
+            }
+            else
+            {
+                trangThai = "Thất bại";
+            }
+
+            var wl = await _unitOfWork.WalletTransaction.GetByMoTaAsync(result.OrderId,cancellationToken);
+            if(wl == null)
+            {
+                _logger.LogWarning("Service: Không tìm thấy giao dịch ví cho mô tả = {MoTa}", result.OrderId);
+                await transaction.RollbackAsync();
+                throw new WalletTransactionNotFoundException(result.OrderId);
+            }
+            wl.TrangThai = trangThai;
+            
+            if (result.IsSuccess)
+            {
+               var update = await _unitOfWork.WalletTransaction.UpdateAsync(wl,cancellationToken);
+                if (update == null)
+                {
+                    _logger.LogWarning("Service: Cập nhật giao dịch ví thất bại cho mô tả = {MoTa}", result.OrderId);
+                    await transaction.RollbackAsync();
+                    throw new UpdateWalletTransactionFailedException();
+                }
+                var wallet = await _unitOfWork.Wallet.FindWalletByWalletIdAsync(wl.WalletId,cancellationToken);
+                if (wallet == null)
+                {
+                    _logger.LogWarning("Service: Không tìm thấy ví cho walletId = {WalletId}", wl.WalletId);
+                    await transaction.RollbackAsync();
+                    throw new WalletNotFoundException(wl.WalletId);
+                }
+                wallet.SoDu += wl.SoTienThayDoi;
+                wallet.NgayCapNhat = DateTime.UtcNow;
+                var updateWallet = await _unitOfWork.Wallet.UpdateAsync(wallet, cancellationToken);
+                if (updateWallet == null)
+                {
+                    _logger.LogWarning("Service: Cập nhật số dư ví thất bại cho walletId = {WalletId}", wl.WalletId);
+                    await transaction.RollbackAsync();
+                    throw new UpdateWalletFailedException(wallet.WalletId);
+                }
+            }
+            await transaction.CommitAsync();
+            _logger.LogInformation("Service: Xử lý callback VnPay thành công cho mô tả = {MoTa}", result.OrderId);
+            return ResultDTO<PaymentCallbackResultDTO>.Success(result,"Nạp tiền vô tài khoản thành công");
         }
     }
 }

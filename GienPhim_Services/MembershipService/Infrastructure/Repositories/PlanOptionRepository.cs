@@ -33,6 +33,25 @@ namespace GienPhim_Services.MembershipService.Infrastructure.Repositories
             return (options, total, last);
         }
 
+        public async Task<(List<PlanOption> options, int total, int last)> GetPlanOptionsByPlanIdAndDayAsync(string plainId, int day ,int page, int limit, CancellationToken cancellationToken = default)
+        {
+            var query = _membershipContext.PlanOptions
+                .Include(o => o.MembershipPlan) // load plan kèm option (nếu cần)
+                .Where(o => o.PlanId == plainId && o.ThoiGianSuDung == day)
+                .AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var last = (int)Math.Ceiling((double)total / limit);
+
+            var options = await query
+                .OrderBy(o => o.OptionId)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            return (options, total, last);
+        }
+
         // Lấy PlanOption theo Id
         public async Task<PlanOption?> GetByIdAsync(string optionId, CancellationToken ct = default)
         {

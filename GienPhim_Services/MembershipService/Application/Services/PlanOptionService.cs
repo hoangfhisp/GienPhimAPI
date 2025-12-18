@@ -56,6 +56,30 @@ namespace GienPhim_Services.MembershipService.Application.Services
             );
         }
 
+        public async Task<ResultListDTO<List<PlanOptionResponseDTO>>> GetPlanOptionsByPlanIdAnDayAsync(string plainId,int day,int page, int limit, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetAllPlanOptionsAsync với page={Page}, limit={Limit}", page, limit);
+
+            var (planOptions, total, last) = await _unitOfWork.PlanOptions.GetPlanOptionsByPlanIdAndDayAsync(plainId,day,page, limit, cancellationToken);
+
+            if (total == 0)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy PlanOption nào");
+                throw new PlanOptionNotFoundException();
+            }
+
+            var dtoList = _planOptionResponseMapper.ToDtoList(planOptions);
+            var pagination = _paginationMapper.ToDto(page, limit, total, last);
+
+            _logger.LogInformation("ApplicationService: Lấy danh sách PlanOption thành công, tổng={Total}", total);
+
+            return ResultListDTO<List<PlanOptionResponseDTO>>.Success(
+                dtoList,
+                "Lấy danh sách lựa chọn gói thành viên thành công",
+                pagination
+            );
+        }
+
         // Lấy chi tiết 1 PlanOption
         public async Task<ResultDTO<PlanOptionResponseDTO>> GetDetailAsync(string optionId, CancellationToken ct = default)
         {

@@ -9,6 +9,7 @@ namespace GienPhim_Services.MembershipService.Domain.Services
     {
         public void EnsureCanCreate(UserMembership userMembership)
         {
+            
             Validate(userMembership);
         }
 

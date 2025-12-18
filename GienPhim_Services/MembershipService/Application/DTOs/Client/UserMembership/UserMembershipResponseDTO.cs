@@ -3,7 +3,9 @@
     public class UserMembershipResponseDTO
     {
         public string UserMembershipId { get; set; } = string.Empty;
+        public string tenPlan { get; set; }
         public string OptionId { get; set; } = string.Empty;
+        public int ThoiGianSuDung { get; set; }
         public string UserId { get; set; } = string.Empty;
         public DateTime NgayBatDau { get; set; }
         public DateTime NgayKetThuc { get; set; }

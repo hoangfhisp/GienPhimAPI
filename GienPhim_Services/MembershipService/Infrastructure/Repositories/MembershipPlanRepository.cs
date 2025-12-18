@@ -17,7 +17,9 @@ namespace GienPhim_Services.MembershipService.Infrastructure.Repositories
         // Lấy tất cả MembershipPlan có phân trang
         public async Task<(List<MembershipPlan> plans, int total, int last)> GetAllMembershipPlansAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
-            var query = _membershipContext.MembershipPlans.AsQueryable();
+            var query = _membershipContext.MembershipPlans
+                .Include(m => m.PlanOptions)
+                .AsQueryable();
 
             var total = await query.CountAsync(cancellationToken);
             var last = (int)Math.Ceiling((double)total / limit);

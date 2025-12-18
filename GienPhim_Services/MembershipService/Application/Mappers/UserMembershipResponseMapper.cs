@@ -11,7 +11,9 @@ namespace GienPhim_Services.MembershipService.Application.Mappers
             return new UserMembershipResponseDTO
             {
                 UserMembershipId = userMembership.UserMembershipId,
+                tenPlan = userMembership.PlanOption.MembershipPlan.TenPlan,
                 OptionId = userMembership.OptionId,
+                ThoiGianSuDung = userMembership.PlanOption.ThoiGianSuDung,
                 UserId = userMembership.UserId,
                 NgayBatDau = userMembership.NgayBatDau,
                 NgayKetThuc = userMembership.NgayKetThuc,

@@ -41,7 +41,7 @@ namespace GienPhim_Services.MembershipService.Api.Controllers
 
         // Tạo mới UserMembership
         [HttpPost("Create")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "User,Admin")]
         public async Task<IActionResult> Create([FromBody] UserMembershipCreateDTO dto, CancellationToken ct = default)
         {
             _logger.LogInformation("API Request: Create UserMembership cho UserId={UserId}, OptionId={OptionId}", dto.UserId, dto.OptionId);
