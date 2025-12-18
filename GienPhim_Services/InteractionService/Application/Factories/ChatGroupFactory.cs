@@ -17,7 +17,6 @@ namespace GienPhim_Services.InteractionService.Application.Factories
             var showEnd = nowUtc.AddHours(DefaultShowDurationHours);
             var autoDeleteAt = nowUtc.AddHours(DefaultAutoDeleteOffsetHours);
 
-            // Sinh mã mời đơn giản (sau này nếu cần có thể chuyển qua DomainService)
             var inviteCode = GenerateInviteCode();
 
             var group = new ChatGroup
@@ -34,7 +33,7 @@ namespace GienPhim_Services.InteractionService.Application.Factories
                 AllowInvite = true,
                 AllowJoinByLink = true,
 
-                // Playback mặc định
+                // Playback
                 IsPlaying = false,
                 CurrentPlaybackPosition = TimeSpan.Zero,
                 LastPlaybackUpdated = null,
@@ -49,11 +48,27 @@ namespace GienPhim_Services.InteractionService.Application.Factories
                 InviteCode = inviteCode,
                 InviteCodeExpireAt = autoDeleteAt,
 
-                // Nav collections khởi tạo rỗng
                 Members = new List<GroupMember>(),
                 Messages = new List<ChatMessage>(),
                 JoinRequests = new List<JoinRequest>()
             };
+
+            // 🔥 ADD OWNER MEMBER
+            var ownerMember = new GroupMember
+            {
+                GroupMemberId = Guid.NewGuid(),
+                GroupId = group.GroupId,
+                UserId = currentUserId,
+
+                IsOwner = true,
+                CanChat = true,
+                CanControlFilm = true,
+                IsMuted = false,
+
+                JoinedAt = nowUtc
+            };
+
+            group.Members.Add(ownerMember);
 
             return group;
         }
