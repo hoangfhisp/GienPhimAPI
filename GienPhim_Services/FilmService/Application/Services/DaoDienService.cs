@@ -1,0 +1,179 @@
+﻿using GienPhim_Services.FilmService.Application.DTOs.Client.DaoDien;
+using GienPhim_Services.FilmService.Application.DTOs.Common;
+using GienPhim_Services.FilmService.Application.Exceptions.Failed;
+using GienPhim_Services.FilmService.Application.Exceptions.NotFounds;
+using GienPhim_Services.FilmService.Application.Interfaces.Mappers;
+using GienPhim_Services.FilmService.Application.Interfaces.Orchestrators;
+using GienPhim_Services.FilmService.Application.Interfaces.Repositories;
+using GienPhim_Services.FilmService.Application.Interfaces.Services;
+
+namespace GienPhim_Services.FilmService.Application.Services
+{
+    public class DaoDienService : IDaoDienService
+    {
+        private readonly IDaoDienOrchestrator _daoDienOrchestrator;
+        private readonly IDaoDienResponseMapper _daoDienResponseMapper;
+        private readonly IPaginationMapper _paginationMapper;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<DaoDienService> _logger;
+
+        public DaoDienService(
+            IUnitOfWork unitOfWork,
+            IDaoDienOrchestrator daoDienOrchestrator,
+            IDaoDienResponseMapper daoDienResponseMapper,
+            IPaginationMapper paginationMapper,
+            ILogger<DaoDienService> logger)
+        {
+            _unitOfWork = unitOfWork;
+            _daoDienOrchestrator = daoDienOrchestrator;
+            _daoDienResponseMapper = daoDienResponseMapper;
+            _paginationMapper = paginationMapper;
+            _logger = logger;
+        }
+
+        public async Task<ResultListDTO<List<DaoDienResponseDTO>>> GetAllDaoDiensAsync(int page, int limit, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetAllDaoDiensAsync với trang {Page} và giới hạn {Limit}", page, limit);
+
+            // Repo đã xử lý phân trang + count luôn
+            var (daoDiens, total, last) = await _unitOfWork.DaoDiens.GetAllDaoDiensAsync(page, limit, cancellationToken);
+
+            if (total == 0)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy đạo diễn nào");
+                throw new DaoDienNotFoundException();
+            }
+
+            // Map sang DTO
+            var resultDaoDien = _daoDienResponseMapper.toDtoList(daoDiens);
+
+            var pagination = _paginationMapper.ToDto(page, limit, total, last);
+
+            _logger.LogInformation("ApplicationService: Lấy danh sách DaoDien thành công, tổng={Total}", total);
+
+            return ResultListDTO<List<DaoDienResponseDTO>>.Success(resultDaoDien, "Lấy danh sách đạo diễn thành công", pagination);
+        }
+
+        public async Task<ResultDTO<DaoDienResponseDTO>> GetDetailAsync(int daoDienId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu GetDetailAsync cho DaoDienId={DaoDienId}", daoDienId);
+
+            var daoDien = await _unitOfWork.DaoDiens.GetByIdAsync(daoDienId, ct);
+            if (daoDien is null)
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy Đạo diễn Id={DaoDienId}", daoDienId);
+                throw new DaoDienNotFoundException(daoDienId.ToString());
+            }
+
+            var dto = _daoDienResponseMapper.toDto(daoDien);
+
+            _logger.LogInformation("ApplicationService: Lấy chi tiết Đạo diễn Id={DaoDienId} thành công", daoDienId);
+
+            return ResultDTO<DaoDienResponseDTO>.Success(dto, "Lấy chi tiết đạo diễn thành công");
+        }
+
+        // Tạo DaoDien mới
+        public async Task<ResultDTO> CreateDaoDienAsync(DaoDienCreateDTO createDto, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu CreateDaoDienAsync với tên đạo diễn {TenDD}", createDto.TenDD);
+
+            // Gọi Orchestrator để tạo DaoDien
+            var daoDien = await _daoDienOrchestrator.CreateDaoDienAsync(createDto, cancellationToken);
+
+            // Bắt đầu transaction
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            // Lưu DaoDien vào Repository
+            var result = await _unitOfWork.DaoDiens.CreateAsync(daoDien, cancellationToken);
+            if (result is null)
+            {
+                _logger.LogError("ApplicationService: Tạo DaoDien {TenDD} thất bại!", daoDien.TenDD);
+                await transaction.RollbackAsync(cancellationToken);
+                throw new CreateDaoDienFailedException(daoDien.TenDD);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation("ApplicationService: Tạo DaoDien {TenDD} thành công!", daoDien.TenDD);
+            return ResultDTO.Success($"Tạo đạo diễn {daoDien.TenDD} thành công");
+        }
+
+        // Cập nhật DaoDien
+        public async Task<ResultDTO<UpdateDaoDienResponseDTO>> UpdateDaoDienAsync(DaoDienUpdateDTO updateDto, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu UpdateDaoDienAsync với Id={DaoDienId}", updateDto.DaoDienId);
+
+            // Gọi Orchestrator để cập nhật DaoDien
+            var daoDien = await _daoDienOrchestrator.UpdateDaoDienAsync(updateDto, cancellationToken);
+
+            // Bắt đầu transaction
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            // Cập nhật DaoDien vào Repository
+            var result = await _unitOfWork.DaoDiens.UpdateAsync(daoDien, cancellationToken);
+            if (result is null)
+            {
+                _logger.LogError("ApplicationService: Cập nhật DaoDien {DaoDienId} thất bại!", updateDto.DaoDienId);
+                await transaction.RollbackAsync(cancellationToken);
+                throw new UpdateDaoDienFailedException(daoDien.TenDD);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation("ApplicationService: Cập nhật DaoDien {DaoDienId} thành công!", daoDien.DaoDienId);
+
+            // Map sang ResponseDTO
+            var response = _daoDienResponseMapper.ToUpdateDto(daoDien);
+
+            return ResultDTO<UpdateDaoDienResponseDTO>.Success(
+                response,
+                $"Cập nhật đạo diễn {daoDien.TenDD} thành công");
+        }
+
+        // Xoá DaoDien
+        public async Task<ResultDTO> DeleteDaoDienAsync(DaoDienDeleteDTO deleteDto, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu DeleteDaoDienAsync với Id={DaoDienId}", deleteDto.DaoDienId);
+
+            await _daoDienOrchestrator.DeleteDaoDienAsync(deleteDto, cancellationToken);
+
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            var daoDien = await _unitOfWork.DaoDiens.GetByIdAsync(deleteDto.DaoDienId, cancellationToken);
+            if (daoDien is null)
+            {
+                _logger.LogWarning("ApplicationService: DaoDien không tồn tại khi xóa {DaoDienId}", deleteDto.DaoDienId);
+                return ResultDTO.Fail($"Không tìm thấy đạo diễn với Id {deleteDto.DaoDienId}");
+            }
+
+            await _unitOfWork.DaoDiens.DeleteAsync(daoDien, cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation("ApplicationService: Xóa DaoDien {DaoDienId} thành công!", deleteDto.DaoDienId);
+            return ResultDTO.Success($"Xóa đạo diễn {daoDien.TenDD} thành công");
+        }
+
+        // Tìm kiếm DaoDien theo từ khóa (gần đúng)
+        public async Task<ResultListDTO<List<DaoDienResponseDTO>>> SearchDaoDiensAsync(string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("ApplicationService: Bắt đầu SearchDaoDiensAsync với keyword = {Keyword}", keyword);
+
+            // Gọi repository
+            var daoDiens = await _unitOfWork.DaoDiens.SearchDaoDiensAsync(keyword, ct);
+
+            // Nếu không có kết quả
+            if (daoDiens == null || !daoDiens.Any())
+            {
+                _logger.LogWarning("ApplicationService: Không tìm thấy đạo diễn nào phù hợp với keyword = {Keyword}", keyword);
+                throw new DaoDienNotFoundException();
+            }
+
+            // Mapping sang DTO
+            var resultDtos = _daoDienResponseMapper.toDtoList(daoDiens);
+
+            _logger.LogInformation("ApplicationService: Tìm kiếm đạo diễn thành công, tổng={Total}", resultDtos.Count);
+
+            // Trả về kết quả
+            return ResultListDTO<List<DaoDienResponseDTO>>.Success(resultDtos, "Tìm kiếm đạo diễn thành công");
+        }
+
+    }
+}

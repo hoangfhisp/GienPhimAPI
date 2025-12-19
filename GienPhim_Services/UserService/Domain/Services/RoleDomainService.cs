@@ -1,43 +1,71 @@
-﻿
-using GienPhim_Services.UserService.Application.Interfaces.Repositories;
-using GienPhim_Services.UserService.Domain.Entities;
-using GienPhim_Services.UserService.Domain.Exceptions.Failed;
+﻿using GienPhim_Services.UserService.Domain.Entities;
+using GienPhim_Services.UserService.Domain.Exceptions.Duplicate;
+using GienPhim_Services.UserService.Domain.Exceptions.Invalid;
 using GienPhim_Services.UserService.Domain.Services.Interfaces;
-using GienPhim_Services.UserService.Shared.Kernel;
-using Microsoft.AspNetCore.Identity;
 
 namespace GienPhim_Services.UserService.Domain.Services
 {
     public class RoleDomainService : IRoleDomainService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<RoleDomainService> _logger;
-        public RoleDomainService(IUnitOfWork unitOfWork, ILogger<RoleDomainService> logger)
+
+        // Kiểm tra các điều kiện để tạo Role mới
+        public void EnsureCanCreate(Role role)
         {
-            _unitOfWork = unitOfWork;
-            _logger = logger;
+            if (string.IsNullOrWhiteSpace(role.RoleName))
+            {
+                throw new InvalidRoleNameNullException(role.RoleName);
+            }
         }
 
-        // Tạo Role mới
-        public async Task<IdentityResult> CreateRoleAsync(Role role, CancellationToken cancellationToken = default)
+        // Kiểm tra các điều kiện để xóa Role
+        public void EnsureCanDelete(Role role)
         {
-            _logger.LogInformation("DomainService: Bắt đầu CreateRoleAsync với role {RoleName}", role.RoleName);
-            // Bắt đầu transaction
-            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
-
-            // Tạo Role mới
-            var result = await _unitOfWork.Roles.CreateRoleAsync(role);
-            if (!result.Succeeded)
+            // Thêm các kiểm tra khác nếu cần thiết
+            if (string.IsNullOrWhiteSpace(role.Id))
             {
-                _logger.LogError("DomainService: Tạo Role {RoleName} thất bại!", role.RoleName);
-                await transaction.RollbackAsync(cancellationToken);
-                throw new CreateRoleFailedException(role.RoleName);
+                throw new InvalidRoleIdNullException();
             }
 
-            await transaction.CommitAsync(cancellationToken);
-            _logger.LogInformation("DomainService: Tạo Role {RoleName} thành công!", role.RoleName);
-            return result;
-
         }
+
+        // Kiểm tra các điều kiện để cập nhật Role
+        public void EnsureCanUpdate(Role role, string roleName)
+        {
+            if (string.IsNullOrWhiteSpace(role.RoleName))
+            {
+                throw new InvalidRoleNameNullException(role.RoleName);
+            }
+            if(role.DuplicateRoleName(roleName))
+                throw new  DuplicateRoleNameException(roleName);
+        }
+
+        // Kiểm tra các điều kiện để tìm Role theo tên
+        public void EnsureCanFindUserName(string roleName, int page, int limit)
+        {
+            if (string.IsNullOrWhiteSpace(roleName))
+            {
+                throw new InvalidRoleNameNullException(roleName);
+            }
+
+            ValidatePagination(page, limit);
+        }
+
+        // Kiểm tra các điều kiện để tìm Role theo Id
+        public void EnsureCanGetListRole(int page, int limit)
+        {
+            ValidatePagination(page, limit);
+        }
+
+        //private methods
+        // Validate phân trang
+        private void ValidatePagination(int page, int limit)
+        {
+            if (page <= 0)
+                throw new InvalidUserPageException(page);
+
+            if (limit <= 0 || limit > 100)
+                throw new InvalidUserPageLimitException(limit);
+        }
+
     }
 }

@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\GienPhim_Services.props" />
-</Project>

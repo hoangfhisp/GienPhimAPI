@@ -1,4 +1,4 @@
-﻿using GienPhim_Services.AuthService.Domain.Entities;
+﻿using GienPhim_Services.AuthService.Domain.Models;
 
 namespace GienPhim_Services.AuthService.Application.Interfaces.Repositories
 {

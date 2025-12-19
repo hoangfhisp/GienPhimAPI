@@ -1,5 +1,5 @@
 ﻿using GienPhim_Services.AuthService.Application.Interfaces.Repositories;
-using GienPhim_Services.AuthService.Domain.Entities;
+using GienPhim_Services.AuthService.Domain.Models;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace GienPhim_Services.AuthService.Infrastructure.Repositories
@@ -17,7 +17,7 @@ namespace GienPhim_Services.AuthService.Infrastructure.Repositories
         public Task SaveAsync(Otp otp, CancellationToken cancellationToken = default)
         {
             var key = BuildKey(otp.UserId, otp.Type);
-            _cache.Set(key, otp, otp.ExpiryTime); // set TTL = thời gian hết hạn của OTP
+            _cache.Set(key, otp, otp.Expiry); // set TTL = thời gian hết hạn của OTP
             return Task.CompletedTask;
         }
 

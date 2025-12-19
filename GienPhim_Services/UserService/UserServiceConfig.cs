@@ -11,13 +11,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using GienPhim_Services.UserService.Application.Validators.Users;
 using GienPhim_Services.UserService.Application.Interfaces.Validators;
-using GienPhim_Services.UserService.Domain.Factories.Interfaces;
-using GienPhim_Services.UserService.Domain.Factories;
 using GienPhim_Services.UserService.Application.Interfaces.Orchestrators;
 using GienPhim_Services.UserService.Application.Orchestrators;
 using GienPhim_Services.UserService.Api.Middlewares;
 using GienPhim_Services.UserService.Application.Interfaces.Mappers;
 using GienPhim_Services.UserService.Application.Mappers;
+using GienPhim_Services.UserService.Infrastructure.HttpClients.Interfaces;
+using GienPhim_Services.UserService.Infrastructure.HttpClients;
+using GienPhim_Services.UserService.Application.Interfaces.Factories;
+using GienPhim_Services.UserService.Application.Factories;
 
 namespace GienPhim_Services.UserService
 {
@@ -41,10 +43,13 @@ namespace GienPhim_Services.UserService
 
             // FACTORIES    
             services.AddScoped<Application.Interfaces.Factories.IUserFactory,Application.Factories.UserFactory>(); 
-            services.AddScoped<Application.Interfaces.Factories.IRoleFactory, Application.Factories.RoleFactory>(); 
+            services.AddScoped<Application.Interfaces.Factories.IRoleFactory, Application.Factories.RoleFactory>();
+            services.AddScoped<IWalletHttpFactory, WalletHttpFactory>();
 
             // MAPPERS
             services.AddScoped<IUserResponseMapper, UserResponseMapper>(); // User Mapper
+            services.AddScoped<IPaginationMapper,PaginationMapper>();
+            services.AddScoped<IRoleResponseMapper, RoleResponseMapper>(); // Role Mapper
 
             // Đăng ký tất cả validators tự động
             services.Scan(scan => scan
@@ -55,9 +60,6 @@ namespace GienPhim_Services.UserService
 
 
             /*-----------------------------------------DOMAIN--------------------------------------------*/
-            // FACTORIES
-            services.AddScoped<IUserFactory, UserFactory>(); // Tạo username ngẫu nhiên
-            services.AddScoped<IRoleFactory, RoleFactory>(); // Tạo role mới
 
             // DOMAINSERVICES
             services.AddScoped<IUserDomainService, UserDomainService>(); // User Domain Service
@@ -88,6 +90,14 @@ namespace GienPhim_Services.UserService
             services.AddScoped<IRoleRepository, RoleRepository>(); // Role Repository
             services.AddScoped<IUserRepository, UserRepository>(); // User Repository
             services.AddScoped<IUnitOfWork, UnitOfWork>(); // Base Repository
+
+            services.AddHttpClient<IWalletServiceClient, WalletServiceClient>("UserService_WalletClient", (sp, client) =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();// URL của UserService
+                var userServiceUrl = config["ServiceUrls:WalletService"];
+
+                client.BaseAddress = new Uri(userServiceUrl);
+            });
 
             return services;
         }

@@ -1,16 +1,24 @@
-﻿using GienPhim_Services.UserService.Application.DTOs.Client.Login;
+﻿using GienPhim_Services.UserService.Application.DTOs.Admin.User;
+using GienPhim_Services.UserService.Application.DTOs.Client.Login;
 using GienPhim_Services.UserService.Application.DTOs.Client.User;
-using GienPhim_Services.UserService.Application.DTOs.Common;
+using GienPhim_Services.UserService.Domain.Entities;
 
 namespace GienPhim_Services.UserService.Application.Interfaces.Orchestrators
 {
     public interface IUserOrchestrator
     {
-        Task<ResultDTO> RegisterUserAsync(UserRegisterDTO registerUser, CancellationToken cancellationToken = default); // Đăng ký User mới với vai trò mặc định
-        Task<ResultDTO<ExternalLoginUserResponseDTO>> ProviderLoginOrRegisterUserAsync(ExternalLoginUserInfoDTO request, CancellationToken cancellationToken = default); // Đăng nhập hoặc đăng ký User mới từ bên ngoài với vai trò mặc định
-        Task<ResultDTO<UpdateInfoUserResponseDTO>> UpdateInfoUserAsync(InfoUserUpdateDTO update, CancellationToken cancellationToken = default); // Cập nhật thông tin User
-        Task<ResultDTO<LoginLocalUserResponseDTO>> LoginUserAsync(LoginRequestDTO requestLogin, CancellationToken cancellationToken = default); // Đăng nhập User Local
-        Task<ResultDTO<UserResponseDTO>> FindUserByEmailAsync(FindUserByEmailDTO dto, CancellationToken cancellationToken = default); // Tìm User theo email
-        Task<ResultDTO> ResetPasswordAsync(ResetPasswordRequestDTO dto, CancellationToken cancellationToken = default); // Reset mật khẩu User
+        Task<User> RegisterUserAsync(UserRegisterDTO registerUser, CancellationToken cancellationToken = default); // Đăng ký User mới với vai trò mặc định
+        Task CreateWalletAsync(string userId, CancellationToken cancellationToken = default); // Tạo ví mới cho User
+        Task<User> ProviderRegisterUserAsync(ExternalLoginUserInfoDTO request, CancellationToken cancellationToken = default); // Đăng ký User mới từ bên ngoài với vai trò mặc định
+        User ProviderLoginUser(ExternalLoginUserInfoDTO request); // Đăng nhập User từ bên ngoài
+        Task<User> UpdateInfoUserAsync(InfoUserUpdateRequestDTO update, string userId ,CancellationToken cancellationToken = default); // Cập nhật thông tin User
+        Task<User> LoginLocalUserAsync(LoginRequestDTO requestLogin, CancellationToken cancellationToken = default); // Đăng nhập User Local
+        User GetUserByEmail(FindUserByEmailRequestDTO dto); // Tìm User theo email
+        User GetUserByUserId(FindUserByIdRequestDTO dto); // Tìm User theo userId
+        Task<(List<User> user, int total, int last)> GetUserByNameND(FindUserByTenNDRequestTO request, CancellationToken cancellationToken = default); // Tìm User theo NameND
+        User ResetPasswordAsync(ResetPasswordRequestDTO dto); // Reset mật khẩu User
+        User ChangeEmail(User user, string newEmail); // Đổi email User
+        Task GetListUserAsync(ListUserRequestDTO request, CancellationToken cancellationToken = default); // Lấy danh sách User với phân trang và lọc
+        Task<User> DeleteUserAsync(DeleteUserRequestDTO request, CancellationToken cancellationToken = default); // Xóa User
     }
 } 

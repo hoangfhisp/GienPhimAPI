@@ -1,4 +1,6 @@
-﻿using GienPhim_Services.UserService.Application.DTOs.Client.User;
+﻿using GienPhim_Services.UserService.Application.DTOs.Admin.User;
+using GienPhim_Services.UserService.Application.DTOs.Client.Login;
+using GienPhim_Services.UserService.Application.DTOs.Client.User;
 using GienPhim_Services.UserService.Application.Interfaces.Factories;
 using GienPhim_Services.UserService.Domain.Entities;
 
@@ -17,8 +19,66 @@ namespace GienPhim_Services.UserService.Application.Factories
                 PhoneNumber = userRegister.PhoneNumber,
                 TypeLogin = "Local",
                 ThoiGianTao = DateTime.UtcNow,
+                ThoiGianCapNhat = DateTime.UtcNow,
+                ThoiGianDoiEmail = DateTime.UtcNow
+            };
+        }
+
+        public User CreateExternalUser(ExternalLoginUserInfoDTO externalUser, string userName)
+        {
+            return new User
+            {
+                Id = Guid.NewGuid().ToString("N"),
+                Email = externalUser.Email,
+                NameND = externalUser.NameND,
+                UserName = userName,
+                AvatarND = externalUser.AvatarND,
+                TypeLogin = externalUser.TypeLogin,
+                AuthId = externalUser.AuthId,
+                ThoiGianTao = DateTime.UtcNow,
+                ThoiGianCapNhat = DateTime.UtcNow,
+                ThoiGianDoiEmail = DateTime.UtcNow
+            };
+        }
+
+        public User CreateUpdateInfoUser(InfoUserUpdateRequestDTO update, string userId)
+        {
+            return new User
+            {
+                Id = userId,
+                UserName = update.UserName,
+                PhoneNumber = update.PhoneNumber,
+                NameND = update.NameND,
+                AvatarND = update.AvatarND?.ToString(),
+                ThoiGianCapNhat = DateTime.UtcNow,
+                
+            };
+        }
+
+        public User CreateEmail(FindUserByEmailRequestDTO dto)
+        {
+            return new User
+            {
+                Email = dto.Email
+            };
+        }
+
+        public User CreateUserId(FindUserByIdRequestDTO dto)
+        {
+            return new User
+            {
+                Id = dto.UserId
+            };
+        }
+
+        public User CreateResetPassword(ResetPasswordRequestDTO dto)
+        {
+            return new User
+            {
+                Id = dto.UserId,
                 ThoiGianCapNhat = DateTime.UtcNow
             };
         }
+
     }
 }

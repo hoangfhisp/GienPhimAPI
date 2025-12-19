@@ -1,7 +1,6 @@
-﻿using GienPhim_Services.FilmService.Application.Interfaces.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using GienPhim_Services.FilmService.Application.DTOs.Client.DaoDien;
+using GienPhim_Services.FilmService.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GienPhim_Services.FilmService.Api.Controllers
@@ -10,24 +9,82 @@ namespace GienPhim_Services.FilmService.Api.Controllers
     [ApiController]
     public class DaoDienController : ControllerBase
     {
-        private readonly IFilmService _filmService;
+        private readonly IDaoDienService _daoDienService;
         private readonly ILogger<DaoDienController> _logger;
-        public DaoDienController(IFilmService filmService, ILogger<DaoDienController> logger)
+        public DaoDienController( ILogger<DaoDienController> logger, IDaoDienService daoDienService)
         {
-            _filmService = filmService;
+            _daoDienService = daoDienService;
             _logger = logger;
         }
 
-        // FILM SERVICE
         // Lấy danh sách đạo diễn
         [HttpGet("GetAllDaoDiens")]
         public async Task<IActionResult> GetAllDaoDiens(int page = 1,int limit = 10, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("API Request: GetAllDaoDiensAsync ");
-            var result = await _filmService.GetAllDaoDiensAsync(page,limit,cancellationToken);
+            var result = await _daoDienService.GetAllDaoDiensAsync(page,limit,cancellationToken);
             _logger.LogInformation("API Response: GetAllDaoDiensAsync với trạng thái {Status}", result.Status);
             return Ok(result); 
         }
 
+        // Lấy chi tiết đạo diễn theo Id
+        [HttpGet("Detail/{daoDienId}")]
+        public async Task<IActionResult> GetDetail(int daoDienId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: GetDetail DaoDien Id={DaoDienId}", daoDienId);
+
+            var result = await _daoDienService.GetDetailAsync(daoDienId, ct);
+
+            _logger.LogInformation("API Response: GetDetail DaoDien Id={DaoDienId} Status={Status}", daoDienId, result.Status);
+
+            return Ok(result);
+        }
+
+        // Tạo mới đạo diễn
+        [HttpPost("Create")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create([FromBody] DaoDienCreateDTO dto, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: CreateDaoDien với tên {TenDD}", dto.TenDD);
+            var result = await _daoDienService.CreateDaoDienAsync(dto, ct);
+            _logger.LogInformation("API Response: CreateDaoDien Status={Status}", result.Status);
+            return Ok(result);
+        }
+
+        // Cập nhật thông tin đạo diễn
+        [HttpPut("Update")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Update([FromBody] DaoDienUpdateDTO dto, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: UpdateDaoDien Id={DaoDienId}", dto.DaoDienId);
+            var result = await _daoDienService.UpdateDaoDienAsync(dto, ct);
+            _logger.LogInformation("API Response: UpdateDaoDien Id={DaoDienId} Status={Status}", dto.DaoDienId, result.Status);
+            return Ok(result);
+        }
+
+        // Xóa đạo diễn
+        [HttpDelete("Delete")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete([FromQuery]DaoDienDeleteDTO deleteDto, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: DeleteDaoDien Id={DaoDienId}", deleteDto.DaoDienId);
+            var result = await _daoDienService.DeleteDaoDienAsync(deleteDto, ct);
+            _logger.LogInformation("API Response: DeleteDaoDien Id={DaoDienId} Status={Status}", deleteDto.DaoDienId, result.Status);
+            return Ok(result);
+        }
+
+        // Tìm kiếm đạo diễn theo từ khóa
+        [HttpGet("Search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromQuery] string keyword, CancellationToken ct = default)
+        {
+            _logger.LogInformation("API Request: Search DaoDien với keyword = {Keyword}", keyword);
+
+            var result = await _daoDienService.SearchDaoDiensAsync(keyword, ct);
+
+            _logger.LogInformation("API Response: Search DaoDien với keyword = {Keyword}, Status={Status}, Total={Total}", keyword, result.Status, result.Data?.Count);
+
+            return Ok(result);
+        }
     }
 }

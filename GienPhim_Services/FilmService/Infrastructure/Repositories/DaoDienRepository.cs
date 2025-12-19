@@ -2,6 +2,7 @@
 using GienPhim_Services.FilmService.Domain.Entities;
 using GienPhim_Services.FilmService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Shared.FileStorage;
 
 namespace GienPhim_Services.FilmService.Infrastructure.Repositories
 {
@@ -15,10 +16,100 @@ namespace GienPhim_Services.FilmService.Infrastructure.Repositories
         }
 
         // Lấy all đạo diễn 
-        public async Task<List<DaoDien>> GetAllDaoDiensAsync(CancellationToken cancellationToken = default)
+        public async Task<(List<DaoDien> daoDiens, int total, int last)> GetAllDaoDiensAsync(int page, int limit, CancellationToken cancellationToken = default)
         {
-            return await _filmContext.DaoDien.ToListAsync(cancellationToken);
+            var query = _filmContext.DaoDien.AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var last = (int)Math.Ceiling((double)total / limit);
+
+            var daoDiens = await query
+                .OrderBy(dd => dd.DaoDienId)
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            return (daoDiens, total, last);
         }
 
+        public async Task<DaoDien?> GetByIdAsync(int daoDienId, CancellationToken ct = default)
+        {
+            return await _filmContext.DaoDien
+                .FirstOrDefaultAsync(daoDien => daoDien.DaoDienId == daoDienId, ct);
+        }
+
+        public async Task<DaoDien> CreateAsync(DaoDien daoDien, CancellationToken ct = default)
+        {
+            _filmContext.DaoDien.Add(daoDien);
+            await _filmContext.SaveChangesAsync(ct);  // tự commit
+            return daoDien;
+        }
+
+        public async Task<DaoDien> UpdateAsync(DaoDien daoDien, CancellationToken ct = default)
+        {
+            _filmContext.DaoDien.Update(daoDien);
+            await _filmContext.SaveChangesAsync(ct);  // tự commit
+            return daoDien;
+        }
+
+        public async Task DeleteAsync(DaoDien daoDien, CancellationToken ct = default)
+        {
+            _filmContext.DaoDien.Remove(daoDien);
+            await _filmContext.SaveChangesAsync(ct);  // tự commit
+        }
+
+        public async Task<List<DaoDien>> SearchDaoDiensAsync(string keyword, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return new List<DaoDien>();
+
+            // Chuẩn hóa từ khóa (bỏ dấu, lower, trim)
+            var key = SlugHelper.NormalizeSearchText(keyword);
+
+            // Lấy tất cả đạo diễn (vì bảng nhỏ, không ảnh hưởng hiệu năng)
+            var daoDiens = await _filmContext.DaoDien
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+            // So sánh bỏ dấu để tìm gần đúng
+            var matched = daoDiens
+                .Where(dd =>
+                    SlugHelper.NormalizeSearchText(dd.TenDD ?? "").Contains(key) ||
+                    SlugHelper.NormalizeSearchText(dd.MoTaDD ?? "").Contains(key)
+                )
+                .OrderByDescending(dd => dd.DaoDienId)
+                .ToList();
+
+            return matched;
+        }
+
+        public async Task<DaoDien?> GetByMoTaDDAsync(string moTaDD, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(moTaDD)) return null;
+
+            // normalize để chống "Trần A" vs "  trần  a "
+            var key = SlugHelper.NormalizeSearchText(moTaDD);
+
+            var all = await _filmContext.DaoDien.AsNoTracking().ToListAsync(ct);
+
+            return all.FirstOrDefault(x => SlugHelper.NormalizeSearchText(x.MoTaDD ?? x.TenDD ?? "") == key);
+        }
+
+        public async Task<List<DaoDien>> GetByMoTaDDsAsync(List<string> moTaDDs, CancellationToken ct = default)
+        {
+            if (moTaDDs == null || moTaDDs.Count == 0) return new List<DaoDien>();
+
+            var keys = moTaDDs
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(SlugHelper.NormalizeSearchText)
+                .Distinct()
+                .ToList();
+
+            var all = await _filmContext.DaoDien.AsNoTracking().ToListAsync(ct);
+
+            return all
+                .Where(x => keys.Contains(SlugHelper.NormalizeSearchText(x.MoTaDD ?? x.TenDD ?? "")))
+                .ToList();
+        }
     }
 }

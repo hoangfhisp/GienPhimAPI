@@ -1,6 +1,5 @@
 ﻿using GienPhim_Services.AuthService.Application.Exceptions.Invalid;
 using GienPhim_Services.AuthService.Application.Interfaces.Services;
-using GienPhim_Services.AuthService.Domain.Factories.Interfaces;
 using GienPhim_Services.AuthService.Domain.Factories;
 using GienPhim_Services.AuthService.Infrastructure.Data.ExternalAuth;
 using GienPhim_Services.AuthService.Application.Services;
@@ -12,7 +11,6 @@ using GienPhim_Services.AuthService.Infrastructure.Data.HttpClients.Interfaces;
 using GienPhim_Services.AuthService.Infrastructure.Data.HttpClients;
 using GienPhim_Services.AuthService.Application.Interfaces.Mappers;
 using GienPhim_Services.AuthService.Application.Mappers;
-using GienPhim_Services.AuthService.Domain.Services.Interfaces;
 using GienPhim_Services.AuthService.Domain.Services;
 using GienPhim_Services.AuthService.Application.Options;
 using GienPhim_Services.AuthService.Infrastructure.Services;
@@ -21,6 +19,17 @@ using GienPhim_Services.AuthService.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using GienPhim_Services.UserService.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using GienPhim_Services.AuthService.Infrastructure;
+using GienPhim_Services.AuthService.Domain.Interfaces.Factories;
+using GienPhim_Services.AuthService.Domain.Interfaces.Services;
+using GienPhim_Services.AuthService.Domain.Interfaces.Jwt;
+using GienPhim_Services.AuthService.Application.Interfaces.Templates;
+using GienPhim_Services.AuthService.Application.Templates;
+using GienPhim_Services.AuthService.Infrastructure.Security;
+using GienPhim_Services.AuthService.Application.Interfaces.Factories;
+using GienPhim_Services.AuthService.Application.Factories;
 
 namespace GienPhim_Services.AuthService
 {
@@ -48,13 +57,22 @@ namespace GienPhim_Services.AuthService
                 .AsImplementedInterfaces()// Đăng ký chúng theo giao diện mà chúng triển khai
                 .WithScopedLifetime()); // Sử dụng phạm vi Scoped cho các dịch vụ này
 
+            // FACOTRY
+            services.AddScoped<ITokenFactory, TokenFactory>(); // Tạo mã OTP
+
             // MAPPER
             services.AddScoped<IUserClaimsMapper, UserClaimsMapper>(); 
             services.AddScoped<IExternalUserMapper, ExternalUserMapper>();
+            services.AddScoped<IUserHttpMapper, UserHttpMapper>();
+
+            // Templates
+            services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 
             // Options
             services.Configure<EmailOptions>(
                 config.GetSection("EmailSettings"));
+            services.Configure<AuthOptions>(
+                config.GetSection("AuthOptions"));
 
             /*-------------------------------------DOMAIN----------------------------------------*/
             // FACTORIES
@@ -67,17 +85,26 @@ namespace GienPhim_Services.AuthService
             services.AddScoped<IOtpDomainService, OtpDomainService>(); // Tạo và xác thực token
 
             /*-----------------------------------INFRASTRUCTURE----------------------------------------*/
+
+            // Configure database contexts
+            // UserService
+            services.AddDbContext<AuthDbContext>(options =>
+                options.UseSqlServer(config.GetConnectionString("AuthDb")));
+
             // ExternalAuth
             services.AddScoped<IExternalAuthProvider, GoogleAuthProvider>(); // Đăng nhập bằng google  
 
             // Repositories
             services.AddScoped<IOtpRepository, InMemoryOtpRepository>(); // Token Repository
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>(); // RefreshToken Repository
+            services.AddScoped<IUnitOfWork, UnitOfWork>(); // Base Repository
             services.AddMemoryCache();
             // Services
             services.AddScoped<IEmailService, SmtpEmailService>(); // Gửi email
+            services.AddScoped<IHttpUserContextAccessor, HttpUserContextAccessor>(); // Quản lý token bị thu hồi
 
             // HTTP Client
-            services.AddHttpClient<IUserServiceClient, UserServiceClient>((sp, client) =>
+            services.AddHttpClient<IUserServiceClient, UserServiceClient>("AuthService_UserClient",(sp, client) =>
             {
                 var config = sp.GetRequiredService<IConfiguration>();// URL của UserService
                 var userServiceUrl = config["ServiceUrls:UserService"];
@@ -85,10 +112,6 @@ namespace GienPhim_Services.AuthService
                 client.BaseAddress = new Uri(userServiceUrl);
             });
 
-            // CONFIG
-            // Config ánh xạ JwtSetting vs model JwtSetting 
-            services.Configure<JwtOptions>(
-                config.GetSection("JwtSettings"));
             // Đăng ký trực tiếp JwtSettings để inject từ appsetting vào
             services.AddSingleton(resolver =>
                 resolver.GetRequiredService<Microsoft.Extensions.Options.IOptions<JwtOptions>>().Value);
@@ -108,7 +131,10 @@ namespace GienPhim_Services.AuthService
             });
 
 
-            // JWT
+            // Security
+            services.AddScoped<IJwtProvider, JwtUtils>(); // Jwt Utils
+            services.AddScoped<ITokenGenerator, CryptoTokenGenerator>(); // Mã hóa mật khẩu
+
             // Authentication JWT
             services.AddAuthentication(options =>
             {
@@ -117,7 +143,7 @@ namespace GienPhim_Services.AuthService
             })
             .AddJwtBearer(options =>
             {
-                var jwtSettings = config.GetSection("JwtSettings");
+                var jwtSettings = config.GetSection("AuthOptions:Jwt");
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,

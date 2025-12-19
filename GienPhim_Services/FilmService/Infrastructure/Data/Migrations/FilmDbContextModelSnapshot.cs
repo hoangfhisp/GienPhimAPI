@@ -22,7 +22,63 @@ namespace GienPhim_Services.FilmService.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.DaoDien", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.BotConfig", b =>
+                {
+                    b.Property<Guid>("BotConfigId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ApiPerRun")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IntervalHours")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.HasKey("BotConfigId");
+
+                    b.ToTable("BotConfigs");
+                });
+
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.BotSyncLog", b =>
+                {
+                    b.Property<Guid>("BotSyncLogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Action")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("PhimName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("PhimSlug")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("SyncedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("BotSyncLogId");
+
+                    b.ToTable("BotSyncLogs");
+                });
+
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.DaoDien", b =>
                 {
                     b.Property<int>("DaoDienId")
                         .ValueGeneratedOnAdd()
@@ -48,7 +104,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("DaoDien");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.DaoDienCuaPhim", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.DaoDienCuaPhim", b =>
                 {
                     b.Property<int>("PhimId")
                         .HasColumnType("int");
@@ -73,7 +129,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("DaoDienCuaPhim");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.DienVien", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.DienVien", b =>
                 {
                     b.Property<int>("DienVienId")
                         .ValueGeneratedOnAdd()
@@ -99,7 +155,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("DienVien");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.DienVienCuaPhim", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.DienVienCuaPhim", b =>
                 {
                     b.Property<int>("PhimId")
                         .HasColumnType("int");
@@ -120,7 +176,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("DienVienCuaPhim");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.FilmView", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.FilmView", b =>
                 {
                     b.Property<string>("FilmViewId")
                         .HasColumnType("nvarchar(450)");
@@ -141,7 +197,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("FilmView");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.LichSuXem", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.LichSuXem", b =>
                 {
                     b.Property<int>("LichSuXemId")
                         .ValueGeneratedOnAdd()
@@ -174,7 +230,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("LichSuXem");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.NgonNgu", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.NgonNgu", b =>
                 {
                     b.Property<int>("NgonNguId")
                         .ValueGeneratedOnAdd()
@@ -201,7 +257,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("NgonNgu");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.PhanLoaiTheLoai", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.PhanLoaiTheLoai", b =>
                 {
                     b.Property<int>("PhimId")
                         .HasColumnType("int");
@@ -222,7 +278,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("PhanLoaiTheLoai");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.PhanLoaiTheTag", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.PhanLoaiTheTag", b =>
                 {
                     b.Property<int>("PhimId")
                         .HasColumnType("int");
@@ -243,7 +299,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("PhanLoaiTheTag");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.Phim", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.Phim", b =>
                 {
                     b.Property<int>("PhimId")
                         .ValueGeneratedOnAdd()
@@ -317,7 +373,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("Phim");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.QuocGia", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.QuocGia", b =>
                 {
                     b.Property<int>("QuocGiaId")
                         .ValueGeneratedOnAdd()
@@ -344,7 +400,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("QuocGia");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.TapPhim", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.TapPhim", b =>
                 {
                     b.Property<string>("TapId")
                         .HasColumnType("nvarchar(450)");
@@ -384,7 +440,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("TapPhim");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.TheLoai", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.TheLoai", b =>
                 {
                     b.Property<int>("TheLoaiId")
                         .ValueGeneratedOnAdd()
@@ -410,7 +466,7 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("TheLoai");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.TheTag", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.TheTag", b =>
                 {
                     b.Property<int>("TheTagId")
                         .ValueGeneratedOnAdd()
@@ -436,15 +492,15 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.ToTable("TheTag");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.DaoDienCuaPhim", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.DaoDienCuaPhim", b =>
                 {
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.DaoDien", "DaoDien")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.DaoDien", "DaoDien")
                         .WithMany("DaoDienCuaPhims")
                         .HasForeignKey("DaoDienId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.Phim", "Phim")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.Phim", "Phim")
                         .WithMany("DaoDienCuaPhims")
                         .HasForeignKey("PhimId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -455,15 +511,15 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.Navigation("Phim");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.DienVienCuaPhim", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.DienVienCuaPhim", b =>
                 {
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.DienVien", "DienVien")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.DienVien", "DienVien")
                         .WithMany("DienVienCuaPhims")
                         .HasForeignKey("DienVienId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.Phim", "Phim")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.Phim", "Phim")
                         .WithMany("DienVienCuaPhims")
                         .HasForeignKey("PhimId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -474,9 +530,9 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.Navigation("Phim");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.FilmView", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.FilmView", b =>
                 {
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.Phim", "Phim")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.Phim", "Phim")
                         .WithMany("FilmViews")
                         .HasForeignKey("PhimId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -485,9 +541,9 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.Navigation("Phim");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.LichSuXem", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.LichSuXem", b =>
                 {
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.Phim", "Phim")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.Phim", "Phim")
                         .WithMany("LichSuXems")
                         .HasForeignKey("PhimId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -496,15 +552,15 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.Navigation("Phim");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.PhanLoaiTheLoai", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.PhanLoaiTheLoai", b =>
                 {
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.Phim", "Phim")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.Phim", "Phim")
                         .WithMany("PhanLoaiTheLoais")
                         .HasForeignKey("PhimId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.TheLoai", "TheLoai")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.TheLoai", "TheLoai")
                         .WithMany("PhanLoaiTheLoais")
                         .HasForeignKey("TheLoaiId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -515,15 +571,15 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.Navigation("TheLoai");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.PhanLoaiTheTag", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.PhanLoaiTheTag", b =>
                 {
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.Phim", "Phim")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.Phim", "Phim")
                         .WithMany("PhanLoaiTheTags")
                         .HasForeignKey("PhimId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.TheTag", "TheTag")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.TheTag", "TheTag")
                         .WithMany("PhanLoaiTheTags")
                         .HasForeignKey("TheTagId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -534,15 +590,15 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.Navigation("TheTag");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.Phim", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.Phim", b =>
                 {
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.NgonNgu", "NgonNgu")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.NgonNgu", "NgonNgu")
                         .WithMany("Phims")
                         .HasForeignKey("NgonNguId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.QuocGia", "QuocGia")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.QuocGia", "QuocGia")
                         .WithMany()
                         .HasForeignKey("QuocGiaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -553,9 +609,9 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.Navigation("QuocGia");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.TapPhim", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.TapPhim", b =>
                 {
-                    b.HasOne("GienPhim_Services.FilmService.Models.Entities.Phim", "Phim")
+                    b.HasOne("GienPhim_Services.FilmService.Domain.Entities.Phim", "Phim")
                         .WithMany("TapPhims")
                         .HasForeignKey("PhimId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -564,22 +620,22 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.Navigation("Phim");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.DaoDien", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.DaoDien", b =>
                 {
                     b.Navigation("DaoDienCuaPhims");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.DienVien", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.DienVien", b =>
                 {
                     b.Navigation("DienVienCuaPhims");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.NgonNgu", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.NgonNgu", b =>
                 {
                     b.Navigation("Phims");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.Phim", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.Phim", b =>
                 {
                     b.Navigation("DaoDienCuaPhims");
 
@@ -596,12 +652,12 @@ namespace GienPhim_Services.FilmService.Data.Migrations
                     b.Navigation("TapPhims");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.TheLoai", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.TheLoai", b =>
                 {
                     b.Navigation("PhanLoaiTheLoais");
                 });
 
-            modelBuilder.Entity("GienPhim_Services.FilmService.Models.Entities.TheTag", b =>
+            modelBuilder.Entity("GienPhim_Services.FilmService.Domain.Entities.TheTag", b =>
                 {
                     b.Navigation("PhanLoaiTheTags");
                 });

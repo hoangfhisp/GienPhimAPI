@@ -1,0 +1,14 @@
+﻿namespace GienPhim_Services.MembershipService.Application.DTOs.Client.UserMembership
+{
+    public class UserMembershipResponseDTO
+    {
+        public string UserMembershipId { get; set; } = string.Empty;
+        public string tenPlan { get; set; }
+        public string OptionId { get; set; } = string.Empty;
+        public int ThoiGianSuDung { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public DateTime NgayBatDau { get; set; }
+        public DateTime NgayKetThuc { get; set; }
+        public string TrangThai { get; set; } = string.Empty;
+    }
+}

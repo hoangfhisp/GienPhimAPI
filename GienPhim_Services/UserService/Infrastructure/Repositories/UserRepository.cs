@@ -3,6 +3,7 @@ using GienPhim_Services.UserService.Domain.Entities;
 using GienPhim_Services.UserService.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace GienPhim_Services.UserService.Infrastructure.Repositories
 {
@@ -13,6 +14,23 @@ namespace GienPhim_Services.UserService.Infrastructure.Repositories
         public UserRepository(UserManager<User> userManager)
         {
             _userManager = userManager;
+        }
+
+        // Lấy tất cả User
+        public async Task<(List<User> user, int total, int last)> GetAllUsersAsync(int page, int limit, CancellationToken cancellationToken = default)
+        {
+            var query =  _userManager.Users.AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var last = (int)Math.Ceiling((double)total / limit);
+
+            var users = await query
+                .OrderBy(u => u.Id) // thứ tự ổn định
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            return (users, total, last);
         }
 
         // Đăng Ký User
@@ -93,6 +111,24 @@ namespace GienPhim_Services.UserService.Infrastructure.Repositories
             return result;
         }
 
+        // Tìm User Dựa vào TenND
+        public async Task<(List<User> user, int total, int last)> GetByNameNDAsync(string nameND, int page, int limit, CancellationToken cancellationToken = default)
+        {
+            var query = _userManager.Users
+                .Where(u => u.NameND.Contains(nameND))
+                .AsQueryable();
+
+            var total = await query.CountAsync(cancellationToken);
+            var last = (int)Math.Ceiling((double)total / limit);
+            var users = await query
+                .OrderBy(u => u.Id) // thứ tự ổn định
+                .Skip((page - 1) * limit)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+            return (users,total,last);
+        }
+
         // Check password của User
         public async Task<bool> CheckPasswordAsync(User user, string password)
         {
@@ -112,14 +148,20 @@ namespace GienPhim_Services.UserService.Infrastructure.Repositories
             return await _userManager.ResetPasswordAsync(user, token, newPassword);
         }
 
-
-        // Xóa User 
-        public async Task<IdentityResult> DeleteUserAsync(string userId)
+        // Tạo mã token để thay đổi email
+        public async Task<string> GenerateChangeEmailTokenAsync(User user , string newEmail)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) 
-                return IdentityResult.Failed(new IdentityError { Description = "User không tồn tại" });
+            return await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+        }
 
+        // Thay đổi email với token
+        public async Task<IdentityResult> ChangeEmailWithTokenAsync(User user, string newEmail, string token)
+        {
+            return await _userManager.ChangeEmailAsync(user, newEmail, token);
+        }
+        // Xóa User 
+        public async Task<IdentityResult> DeleteUserAsync(User user)
+        {
             var result = await _userManager.DeleteAsync(user);
             return result;
         }

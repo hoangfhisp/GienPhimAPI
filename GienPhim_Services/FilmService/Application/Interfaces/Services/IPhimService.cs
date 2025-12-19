@@ -1,0 +1,21 @@
+﻿using GienPhim_Services.FilmService.Application.DTOs.Client.Phim;
+using GienPhim_Services.FilmService.Application.DTOs.Common;
+
+namespace GienPhim_Services.FilmService.Application.Interfaces.Services
+{
+    public interface IPhimService
+    {
+        Task<ResultListDTO<List<PhimResponseDTO>>> GetAllPhimsAsync(int page, int limit, CancellationToken cancellationToken = default);
+        Task<ResultListDTO<List<PhimResponseDTO>>> GetNewPhimsAsync(int page, int limit, CancellationToken cancellationToken = default); // Lấy danh sách new phim
+        Task<ResultListDTO<List<PhimResponseDTO>>> GetTopViewPhimsAsync(int page, int limit, CancellationToken cancellationToken = default); // Lấy danh sách top view phim
+        Task<ResultDTO<PhimResponseDTO>> GetByIdAsync(int id, CancellationToken ct = default);
+        Task<ResultDTO> CreatePhimAsync(PhimCreateDTO createDto, CancellationToken cancellationToken = default);
+        Task<ResultDTO<UpdatePhimResponseDTO>> UpdatePhimAsync(PhimUpdateDTO updateDto, CancellationToken cancellationToken = default);
+        Task<ResultDTO> UpdatePhimByLuotLikeDisLikeAsync(int phimId, bool isLike, bool isDislike, bool? oldIsLike, bool? oldIsDislike, CancellationToken cancellationToken = default); //  Cập nhật phim theo lượt like dislike
+        Task<ResultDTO> DeletePhimAsync(PhimDeleteDTO deleteDto, CancellationToken cancellationToken = default);
+        Task<ResultDTO<PhimResponseDTO>> ImportPhimFromApiAsync(string slug, CancellationToken cancellationToken = default);
+        Task<ResultDTO<PhimResponseDTO>> UpdatePhimFromApiAsync(string slug, CancellationToken cancellationToken = default);
+        Task<ResultDTO<List<PhimResponseDTO>>> SearchPhimsAsync(string keyword, int page, int limit, CancellationToken cancellationToken = default);
+        Task<ResultListDTO<List<PhimResponseDTO>>> FilterPhimsAsync(FilterPhimDTO dto, int page, int limit, CancellationToken cancellationToken = default);
+    }
+}

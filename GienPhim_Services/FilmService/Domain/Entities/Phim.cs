@@ -66,13 +66,13 @@ namespace GienPhim_Services.FilmService.Domain.Entities
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd}")]
         public DateTime ThoiGianCapNhat { get; set; }
 
-        public List<DaoDienCuaPhim> DaoDienCuaPhims { get; set; }
-        public List<PhanLoaiTheTag> PhanLoaiTheTags { get; set; }
-        public List<PhanLoaiTheLoai> PhanLoaiTheLoais { get; set; }
-        public List<DienVienCuaPhim> DienVienCuaPhims { get; set; }
-        public List<TapPhim> TapPhims { get; set; }
-        public List<LichSuXem> LichSuXems { get; set; }
-        public List<FilmView> FilmViews { get; set; }
+        public List<DaoDienCuaPhim> DaoDienCuaPhims { get; set; } = new();
+        public List<PhanLoaiTheTag> PhanLoaiTheTags { get; set; } = new();
+        public List<PhanLoaiTheLoai> PhanLoaiTheLoais { get; set; } = new();
+        public List<DienVienCuaPhim> DienVienCuaPhims { get; set; } = new();
+        public List<TapPhim> TapPhims { get; set; } = new();
+        public List<LichSuXem> LichSuXems { get; set; } = new();
+        public List<FilmView> FilmViews { get; set; } = new();
 
     }
 }

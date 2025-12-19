@@ -22,7 +22,7 @@ namespace GienPhim_Services.UserService.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GienPhim_Services.UserService.Models.Entities.Role", b =>
+            modelBuilder.Entity("GienPhim_Services.UserService.Domain.Entities.Role", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -55,7 +55,7 @@ namespace GienPhim_Services.UserService.Data.Migrations
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
-            modelBuilder.Entity("GienPhim_Services.UserService.Models.Entities.User", b =>
+            modelBuilder.Entity("GienPhim_Services.UserService.Domain.Entities.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -117,6 +117,9 @@ namespace GienPhim_Services.UserService.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("ThoiGianCapNhat")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ThoiGianDoiEmail")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ThoiGianTao")
@@ -254,7 +257,7 @@ namespace GienPhim_Services.UserService.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("GienPhim_Services.UserService.Models.Entities.Role", null)
+                    b.HasOne("GienPhim_Services.UserService.Domain.Entities.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -263,7 +266,7 @@ namespace GienPhim_Services.UserService.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("GienPhim_Services.UserService.Models.Entities.User", null)
+                    b.HasOne("GienPhim_Services.UserService.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -272,7 +275,7 @@ namespace GienPhim_Services.UserService.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("GienPhim_Services.UserService.Models.Entities.User", null)
+                    b.HasOne("GienPhim_Services.UserService.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -281,13 +284,13 @@ namespace GienPhim_Services.UserService.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("GienPhim_Services.UserService.Models.Entities.Role", null)
+                    b.HasOne("GienPhim_Services.UserService.Domain.Entities.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GienPhim_Services.UserService.Models.Entities.User", null)
+                    b.HasOne("GienPhim_Services.UserService.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -296,7 +299,7 @@ namespace GienPhim_Services.UserService.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("GienPhim_Services.UserService.Models.Entities.User", null)
+                    b.HasOne("GienPhim_Services.UserService.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
